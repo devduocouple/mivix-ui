@@ -1,0 +1,30 @@
+# Dependencies and build output
+node_modules/
+dist/
+build/
+coverage/
+*.tgz
+
+# Local environment
+.env
+.env.*
+!.env.example
+.DS_Store
+
+# Local dev servers and package manager caches
+.npm/
+.yarn/
+.pnpm-store/
+
+# Private working notes and AI assistant context
+chat-history/
+.codex/
+.agents/
+.aider*
+.cursor/
+.continue/
+.windsurf/
+.claude/
+AGENTS.md
+CLAUDE.md
+GEMINI.md

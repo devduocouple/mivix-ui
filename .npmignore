@@ -1,0 +1,12 @@
+# Keep private working notes out of npm even if package files change later.
+chat-history/
+.codex/
+.agents/
+.aider*
+.cursor/
+.continue/
+.windsurf/
+.claude/
+AGENTS.md
+CLAUDE.md
+GEMINI.md
