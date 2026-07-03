@@ -309,13 +309,34 @@ export class MvxButtonGroup extends MvxPeerElement {
           display: inline-flex;
           flex-direction: ${vertical ? 'column' : 'row'};
           align-items: stretch;
+          border-radius: var(--mvx-radius-sm);
+          box-shadow: var(--mvx-control-shadow);
+          isolation: isolate;
         }
         ::slotted(*) {
           margin: 0 !important;
         }
+        ::slotted(mvx-button) {
+          --mvx-button-radius: 0;
+          --mvx-button-shadow: none;
+          position: relative;
+        }
+        ::slotted(mvx-button:first-child) {
+          --mvx-button-radius: ${vertical ? 'var(--mvx-radius-sm) var(--mvx-radius-sm) 0 0' : 'var(--mvx-radius-sm) 0 0 var(--mvx-radius-sm)'};
+        }
+        ::slotted(mvx-button:last-child) {
+          --mvx-button-radius: ${vertical ? '0 0 var(--mvx-radius-sm) var(--mvx-radius-sm)' : '0 var(--mvx-radius-sm) var(--mvx-radius-sm) 0'};
+        }
+        ::slotted(mvx-button:only-child) {
+          --mvx-button-radius: var(--mvx-radius-sm);
+        }
         ::slotted(:not(:first-child)) {
           margin-inline-start: ${vertical ? '0' : '-1px'} !important;
           margin-block-start: ${vertical ? '-1px' : '0'} !important;
+        }
+        ::slotted(:hover),
+        ::slotted(:focus-within) {
+          z-index: 1;
         }
       </style>
       <div class="group" part="group" role="group" aria-label="${htmlEscape(this.titleText('Button group'))}">

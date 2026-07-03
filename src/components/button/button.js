@@ -28,13 +28,13 @@ export class MvxButton extends MvxElement {
           min-block-size: 36px;
           padding: 0 14px;
           border: 1px solid var(--button-border);
-          border-radius: var(--mvx-radius-sm);
+          border-radius: var(--mvx-button-radius, var(--mvx-radius-sm));
           background:
             radial-gradient(circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--button-glow) 19%, transparent), transparent 34%),
             var(--mvx-control-glaze),
             var(--button-bg);
           color: var(--button-fg);
-          box-shadow: var(--mvx-control-shadow);
+          box-shadow: var(--mvx-button-shadow, var(--mvx-control-shadow));
           cursor: pointer;
           transform: perspective(720px) rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg)) translateY(0);
           transition: transform var(--mvx-duration-fast), border-color var(--mvx-duration), background var(--mvx-duration), box-shadow var(--mvx-duration);
@@ -88,7 +88,7 @@ export class MvxButton extends MvxElement {
         }
         button:focus-visible {
           outline: none;
-          box-shadow: var(--mvx-focus), var(--mvx-control-shadow);
+          box-shadow: var(--mvx-focus), var(--mvx-button-shadow, var(--mvx-control-shadow));
         }
         button:disabled {
           cursor: not-allowed;
