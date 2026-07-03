@@ -19,6 +19,7 @@ async function buildDocs() {
   await mkdir(outputRoot, { recursive: true });
 
   await copyDirectory(resolve(repoRoot, 'docs'), outputRoot);
+  await copyDirectory(resolve(repoRoot, 'docs'), resolve(outputRoot, 'docs'));
   await copyDirectory(resolve(repoRoot, 'src'), resolve(outputRoot, 'src'));
 
   const indexPath = resolve(outputRoot, 'index.html');
