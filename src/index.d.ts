@@ -42,6 +42,7 @@ export { MvxDivider } from './components/divider/index.js';
 export { MvxList } from './components/list/index.js';
 export { MvxSpinner } from './components/spinner/index.js';
 export { MvxStepper } from './components/stepper/index.js';
+export { MvxShortcuts } from './components/shortcuts/index.js';
 export * from './components/peer-parity.js';
 
 declare global {
@@ -54,6 +55,9 @@ declare global {
       dir?: 'ltr' | 'rtl' | 'auto';
       lang?: string;
       locale?: string;
+      skeleton?: boolean | 'text' | 'card' | 'chart' | 'table' | 'avatar' | 'button' | 'input' | string;
+      skeletonLines?: number | string;
+      'skeleton-lines'?: number | string;
       i18n?: string | Record<string, string>;
     }
 
@@ -99,6 +103,7 @@ declare global {
       'mvx-list': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-spinner': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-stepper': MivixGlobalAttributes & Record<string, unknown>;
+      'mvx-shortcuts': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-alert-dialog': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-aspect-ratio': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-attachment': MivixGlobalAttributes & Record<string, unknown>;

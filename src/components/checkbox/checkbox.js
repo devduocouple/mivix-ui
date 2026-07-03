@@ -51,9 +51,9 @@ export class MvxCheckbox extends MvxElement {
           block-size: 22px;
           border: 1px solid var(--mvx-border);
           border-radius: var(--mvx-radius-xs);
-          background: var(--mvx-bg-inset);
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-          transition: background var(--mvx-duration), border-color var(--mvx-duration), transform var(--mvx-duration-fast);
+          background: var(--mvx-control-glaze), var(--mvx-bg-inset);
+          box-shadow: var(--mvx-control-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+          transition: background var(--mvx-duration), border-color var(--mvx-duration), box-shadow var(--mvx-duration), transform var(--mvx-duration-fast);
         }
         .mark {
           color: white;
@@ -67,7 +67,12 @@ export class MvxCheckbox extends MvxElement {
         button[aria-checked="true"] .box,
         button[aria-checked="mixed"] .box {
           border-color: color-mix(in srgb, var(--mvx-accent) 72%, white);
-          background: var(--mvx-accent);
+          background:
+            linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 32%, transparent), transparent),
+            var(--mvx-accent);
+          box-shadow:
+            0 8px 18px color-mix(in srgb, var(--mvx-accent) 24%, transparent),
+            inset 0 1px 0 rgba(255, 255, 255, 0.24);
         }
         button[aria-checked="true"] .mark,
         button[aria-checked="mixed"] .mark {
@@ -91,14 +96,15 @@ export class MvxCheckbox extends MvxElement {
           line-height: 1.35;
         }
         button:hover:not(:disabled) .box {
-          border-color: var(--mvx-border-strong);
+          border-color: color-mix(in srgb, var(--mvx-accent) 42%, var(--mvx-border-strong));
+          box-shadow: var(--mvx-control-shadow), 0 6px 14px color-mix(in srgb, var(--mvx-accent) 12%, transparent);
           transform: translateY(-1px);
         }
         button:focus-visible {
           outline: none;
         }
         button:focus-visible .box {
-          box-shadow: var(--mvx-focus);
+          box-shadow: var(--mvx-focus), var(--mvx-control-shadow);
         }
         button:disabled {
           cursor: not-allowed;

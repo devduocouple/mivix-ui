@@ -20,7 +20,10 @@ export class MvxInput extends MvxElement {
     const placeholder = this.getAttribute('placeholder') || '';
     const type = this.getAttribute('type') || 'text';
     const tag = this.hasAttribute('multiline') ? 'textarea' : 'input';
-    const attrs = tag === 'input' ? `type="${htmlEscape(type)}"` : 'rows="4"';
+    const helperId = helper ? `${id}-helper` : '';
+    const controlLabel = label || placeholder || this.t('input', 'Input');
+    const ariaAttrs = `aria-label="${htmlEscape(controlLabel)}" ${helperId ? `aria-describedby="${helperId}"` : ''} aria-invalid="${this.hasAttribute('invalid')}"`;
+    const attrs = tag === 'input' ? `type="${htmlEscape(type)}" ${ariaAttrs}` : `rows="4" ${ariaAttrs}`;
     this.shadowRoot.innerHTML = `
       <style>
         ${baseStyles}
@@ -60,7 +63,7 @@ export class MvxInput extends MvxElement {
       <label for="${id}">
         ${label ? `<span>${htmlEscape(label)}</span>` : ''}
         <${tag} part="input" id="${id}" ${attrs} placeholder="${htmlEscape(placeholder)}">${tag === 'textarea' ? htmlEscape(this.value) : ''}</${tag}>
-        ${helper ? `<span class="helper">${htmlEscape(helper)}</span>` : ''}
+        ${helper ? `<span class="helper" id="${helperId}">${htmlEscape(helper)}</span>` : ''}
       </label>
     `;
     const field = this.shadowRoot.querySelector(tag);

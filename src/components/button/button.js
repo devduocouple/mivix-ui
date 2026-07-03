@@ -31,10 +31,10 @@ export class MvxButton extends MvxElement {
           border-radius: var(--mvx-radius-sm);
           background:
             radial-gradient(circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--button-glow) 19%, transparent), transparent 34%),
-            linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02)),
+            var(--mvx-control-glaze),
             var(--button-bg);
           color: var(--button-fg);
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 8px 18px rgba(0, 0, 0, 0.18);
+          box-shadow: var(--mvx-control-shadow);
           cursor: pointer;
           transform: perspective(720px) rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg)) translateY(0);
           transition: transform var(--mvx-duration-fast), border-color var(--mvx-duration), background var(--mvx-duration), box-shadow var(--mvx-duration);
@@ -77,7 +77,7 @@ export class MvxButton extends MvxElement {
         }
         button:hover:not(:disabled) {
           border-color: var(--mvx-border-strong);
-          transform: perspective(720px) rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg)) translateY(-1px);
+          transform: perspective(720px) rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg)) translateY(var(--mvx-hover-lift));
         }
         button:active:not(:disabled) {
           transform: perspective(720px) rotateX(0deg) rotateY(0deg) translateY(0) scale(0.985);
@@ -88,7 +88,7 @@ export class MvxButton extends MvxElement {
         }
         button:focus-visible {
           outline: none;
-          box-shadow: var(--mvx-focus), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+          box-shadow: var(--mvx-focus), var(--mvx-control-shadow);
         }
         button:disabled {
           cursor: not-allowed;

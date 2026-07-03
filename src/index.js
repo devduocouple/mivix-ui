@@ -40,6 +40,7 @@ import { MvxDivider } from './components/divider/index.js';
 import { MvxList } from './components/list/index.js';
 import { MvxSpinner } from './components/spinner/index.js';
 import { MvxStepper } from './components/stepper/index.js';
+import { MvxShortcuts } from './components/shortcuts/index.js';
 import {
   MvxAlertDialog,
   MvxAspectRatio,
@@ -178,6 +179,7 @@ export { MvxDivider } from './components/divider/index.js';
 export { MvxList } from './components/list/index.js';
 export { MvxSpinner } from './components/spinner/index.js';
 export { MvxStepper } from './components/stepper/index.js';
+export { MvxShortcuts } from './components/shortcuts/index.js';
 export {
   MvxAlertDialog,
   MvxAspectRatio,
@@ -315,6 +317,7 @@ define('mvx-divider', MvxDivider);
 define('mvx-list', MvxList);
 define('mvx-spinner', MvxSpinner);
 define('mvx-stepper', MvxStepper);
+define('mvx-shortcuts', MvxShortcuts);
 define('mvx-alert-dialog', MvxAlertDialog);
 define('mvx-aspect-ratio', MvxAspectRatio);
 define('mvx-attachment', MvxAttachment);

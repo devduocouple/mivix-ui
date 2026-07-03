@@ -1,4 +1,4 @@
-import { applyDocumentTheme, baseStyles, MvxElement, parseData, htmlEscape, readStoredTheme } from '../core.js';
+import { applyDocumentTheme, baseStyles, MvxElement, parseData, htmlEscape, readStoredTheme, safeUrl } from '../core.js';
 import { MvxDataTable } from './data-table/data-table.js';
 import { MvxDrawer } from './drawer/drawer.js';
 import { MvxModal } from './modal/modal.js';
@@ -12,9 +12,11 @@ const sharedStyles = `
   .surface {
     border: 1px solid var(--mvx-border);
     border-radius: var(--mvx-radius-md);
-    background: var(--mvx-bg-panel);
+    background: var(--mvx-surface-glaze), var(--mvx-bg-panel);
     color: var(--mvx-fg);
     box-shadow: var(--mvx-shadow-soft);
+    backdrop-filter: var(--mvx-surface-backdrop);
+    -webkit-backdrop-filter: var(--mvx-surface-backdrop);
   }
   .muted { color: var(--mvx-muted); }
   .subtle { color: var(--mvx-subtle); }
@@ -27,9 +29,10 @@ const sharedStyles = `
   button {
     border: 1px solid var(--mvx-border);
     border-radius: var(--mvx-radius-sm);
-    background: var(--mvx-bg-inset);
+    background: var(--mvx-control-glaze), var(--mvx-bg-inset);
     color: var(--mvx-fg);
     cursor: pointer;
+    box-shadow: var(--mvx-control-shadow);
   }
   button:hover:not(:disabled) {
     border-color: var(--mvx-border-strong);
@@ -105,11 +108,56 @@ function escapeAttr(value) {
   return htmlEscape(value).replaceAll('\n', ' ');
 }
 
+function escapeUrl(value, fallback = '#', options = {}) {
+  return escapeAttr(safeUrl(value, fallback, options));
+}
+
+function cssUrl(value) {
+  const safe = safeUrl(value, '', { allowDataImages: true });
+  return safe ? `url("${escapeAttr(safe)}")` : '';
+}
+
+const richTextAllowedTags = new Set(['a', 'b', 'blockquote', 'br', 'code', 'div', 'em', 'h1', 'h2', 'h3', 'h4', 'hr', 'i', 'img', 'li', 'ol', 'p', 'pre', 's', 'span', 'strong', 'u', 'ul']);
+const richTextAllowedAttrs = new Set(['alt', 'aria-label', 'href', 'src', 'target', 'title']);
+
+function sanitizeRichHtml(value) {
+  const html = String(value ?? '');
+  const template = document.createElement('template');
+  template.innerHTML = html;
+  template.content.querySelectorAll('*').forEach(element => {
+    const tag = element.localName;
+    if (!richTextAllowedTags.has(tag)) {
+      element.replaceWith(document.createTextNode(element.textContent || ''));
+      return;
+    }
+    [...element.attributes].forEach(attribute => {
+      const name = attribute.name.toLowerCase();
+      if (!richTextAllowedAttrs.has(name) || name.startsWith('on')) {
+        element.removeAttribute(attribute.name);
+        return;
+      }
+      if (name === 'href') element.setAttribute('href', safeUrl(attribute.value));
+      if (name === 'src') element.setAttribute('src', safeUrl(attribute.value, '', { allowDataImages: true }));
+      if (name === 'target') {
+        const target = attribute.value === '_blank' ? '_blank' : '';
+        if (target) {
+          element.setAttribute('target', target);
+          element.setAttribute('rel', 'noopener noreferrer');
+        } else {
+          element.removeAttribute(attribute.name);
+        }
+      }
+    });
+  });
+  return template.innerHTML;
+}
+
 class MvxPeerElement extends MvxElement {
   static observedAttributes = [
     'items', 'value', 'label', 'title', 'description', 'helper', 'open', 'active', 'disabled', 'multiple',
     'tone', 'variant', 'size', 'orientation', 'href', 'src', 'alt', 'ratio', 'columns', 'gap', 'max', 'min',
-    'step', 'placeholder', 'to', 'duration', 'shape', 'for', 'as', 'level', 'selected', 'checked', 'compact'
+    'step', 'placeholder', 'to', 'duration', 'shape', 'for', 'as', 'level', 'selected', 'checked', 'compact',
+    'align', 'justify', 'max-width', 'min-column-width', 'padding', 'responsive', 'fluid', 'wide', 'width'
   ];
 
   set items(value) {
@@ -294,8 +342,17 @@ export class MvxToggle extends MvxPeerElement {
         button {
           min-block-size: 36px;
           padding: 0 12px;
-          background: ${pressed ? 'color-mix(in srgb, var(--mvx-accent) 20%, var(--mvx-bg-inset))' : 'var(--mvx-bg-inset)'};
+          background: ${pressed
+            ? 'linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 18%, transparent), transparent), color-mix(in srgb, var(--mvx-accent) 20%, var(--mvx-bg-inset))'
+            : 'var(--mvx-control-glaze), var(--mvx-bg-inset)'};
           border-color: ${pressed ? 'var(--mvx-accent)' : 'var(--mvx-border)'};
+          box-shadow: ${pressed
+            ? 'var(--mvx-control-shadow), 0 8px 18px color-mix(in srgb, var(--mvx-accent) 18%, transparent)'
+            : 'var(--mvx-control-shadow)'};
+          transition: background var(--mvx-duration), border-color var(--mvx-duration), box-shadow var(--mvx-duration), transform var(--mvx-duration-fast);
+        }
+        button:hover:not(:disabled) {
+          transform: translateY(var(--mvx-hover-lift));
         }
       </style>
       <button part="toggle" type="button" aria-pressed="${pressed}" ${this.hasAttribute('disabled') ? 'disabled' : ''}>
@@ -325,10 +382,21 @@ export class MvxToggleGroup extends MvxPeerElement {
         ${sharedStyles}
         :host { display: inline-flex; }
         .group { display: inline-flex; flex-wrap: wrap; gap: 6px; }
-        button { min-block-size: 34px; padding: 0 10px; }
+        button {
+          min-block-size: 34px;
+          padding: 0 10px;
+          background: var(--mvx-control-glaze), var(--mvx-bg-inset);
+          transition: background var(--mvx-duration), border-color var(--mvx-duration), box-shadow var(--mvx-duration), transform var(--mvx-duration-fast);
+        }
+        button:hover:not(:disabled) {
+          transform: translateY(var(--mvx-hover-lift));
+        }
         button[aria-pressed="true"] {
           border-color: var(--mvx-accent);
-          background: color-mix(in srgb, var(--mvx-accent) 18%, var(--mvx-bg-inset));
+          background:
+            linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 18%, transparent), transparent),
+            color-mix(in srgb, var(--mvx-accent) 18%, var(--mvx-bg-inset));
+          box-shadow: var(--mvx-control-shadow), 0 8px 18px color-mix(in srgb, var(--mvx-accent) 18%, transparent);
         }
       </style>
       <div class="group" role="group" aria-label="${htmlEscape(this.titleText('Toggle group'))}">
@@ -613,7 +681,7 @@ export class MvxCarousel extends MvxPeerElement {
           place-items: center;
           min-block-size: 180px;
           border-radius: var(--mvx-radius-sm);
-          background: ${item.image ? `url("${escapeAttr(item.image)}") center/cover` : 'var(--mvx-bg-inset)'};
+          background: ${item.image ? `${cssUrl(item.image)} center/cover` : 'var(--mvx-bg-inset)'};
           text-align: center;
           padding: 20px;
         }
@@ -926,20 +994,195 @@ export class MvxFab extends MvxPeerElement {
 
 export class MvxSpeedDial extends MvxPeerElement {
   render() {
+    const open = this.hasAttribute('open');
+    const placement = this.getAttribute('placement') || 'top';
+    const isSide = placement === 'left' || placement === 'right';
+    const reverse = placement === 'bottom' || placement === 'right';
+    const actionIconSize = cssLength(this.getAttribute('action-icon-size') || this.getAttribute('icon-size'), '18px');
+    const actionIconBoxSize = cssLength(this.getAttribute('action-icon-box-size'), '34px');
+    const mainIconSize = cssLength(this.getAttribute('main-icon-size') || this.getAttribute('icon-size'), '26px');
     this.shadowRoot.innerHTML = `
       <style>
         ${sharedStyles}
-        :host { display: inline-grid; gap: 8px; justify-items: end; }
-        .actions { display: ${this.hasAttribute('open') ? 'grid' : 'none'}; gap: 6px; justify-items: end; }
-        .main { inline-size: 52px; block-size: 52px; border-radius: 999px; background: var(--mvx-accent); color: white; }
+        :host {
+          display: inline-flex;
+          align-items: ${isSide ? 'center' : 'end'};
+          justify-content: end;
+        }
+        .dial {
+          display: flex;
+          flex-direction: ${isSide ? 'row' : 'column'};
+          gap: 10px;
+          align-items: end;
+        }
+        :host([placement="bottom"]) .dial { flex-direction: column-reverse; }
+        :host([placement="left"]) .dial { flex-direction: row-reverse; align-items: center; }
+        :host([placement="right"]) .dial { flex-direction: row; align-items: center; }
+        .actions {
+          display: flex;
+          flex-direction: ${isSide ? 'row' : 'column'};
+          gap: 8px;
+          align-items: end;
+          pointer-events: ${open ? 'auto' : 'none'};
+        }
+        :host([placement="bottom"]) .actions { flex-direction: column-reverse; }
+        :host([placement="left"]) .actions,
+        :host([placement="right"]) .actions {
+          align-items: center;
+        }
+        .action {
+          display: inline-grid;
+          grid-template-columns: auto minmax(0, 1fr);
+          gap: 8px;
+          align-items: center;
+          min-block-size: 38px;
+          border-radius: 999px;
+          background:
+            linear-gradient(180deg, color-mix(in srgb, var(--mvx-fg) 8%, transparent), transparent),
+            color-mix(in srgb, var(--mvx-bg-panel) 92%, var(--mvx-bg-inset));
+          color: var(--mvx-fg);
+          padding: 0 12px 0 6px;
+          transform: translateY(${open ? '0' : reverse ? '-8px' : '8px'}) scale(${open ? '1' : '0.92'});
+          opacity: ${open ? '1' : '0'};
+          transition:
+            opacity var(--mvx-duration),
+            transform var(--mvx-duration),
+            border-color var(--mvx-duration),
+            background var(--mvx-duration),
+            box-shadow var(--mvx-duration);
+          transition-delay: calc(var(--index) * ${open ? '34ms' : '0ms'});
+          white-space: nowrap;
+        }
+        :host([placement="left"]) .action,
+        :host([placement="right"]) .action {
+          grid-template-columns: auto;
+          inline-size: 38px;
+          overflow: hidden;
+          padding: 0;
+          transform: translateX(${open ? '0' : placement === 'left' ? '8px' : '-8px'}) scale(${open ? '1' : '0.92'});
+        }
+        .action:hover {
+          border-color: color-mix(in srgb, var(--mvx-accent) 54%, var(--mvx-border));
+          background:
+            linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 12%, transparent), transparent),
+            color-mix(in srgb, var(--mvx-accent) 14%, var(--mvx-bg-inset));
+        }
+        .action:focus-visible {
+          outline: none;
+          box-shadow: var(--mvx-focus), var(--mvx-control-shadow);
+        }
+        .action-icon {
+          display: grid;
+          place-items: center;
+          inline-size: ${actionIconBoxSize};
+          block-size: ${actionIconBoxSize};
+          border-radius: 999px;
+          background: color-mix(in srgb, var(--mvx-accent) 18%, var(--mvx-bg-inset));
+          color: var(--mvx-accent-2);
+          font-size: ${actionIconSize};
+          font-weight: 850;
+          line-height: 1;
+        }
+        .action-label {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          font-size: 13px;
+          font-weight: 750;
+        }
+        :host([placement="left"]) .action-label,
+        :host([placement="right"]) .action-label {
+          position: absolute;
+          inline-size: 1px;
+          block-size: 1px;
+          overflow: hidden;
+          clip: rect(0 0 0 0);
+          white-space: nowrap;
+        }
+        .main {
+          position: relative;
+          display: grid;
+          place-items: center;
+          inline-size: 52px;
+          block-size: 52px;
+          border: 1px solid color-mix(in srgb, var(--mvx-accent) 68%, var(--mvx-border));
+          border-radius: 999px;
+          background:
+            radial-gradient(circle at 35% 24%, color-mix(in srgb, var(--mvx-accent-2) 46%, transparent), transparent 34%),
+            linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 22%, transparent), transparent),
+            var(--mvx-accent);
+          color: white;
+          box-shadow:
+            0 14px 28px color-mix(in srgb, var(--mvx-accent) 28%, transparent),
+            inset 0 1px 0 rgba(255, 255, 255, 0.28);
+          font-size: 24px;
+          font-weight: 800;
+          transition: transform var(--mvx-duration), box-shadow var(--mvx-duration), background var(--mvx-duration);
+        }
+        .main::after {
+          content: "";
+          position: absolute;
+          inset: -7px;
+          border-radius: inherit;
+          background: color-mix(in srgb, var(--mvx-accent) 16%, transparent);
+          opacity: ${open ? '1' : '0'};
+          transform: scale(${open ? '1' : '0.72'});
+          transition: opacity var(--mvx-duration), transform var(--mvx-duration);
+          z-index: -1;
+        }
+        .main:hover {
+          transform: translateY(-1px) scale(1.02);
+          box-shadow:
+            0 18px 34px color-mix(in srgb, var(--mvx-accent) 34%, transparent),
+            inset 0 1px 0 rgba(255, 255, 255, 0.34);
+        }
+        .main:focus-visible {
+          outline: none;
+          box-shadow: var(--mvx-focus), 0 18px 34px color-mix(in srgb, var(--mvx-accent) 34%, transparent);
+        }
+        .main-icon {
+          display: inline-block;
+          font-size: ${mainIconSize};
+          line-height: 1;
+          transform: rotate(${open ? '45deg' : '0deg'});
+          transition: transform var(--mvx-duration);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .action,
+          .main,
+          .main::after,
+          .main-icon {
+            transition: none;
+          }
+        }
       </style>
-      <div class="actions">
-        ${this.items.map((item, index) => `<button type="button" data-index="${index}">${htmlEscape(optionLabel(item))}</button>`).join('')}
+      <div class="dial" part="dial">
+        <div class="actions" part="actions" aria-hidden="${!open}">
+          ${this.items.map((item, index) => {
+            const label = optionLabel(item, `Action ${index + 1}`);
+            const icon = item.icon || item.shortcut || label.trim().charAt(0).toUpperCase();
+            const iconSize = item.iconSize || item['icon-size'] || '';
+            return `
+              <button type="button" class="action" part="action" data-index="${index}" style="--index:${index}" tabindex="${open ? '0' : '-1'}" aria-label="${escapeAttr(label)}">
+                <span class="action-icon" aria-hidden="true" ${iconSize ? `style="font-size:${escapeAttr(cssLength(iconSize, actionIconSize))}"` : ''}>${htmlEscape(icon)}</span>
+                <span class="action-label">${htmlEscape(label)}</span>
+              </button>
+            `;
+          }).join('')}
+        </div>
+        <button type="button" class="main" part="button" aria-label="${htmlEscape(this.titleText(open ? 'Close actions' : 'Open actions'))}" aria-haspopup="menu" aria-expanded="${open}">
+          <span class="main-icon" aria-hidden="true">${htmlEscape(this.getAttribute('icon') || '+')}</span>
+        </button>
       </div>
-      <button type="button" class="main" aria-expanded="${this.hasAttribute('open')}">${htmlEscape(this.getAttribute('icon') || '+')}</button>
     `;
-    this.shadowRoot.querySelector('.main').addEventListener('click', () => this.toggleAttribute('open'));
-    this.shadowRoot.querySelectorAll('[data-index]').forEach(button => button.addEventListener('click', () => this.emit('mvx-select', { item: this.items[Number(button.dataset.index)] })));
+    this.shadowRoot.querySelector('.main').addEventListener('click', () => {
+      this.toggleAttribute('open');
+      this.emit('mvx-change', { open: this.hasAttribute('open') });
+    });
+    this.shadowRoot.querySelectorAll('[data-index]').forEach(button => button.addEventListener('click', () => {
+      const item = this.items[Number(button.dataset.index)];
+      this.emit('mvx-select', { item });
+      if (!this.hasAttribute('persistent')) this.removeAttribute('open');
+    }));
   }
 }
 
@@ -1021,8 +1264,26 @@ export class MvxBox extends MvxPeerElement {
 
 export class MvxContainer extends MvxPeerElement {
   render() {
+    const fallbackMaxWidth = this.hasAttribute('wide') ? 'var(--mvx-container-wide, 1920px)' : 'var(--mvx-container-max, 1440px)';
+    const maxWidth = cssLength(this.getAttribute('max-width') || this.getAttribute('width'), fallbackMaxWidth);
+    const padding = cssLength(this.getAttribute('padding'), 'var(--mvx-container-padding, clamp(12px, 2vw, 32px))');
     this.shadowRoot.innerHTML = `
-      <style>${sharedStyles}:host{display:block;}.container{inline-size:min(100%, ${cssLength(this.getAttribute('max-width'), '1120px')});margin-inline:auto;padding-inline:${cssLength(this.getAttribute('padding'), '16px')};}</style>
+      <style>
+        ${sharedStyles}
+        :host { display: block; inline-size: 100%; }
+        .container {
+          inline-size: min(100%, ${maxWidth});
+          margin-inline: auto;
+          padding-inline: ${padding};
+        }
+        :host([fluid]) .container {
+          inline-size: 100%;
+          max-inline-size: none;
+        }
+        @media (max-width: 360px) {
+          .container { padding-inline: min(${padding}, 12px); }
+        }
+      </style>
       <div class="container" part="container"><slot></slot></div>
     `;
   }
@@ -1030,8 +1291,35 @@ export class MvxContainer extends MvxPeerElement {
 
 export class MvxGrid extends MvxPeerElement {
   render() {
+    const columns = Math.max(1, Number(this.getAttribute('columns') || 3) || 3);
+    const gap = cssLength(this.getAttribute('gap'), 'var(--mvx-grid-gap, clamp(10px, 1.1vw, 22px))');
+    const minColumn = cssLength(this.getAttribute('min-column-width'), 'var(--mvx-grid-min-column, 220px)');
+    const useAutoFit = this.hasAttribute('min-column-width') || this.getAttribute('responsive') === 'auto-fit';
+    const shouldCollapse = this.getAttribute('responsive') !== 'false';
+    const desktopColumns = Math.min(columns, 3);
+    const tabletColumns = Math.min(columns, 2);
     this.shadowRoot.innerHTML = `
-      <style>${sharedStyles}.grid{display:grid;grid-template-columns:repeat(${Number(this.getAttribute('columns') || 3)},minmax(0,1fr));gap:${cssLength(this.getAttribute('gap'), '12px')};}@media(max-width:720px){.grid{grid-template-columns:1fr;}}</style>
+      <style>
+        ${sharedStyles}
+        :host { display: block; inline-size: 100%; }
+        .grid {
+          display: grid;
+          grid-template-columns: ${useAutoFit ? `repeat(auto-fit, minmax(min(100%, ${minColumn}), 1fr))` : `repeat(${columns}, minmax(0, 1fr))`};
+          gap: ${gap};
+          align-items: ${this.getAttribute('align') || 'stretch'};
+        }
+        ${useAutoFit || !shouldCollapse ? '' : `
+          @media (max-width: 1280px) {
+            .grid { grid-template-columns: repeat(${desktopColumns}, minmax(0, 1fr)); }
+          }
+          @media (max-width: 820px) {
+            .grid { grid-template-columns: repeat(${tabletColumns}, minmax(0, 1fr)); }
+          }
+          @media (max-width: 520px) {
+            .grid { grid-template-columns: 1fr; }
+          }
+        `}
+      </style>
       <div class="grid" part="grid"><slot></slot></div>
     `;
   }
@@ -1040,8 +1328,27 @@ export class MvxGrid extends MvxPeerElement {
 export class MvxStack extends MvxPeerElement {
   render() {
     const horizontal = this.getAttribute('orientation') === 'horizontal';
+    const gap = cssLength(this.getAttribute('gap'), 'var(--mvx-stack-gap, clamp(8px, 0.8vw, 18px))');
+    const align = this.getAttribute('align') || (horizontal ? 'center' : 'stretch');
+    const justify = this.getAttribute('justify') || 'start';
     this.shadowRoot.innerHTML = `
-      <style>${sharedStyles}.stack{display:${horizontal ? 'flex' : 'grid'};flex-wrap:wrap;gap:${cssLength(this.getAttribute('gap'), '10px')};align-items:${this.getAttribute('align') || 'stretch'};}</style>
+      <style>
+        ${sharedStyles}
+        :host { display: block; inline-size: 100%; }
+        .stack {
+          display: ${horizontal ? 'flex' : 'grid'};
+          flex-wrap: wrap;
+          gap: ${gap};
+          align-items: ${align};
+          justify-content: ${justify};
+        }
+        @media (max-width: 420px) {
+          :host([orientation="horizontal"][responsive]:not([responsive="false"])) .stack {
+            align-items: stretch;
+            flex-direction: column;
+          }
+        }
+      </style>
       <div class="stack" part="stack"><slot></slot></div>
     `;
   }
@@ -1069,7 +1376,7 @@ export class MvxLink extends MvxPeerElement {
   render() {
     this.shadowRoot.innerHTML = `
       <style>${sharedStyles}:host{display:inline;}.link{color:var(--mvx-accent-2);font-weight:700;text-decoration:none;}.link:hover{text-decoration:underline;}</style>
-      <a class="link" part="link" href="${escapeAttr(this.getAttribute('href') || '#')}" ${this.getAttribute('target') ? `target="${escapeAttr(this.getAttribute('target'))}"` : ''}><slot>${htmlEscape(this.titleText('Link'))}</slot></a>
+      <a class="link" part="link" href="${escapeUrl(this.getAttribute('href') || '#')}" ${this.getAttribute('target') === '_blank' ? 'target="_blank" rel="noopener noreferrer"' : ''}><slot>${htmlEscape(this.titleText('Link'))}</slot></a>
     `;
   }
 }
@@ -1232,7 +1539,7 @@ export class MvxHoverGallery extends MvxPeerElement {
     const items = this.items.length ? this.items : [{ label: 'One' }, { label: 'Two' }, { label: 'Three' }];
     this.shadowRoot.innerHTML = `
       <style>${sharedStyles}.gallery{display:grid;grid-template-columns:repeat(${items.length},minmax(48px,1fr));gap:4px;min-block-size:150px;}.item{display:grid;place-items:end start;border-radius:var(--mvx-radius-sm);background:var(--mvx-bg-inset);padding:10px;transition:flex var(--mvx-duration);}.item:hover{background:color-mix(in srgb,var(--mvx-accent) 18%,var(--mvx-bg-inset));}.label{font-weight:800;}</style>
-      <div class="gallery" part="gallery">${items.map(item => `<div class="item" style="${item.image ? `background-image:url('${escapeAttr(item.image)}');background-size:cover;background-position:center;` : ''}"><span class="label">${htmlEscape(optionLabel(item))}</span></div>`).join('')}</div>
+      <div class="gallery" part="gallery">${items.map(item => `<div class="item" style="${item.image ? `background-image:${cssUrl(item.image)};background-size:cover;background-position:center;` : ''}"><span class="label">${htmlEscape(optionLabel(item))}</span></div>`).join('')}</div>
     `;
   }
 }
@@ -1240,7 +1547,7 @@ export class MvxHoverGallery extends MvxPeerElement {
 export class MvxImageList extends MvxPeerElement {
   render() {
     const columns = Number(this.getAttribute('columns') || 3);
-    this.shadowRoot.innerHTML = `<style>${sharedStyles}.images{display:grid;grid-template-columns:repeat(${columns},minmax(0,1fr));gap:8px;}.image{aspect-ratio:1;border-radius:var(--mvx-radius-sm);background:var(--mvx-bg-inset);display:grid;place-items:center;color:var(--mvx-subtle);overflow:hidden;}.image img{inline-size:100%;block-size:100%;object-fit:cover;}</style><div class="images" part="list">${this.items.map(item => `<figure class="image">${item.src ? `<img src="${escapeAttr(item.src)}" alt="${escapeAttr(item.alt || optionLabel(item))}" />` : htmlEscape(optionLabel(item))}</figure>`).join('')}</div>`;
+    this.shadowRoot.innerHTML = `<style>${sharedStyles}.images{display:grid;grid-template-columns:repeat(${columns},minmax(0,1fr));gap:8px;}.image{aspect-ratio:1;border-radius:var(--mvx-radius-sm);background:var(--mvx-bg-inset);display:grid;place-items:center;color:var(--mvx-subtle);overflow:hidden;}.image img{inline-size:100%;block-size:100%;object-fit:cover;}</style><div class="images" part="list">${this.items.map(item => `<figure class="image">${item.src ? `<img src="${escapeUrl(item.src, '', { allowDataImages: true })}" alt="${escapeAttr(item.alt || optionLabel(item))}" />` : htmlEscape(optionLabel(item))}</figure>`).join('')}</div>`;
   }
 }
 
@@ -1311,11 +1618,29 @@ export class MvxMasonry extends MvxPeerElement {
 }
 
 export class MvxSwap extends MvxPeerElement {
+  static observedAttributes = [...MvxPeerElement.observedAttributes, 'loading'];
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (['checked', 'loading'].includes(name) && oldValue !== newValue && this.isConnected && this.shadowRoot?.querySelector('button')) {
+      this.syncPressedState();
+      return;
+    }
+    super.attributeChangedCallback(name, oldValue, newValue);
+  }
+
+  syncPressedState() {
+    const button = this.shadowRoot?.querySelector('button');
+    if (!button) return;
+    button.setAttribute('aria-pressed', String(this.hasAttribute('checked')));
+    button.setAttribute('aria-busy', String(this.hasAttribute('loading')));
+    button.disabled = this.hasAttribute('disabled') || this.hasAttribute('loading');
+  }
+
   toggle() {
-    if (this.hasAttribute('disabled')) return;
+    if (this.hasAttribute('disabled') || this.hasAttribute('loading')) return;
     this.toggleAttribute('checked');
+    this.syncPressedState();
     this.emit('mvx-change', { checked: this.hasAttribute('checked') });
-    this.render();
   }
 
   render() {
@@ -1324,10 +1649,116 @@ export class MvxSwap extends MvxPeerElement {
       <style>
         ${sharedStyles}
         :host { display: inline-flex; }
-        button { display: inline-flex; align-items: center; min-block-size: 36px; padding: 0 12px; }
+        button {
+          position: relative;
+          display: inline-grid;
+          grid-template-areas: "stack";
+          min-block-size: 36px;
+          min-inline-size: ${cssLength(this.getAttribute('width'), '72px')};
+          border: 0;
+          background: transparent;
+          box-shadow: none;
+          color: var(--mvx-fg);
+          overflow: hidden;
+          padding: 0;
+          perspective: 720px;
+        }
+        button:hover:not(:disabled) {
+          transform: translateY(var(--mvx-hover-lift));
+        }
+        .face {
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+          grid-area: stack;
+          display: inline-flex;
+          gap: 6px;
+          align-items: center;
+          justify-content: center;
+          min-block-size: 36px;
+          min-inline-size: 100%;
+          border: 1px solid var(--mvx-border);
+          border-radius: var(--mvx-radius-sm);
+          background: var(--mvx-control-glaze), var(--mvx-bg-inset);
+          box-shadow: var(--mvx-control-shadow);
+          pointer-events: none;
+          padding: 0 12px;
+          text-align: center;
+          transform-origin: 50% 0%;
+          transition:
+            opacity 500ms cubic-bezier(0.2, 0.8, 0.2, 1),
+            transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1),
+            border-color 500ms cubic-bezier(0.2, 0.8, 0.2, 1),
+            background 500ms cubic-bezier(0.2, 0.8, 0.2, 1),
+            box-shadow 500ms cubic-bezier(0.2, 0.8, 0.2, 1);
+          white-space: nowrap;
+        }
+        .loading {
+          border-color: color-mix(in srgb, var(--mvx-accent) 46%, var(--mvx-border));
+          background:
+            linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 10%, transparent), transparent),
+            var(--mvx-bg-inset);
+          opacity: 0;
+          transform: translateY(-50%) rotateX(90deg);
+        }
+        .front {
+          opacity: 1;
+          position: relative;
+          transform: translateY(0) rotateX(0);
+        }
+        .back {
+          border-color: var(--mvx-accent);
+          background:
+            linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 18%, transparent), transparent),
+            color-mix(in srgb, var(--mvx-accent) 18%, var(--mvx-bg-inset));
+          box-shadow: var(--mvx-control-shadow), 0 8px 18px color-mix(in srgb, var(--mvx-accent) 18%, transparent);
+          opacity: 0;
+          transform: translateY(-50%) rotateX(90deg);
+        }
+        :host([checked]) .back {
+          opacity: 1;
+          transform: translateY(0) rotateX(0);
+        }
+        :host([checked]) .front {
+          opacity: 0;
+          transform: translateY(50%) rotateX(90deg);
+        }
+        :host([loading]) .front,
+        :host([loading]) .back {
+          opacity: 0;
+          transform: translateY(50%) rotateX(90deg);
+        }
+        :host([loading]) .loading {
+          opacity: 1;
+          transform: translateY(0) rotateX(0);
+        }
+        .spinner {
+          inline-size: 14px;
+          block-size: 14px;
+          border: 2px solid currentColor;
+          border-block-start-color: transparent;
+          border-radius: 999px;
+          animation: mvx-swap-spin 800ms linear infinite;
+        }
+        @keyframes mvx-swap-spin { to { transform: rotate(360deg); } }
+        button:focus-visible {
+          outline: none;
+        }
+        button:focus-visible .face {
+          box-shadow: var(--mvx-focus), var(--mvx-control-shadow);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          button,
+          .spinner,
+          .face {
+            transition: none;
+            animation: none;
+          }
+        }
       </style>
-      <button type="button" part="button" aria-pressed="${checked}" ${this.hasAttribute('disabled') ? 'disabled' : ''}>
-        ${checked ? '<slot name="on">On</slot>' : '<slot name="off">Off</slot>'}
+      <button type="button" part="button" aria-pressed="${checked}" aria-busy="${this.hasAttribute('loading')}" ${this.hasAttribute('disabled') || this.hasAttribute('loading') ? 'disabled' : ''}>
+        <span class="face front" part="off"><slot name="off">Off</slot></span>
+        <span class="face back" part="on"><slot name="on">On</slot></span>
+        <span class="face loading" part="loading"><slot name="loading"><span class="spinner" aria-hidden="true"></span>Loading</slot></span>
       </button>
     `;
     this.shadowRoot.querySelector('button').addEventListener('click', () => this.toggle());
@@ -1431,7 +1862,7 @@ export class MvxFigure extends MvxPeerElement {
         figcaption { color: var(--mvx-subtle); font-size: 12px; line-height: 1.4; }
       </style>
       <figure part="figure">
-        <span class="media surface">${this.getAttribute('src') ? `<img src="${escapeAttr(this.getAttribute('src'))}" alt="${escapeAttr(this.getAttribute('alt') || this.titleText('Figure'))}" loading="${escapeAttr(this.getAttribute('loading') || 'lazy')}" />` : '<slot></slot>'}</span>
+        <span class="media surface">${this.getAttribute('src') ? `<img src="${escapeUrl(this.getAttribute('src'), '', { allowDataImages: true })}" alt="${escapeAttr(this.getAttribute('alt') || this.titleText('Figure'))}" loading="${escapeAttr(this.getAttribute('loading') || 'lazy')}" />` : '<slot></slot>'}</span>
         <figcaption>${htmlEscape(this.getAttribute('caption') || this.helperText() || this.titleText(''))}</figcaption>
       </figure>
     `;
@@ -1449,7 +1880,7 @@ export class MvxImage extends MvxPeerElement {
         .fallback { display: grid; place-items: center; min-block-size: ${cssLength(this.getAttribute('height'), '160px')}; border: 1px solid var(--mvx-border); border-radius: var(--mvx-radius-md); background: var(--mvx-bg-inset); color: var(--mvx-subtle); }
       </style>
       ${src
-        ? `<img part="image" src="${escapeAttr(src)}" alt="${escapeAttr(this.getAttribute('alt') || this.titleText('Image'))}" loading="${escapeAttr(this.getAttribute('loading') || 'lazy')}" />`
+        ? `<img part="image" src="${escapeUrl(src, '', { allowDataImages: true })}" alt="${escapeAttr(this.getAttribute('alt') || this.titleText('Image'))}" loading="${escapeAttr(this.getAttribute('loading') || 'lazy')}" />`
         : `<span class="fallback" part="fallback"><slot>${htmlEscape(this.titleText('Image preview'))}</slot></span>`}
     `;
   }
@@ -1578,7 +2009,17 @@ function renderJsonNode(node) {
   const safeTag = allowed ? tag : 'div';
   const attrs = Object.entries(node.attrs || node.props || {})
     .filter(([name]) => !/^on/i.test(name) && name !== 'style')
-    .map(([name, value]) => value === true ? htmlEscape(name) : `${htmlEscape(name)}="${escapeAttr(typeof value === 'object' ? JSON.stringify(value) : value)}"`)
+    .map(([name, value]) => {
+      const safeName = String(name).replace(/[^a-zA-Z0-9:._-]/g, '');
+      if (!safeName) return '';
+      if (value === true) return htmlEscape(safeName);
+      const serialized = typeof value === 'object' ? JSON.stringify(value) : value;
+      const safeValue = ['href', 'src', 'poster', 'xlink:href'].includes(safeName.toLowerCase())
+        ? safeUrl(serialized, safeName.toLowerCase() === 'href' ? '#' : '', { allowDataImages: true })
+        : serialized;
+      return `${htmlEscape(safeName)}="${escapeAttr(safeValue)}"`;
+    })
+    .filter(Boolean)
     .join(' ');
   const children = node.text != null ? htmlEscape(node.text) : renderJsonNode(node.children || []);
   return `<${safeTag}${attrs ? ` ${attrs}` : ''}>${children}</${safeTag}>`;
@@ -1611,13 +2052,13 @@ export class MvxRichTextEditor extends MvxPeerElement {
   static observedAttributes = [...MvxPeerElement.observedAttributes, 'endpoint', 'method', 'provider', 'model', 'headers', 'system-prompt', 'placeholder', 'readonly', 'disabled', 'height', 'ai-label', 'chat-label', 'response-mode'];
 
   set value(value) {
-    this._value = String(value ?? '');
+    this._value = sanitizeRichHtml(value);
     const editor = this.shadowRoot?.querySelector('.editor');
     if (editor && editor.innerHTML !== this._value) editor.innerHTML = this._value;
   }
 
   get value() {
-    return this._value ?? this.getAttribute('value') ?? '';
+    return sanitizeRichHtml(this._value ?? this.getAttribute('value') ?? '');
   }
 
   set messages(value) {
@@ -1639,14 +2080,22 @@ export class MvxRichTextEditor extends MvxPeerElement {
   exec(command, value = null) {
     if (this.hasAttribute('disabled') || this.hasAttribute('readonly')) return;
     const editor = this.shadowRoot.querySelector('.editor');
+    let nextValue = value;
+    if ((command === 'createLink' || command === 'insertImage') && value) {
+      nextValue = safeUrl(value, '', { allowDataImages: command === 'insertImage' });
+      if (!nextValue) return;
+    }
+    if (command === 'insertHTML') nextValue = sanitizeRichHtml(value);
     editor.focus();
-    document.execCommand(command, false, value);
+    document.execCommand(command, false, nextValue);
     this.capture();
   }
 
   capture() {
     const editor = this.shadowRoot.querySelector('.editor');
-    this._value = editor.innerHTML;
+    const sanitized = sanitizeRichHtml(editor.innerHTML);
+    if (editor.innerHTML !== sanitized) editor.innerHTML = sanitized;
+    this._value = sanitized;
     this.emit('mvx-change', { value: this._value, html: this._value, text: editor.textContent || '' });
   }
 
@@ -1694,7 +2143,7 @@ export class MvxRichTextEditor extends MvxPeerElement {
       if (!response.ok) throw new Error(`AI request failed with ${response.status}`);
       const contentType = response.headers.get('content-type') || '';
       const data = contentType.includes('application/json') ? await response.json() : { text: await response.text() };
-      const html = data.html || data.content || data.text || '';
+      const html = sanitizeRichHtml(data.html || data.content || data.text || '');
       const assistantContent = data.message || data.text || String(html).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
       this._messages = [...this.messages, { role: 'assistant', content: assistantContent }];
       this.syncChat();

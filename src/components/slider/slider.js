@@ -41,6 +41,7 @@ export class MvxSlider extends MvxElement {
     const disabled = this.hasAttribute('disabled');
     const values = this.values();
     const display = range ? `${values[0]}${unit} - ${values[1]}${unit}` : `${values[0]}${unit}`;
+    const sliderLabel = label || this.t('slider', 'Slider');
     this.shadowRoot.innerHTML = `
       <style>
         ${baseStyles}
@@ -85,8 +86,8 @@ export class MvxSlider extends MvxElement {
           ${this.hasAttribute('show-value') ? `<span class="value">${htmlEscape(display)}</span>` : ''}
         </div>
         <div class="inputs">
-          <input data-handle="0" type="range" min="${this.min}" max="${this.max}" step="${htmlEscape(this.step)}" value="${values[0]}" ${disabled ? 'disabled' : ''} />
-          ${range ? `<input data-handle="1" type="range" min="${this.min}" max="${this.max}" step="${htmlEscape(this.step)}" value="${values[1]}" ${disabled ? 'disabled' : ''} />` : ''}
+          <input data-handle="0" type="range" aria-label="${htmlEscape(range ? `${sliderLabel} ${this.t('minimum', 'minimum')}` : sliderLabel)}" min="${this.min}" max="${this.max}" step="${htmlEscape(this.step)}" value="${values[0]}" ${disabled ? 'disabled' : ''} />
+          ${range ? `<input data-handle="1" type="range" aria-label="${htmlEscape(`${sliderLabel} ${this.t('maximum', 'maximum')}`)}" min="${this.min}" max="${this.max}" step="${htmlEscape(this.step)}" value="${values[1]}" ${disabled ? 'disabled' : ''} />` : ''}
         </div>
       </div>
     `;

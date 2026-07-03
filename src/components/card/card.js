@@ -12,7 +12,7 @@ export class MvxCard extends MvxElement {
         :host { display: block; }
         article {
           position: relative;
-          overflow: hidden;
+          overflow: visible;
           border-radius: var(--mvx-radius-md);
           padding: var(--mvx-space-5);
         }

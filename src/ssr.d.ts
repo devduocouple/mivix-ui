@@ -15,6 +15,8 @@ export type JsonConfigNode =
 
 export function escapeHtml(value?: unknown): string;
 export function escapeAttribute(value?: unknown): string;
+export function isSafeUrl(value?: unknown, options?: { allowDataImages?: boolean }): boolean;
+export function safeUrl(value?: unknown, fallback?: string, options?: { allowDataImages?: boolean }): string;
 export function renderAttributes(attrs?: Record<string, unknown>): string;
 export function renderComponentTag(tag: string, attrs?: Record<string, unknown>, children?: string): string;
 export function renderJsonConfig(config: JsonConfigNode): string;

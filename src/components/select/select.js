@@ -57,6 +57,8 @@ export class MvxSelect extends MvxElement {
     const options = this.normalizedOptions();
     const multiple = this.hasAttribute('multiple');
     const size = this.getAttribute('size');
+    const helperId = helper ? `${id}-helper` : '';
+    const controlLabel = label || placeholder || this.t('select', 'Select');
     this.shadowRoot.innerHTML = `
       <style>
         ${baseStyles}
@@ -99,11 +101,11 @@ export class MvxSelect extends MvxElement {
       </style>
       <label for="${id}">
         ${label ? `<span>${htmlEscape(label)}</span>` : ''}
-        <select part="select" id="${id}" ${multiple ? 'multiple' : ''} ${size ? `size="${htmlEscape(size)}"` : ''} ${this.hasAttribute('disabled') ? 'disabled' : ''} ${this.hasAttribute('required') ? 'required' : ''}>
+        <select part="select" id="${id}" aria-label="${htmlEscape(controlLabel)}" ${helperId ? `aria-describedby="${helperId}"` : ''} aria-invalid="${this.hasAttribute('invalid')}" ${multiple ? 'multiple' : ''} ${size ? `size="${htmlEscape(size)}"` : ''} ${this.hasAttribute('disabled') ? 'disabled' : ''} ${this.hasAttribute('required') ? 'required' : ''}>
           ${!multiple ? `<option value="">${htmlEscape(placeholder)}</option>` : ''}
           ${this.renderOptions(options)}
         </select>
-        ${helper ? `<span class="helper">${htmlEscape(helper)}</span>` : ''}
+        ${helper ? `<span class="helper" id="${helperId}">${htmlEscape(helper)}</span>` : ''}
       </label>
     `;
     const select = this.shadowRoot.querySelector('select');

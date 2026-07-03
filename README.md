@@ -28,6 +28,7 @@ Mivix UI is currently best suited for evaluation, prototypes, internal tools, an
 - **Open source ergonomics:** zero runtime dependencies, CSS custom-property tokens, Shadow DOM encapsulation, accessible keyboard behavior, and framework examples.
 - **Core plus Pro path:** essential primitives and selected workflow patterns stay in the free core; advanced templates, enterprise features, and high-support components can move into the future Pro layer.
 - **Responsive motion:** buttons and icon buttons use cursor-reactive hover light, press ripples, and intent-aware action feedback, with `motion="none"` and reduced-motion support.
+- **Responsive range:** layout primitives use fluid spacing, mobile-safe single-column fallbacks, optional auto-fit grids, and wide container targets for dashboards and 4K screens.
 
 ## Component Families
 
@@ -36,13 +37,15 @@ Mivix UI groups similar components as families and exposes focused `mvx-*` eleme
 - **Actions:** `mvx-button`, `mvx-icon-button`
 - **Forms:** `mvx-input`, `mvx-switch`
 - **Feedback:** `mvx-alert`, `mvx-badge`, `mvx-toast`, `mvx-progress`, `mvx-skeleton`
-- **Navigation:** `mvx-tabs`, `mvx-breadcrumbs`, `mvx-pagination`
+- **Navigation:** `mvx-tabs`, `mvx-breadcrumbs`, `mvx-pagination`, `mvx-shortcuts`
 - **Disclosure and overlays:** `mvx-accordion`, `mvx-modal`, `mvx-drawer`, `mvx-tooltip`, `mvx-command-palette`
 - **Data and workflow:** `mvx-data-table`, `mvx-kanban`, `mvx-timeline`, `mvx-avatar`
 - **AI-ready surfaces:** `mvx-ai-panel`
 - **Layout and theming:** `mvx-app-shell`, `mvx-card`, `mvx-theme-switcher`
 
 Accessibility and globalization are treated as part of the component contract: components use native buttons where possible, visible focus states, labels, ARIA roles/states for tabs, accordions, progress, dialogs, breadcrumbs, pagination, tooltips, direction-aware logical CSS, localized built-in labels, and bubbled DOM events for framework integration. Mivix UI is AAA-oriented by default; final WCAG AAA conformance still depends on product content, custom themes, and contrast choices made by the consuming app.
+
+Every component also supports a shared `skeleton` loading state. Use `skeleton-lines` to tune the placeholder shape, or pass variants such as `skeleton="card"`, `skeleton="chart"`, `skeleton="table"`, `skeleton="avatar"`, `skeleton="button"`, or `skeleton="input"`.
 
 ## Quick Start
 
@@ -278,6 +281,7 @@ Events are named for plain DOM usage and framework bindings:
 
 - `mvx-change` for value changes.
 - `mvx-select` for command/data selections.
+- `mvx-shortcut` and `mvx-command` for declarative keyboard shortcuts.
 - `mvx-close` for dismissal.
 
 CSS parts expose controlled styling surfaces such as `part="button"`, `part="panel"`, `part="input"`, and `part="cell"`.

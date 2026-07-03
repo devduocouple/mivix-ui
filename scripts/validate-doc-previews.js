@@ -114,25 +114,31 @@ function inferComponentName(value, fallback = '') {
   return match ? match[1].toLowerCase() : fallback;
 }
 
+function inferComponentNames(value) {
+  return [...new Set([...String(value || '').matchAll(/<\s*(mvx-[\w-]+)/gi)].map(match => match[1].toLowerCase()))];
+}
+
 function componentImportPath(componentName) {
   if (!componentName || !componentName.startsWith('mvx-')) return 'mivix-ui';
   return `mivix-ui/components/${componentName.replace(/^mvx-/, '')}`;
 }
 
-function indentCode(value, depth = 2) {
-  const indent = ' '.repeat(depth);
-  return String(value).split('\n').map(line => (line ? `${indent}${line}` : line)).join('\n');
-}
-
 function completeSnippetExample(value, setup = '', componentName = '') {
   const source = String(value || '').trim();
-  const inferredComponent = inferComponentName(source, componentName);
+  const inferredComponents = inferComponentNames(source);
+  if (componentName && componentName.startsWith('mvx-') && !inferredComponents.includes(componentName)) {
+    inferredComponents.unshift(componentName);
+  }
+  if (!inferredComponents.length) {
+    const inferredComponent = inferComponentName(source, componentName);
+    if (inferredComponent) inferredComponents.push(inferredComponent);
+  }
   const imports = [
     `import 'mivix-ui/styles';`,
-    `import '${componentImportPath(inferredComponent)}';`
+    ...inferredComponents.map(component => `import '${componentImportPath(component)}';`)
   ];
-  const scriptContent = `${imports.join('\n')}${setup ? `\n\n${setup.trim()}` : ''}`;
-  return `<script type="module">\n${indentCode(scriptContent)}\n</script>\n\n${source}`;
+  const importBlock = [...new Set(imports)].join('\n');
+  return `${importBlock}\n\n${source}${setup ? `\n\n${setup.trim()}` : ''}`;
 }
 
 function completeExampleCode(value, setup = '', componentName = '') {

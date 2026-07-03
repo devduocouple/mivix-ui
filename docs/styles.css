@@ -1,3 +1,9 @@
+html {
+  --docs-mobile-bar: 56px;
+  --docs-nav-control-radius: 13px;
+  --docs-nav-control-size: 42px;
+}
+
 body {
   margin: 0;
   block-size: 100dvh;
@@ -23,6 +29,205 @@ mvx-app-shell {
   --mvx-rail-width: minmax(278px, 318px);
   --docs-shell-padding: 20px;
   --docs-rail-padding: 14px;
+}
+
+.mobile-shell-bar,
+.mobile-nav-backdrop {
+  display: none;
+}
+
+.mobile-shell-bar {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 80;
+  min-block-size: var(--docs-mobile-bar);
+  border-block-end: 1px solid var(--mvx-border);
+  background: color-mix(in srgb, var(--mvx-bg-panel) 94%, transparent);
+  box-shadow: var(--mvx-shadow-soft);
+  padding: 8px 12px;
+}
+
+.mobile-nav-toggle {
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: var(--docs-nav-control-size);
+  block-size: var(--docs-nav-control-size);
+  border: 1px solid color-mix(in srgb, var(--mvx-border) 86%, var(--mvx-accent));
+  border-radius: var(--docs-nav-control-radius);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--mvx-bg-panel) 92%, transparent), transparent 58%),
+    var(--mvx-bg-inset);
+  color: var(--mvx-fg);
+  cursor: pointer;
+  isolation: isolate;
+  padding: 0;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 24px rgba(0, 0, 0, 0.16);
+  transition:
+    background var(--mvx-duration-fast),
+    border-color var(--mvx-duration-fast),
+    box-shadow var(--mvx-duration-fast),
+    color var(--mvx-duration-fast),
+    transform var(--mvx-duration-fast);
+}
+
+.mobile-shell-bar mvx-theme-switcher::part(button),
+.rail-actions mvx-theme-switcher::part(button),
+.rail-actions mvx-icon-button::part(button) {
+  inline-size: var(--docs-nav-control-size);
+  block-size: var(--docs-nav-control-size);
+  border-color: color-mix(in srgb, var(--mvx-border) 86%, var(--mvx-accent));
+  border-radius: var(--docs-nav-control-radius);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--mvx-bg-panel) 92%, transparent), transparent 58%),
+    var(--mvx-bg-inset);
+  color: var(--mvx-fg);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 24px rgba(0, 0, 0, 0.16);
+  font-size: 18px;
+  transition:
+    background var(--mvx-duration-fast),
+    border-color var(--mvx-duration-fast),
+    box-shadow var(--mvx-duration-fast),
+    color var(--mvx-duration-fast),
+    transform var(--mvx-duration-fast);
+}
+
+.mobile-nav-toggle::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  z-index: -1;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--mvx-accent) 14%, transparent);
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.mobile-nav-toggle span:not(.sr-only) {
+  position: absolute;
+  inset-inline-start: 12px;
+  inline-size: 18px;
+  block-size: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  transform-origin: center;
+  transition:
+    opacity 90ms ease,
+    inset-block-start 120ms ease,
+    inline-size 120ms ease,
+    transform 120ms ease;
+}
+
+.mobile-nav-toggle span:nth-child(1) {
+  inset-block-start: 13px;
+}
+
+.mobile-nav-toggle span:nth-child(2) {
+  inset-block-start: 20px;
+  inline-size: 12px;
+  opacity: 0.72;
+  transform: translateX(6px);
+}
+
+.mobile-nav-toggle span:nth-child(3) {
+  inset-block-start: 27px;
+}
+
+.mobile-nav-toggle:hover {
+  border-color: color-mix(in srgb, var(--mvx-accent) 54%, var(--mvx-border));
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--mvx-accent) 13%, transparent), transparent 62%),
+    var(--mvx-bg-inset);
+  color: var(--mvx-accent-2);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 14px 30px rgba(0, 0, 0, 0.2);
+}
+
+.mobile-shell-bar mvx-theme-switcher::part(button):hover,
+.mobile-shell-bar mvx-theme-switcher[open]::part(button),
+.rail-actions mvx-theme-switcher::part(button):hover,
+.rail-actions mvx-theme-switcher[open]::part(button),
+.rail-actions mvx-icon-button::part(button):hover {
+  border-color: color-mix(in srgb, var(--mvx-accent) 54%, var(--mvx-border));
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--mvx-accent) 13%, transparent), transparent 62%),
+    var(--mvx-bg-inset);
+  color: var(--mvx-accent-2);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 14px 30px rgba(0, 0, 0, 0.2);
+}
+
+.mobile-nav-toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--mvx-focus);
+}
+
+.mobile-nav-toggle:active {
+  transform: translateY(0);
+}
+
+body.mobile-nav-open .mobile-nav-toggle {
+  border-color: color-mix(in srgb, var(--mvx-accent) 68%, var(--mvx-border));
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--mvx-accent) 18%, transparent), transparent 62%),
+    var(--mvx-bg-inset);
+  color: var(--mvx-accent-2);
+}
+
+body.mobile-nav-open .mobile-nav-toggle::before {
+  opacity: 1;
+}
+
+body.mobile-nav-open .mobile-nav-toggle span:nth-child(1) {
+  inset-block-start: 20px;
+  transform: rotate(45deg);
+}
+
+body.mobile-nav-open .mobile-nav-toggle span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0.24);
+}
+
+body.mobile-nav-open .mobile-nav-toggle span:nth-child(3) {
+  inset-block-start: 20px;
+  transform: rotate(-45deg);
+}
+
+.mobile-shell-title {
+  display: inline-flex;
+  min-inline-size: 0;
+  gap: 9px;
+  align-items: center;
+  justify-self: center;
+}
+
+.mobile-shell-mark {
+  display: grid;
+  place-items: center;
+  inline-size: 30px;
+  block-size: 30px;
+  border: 1px solid color-mix(in srgb, var(--mvx-accent) 48%, var(--mvx-border));
+  border-radius: var(--mvx-radius-sm);
+  background: color-mix(in srgb, var(--mvx-accent) 20%, var(--mvx-bg-inset));
+  color: var(--mvx-accent-2);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.mobile-shell-title strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
 }
 
 .rail {
@@ -205,6 +410,8 @@ mvx-app-shell {
 .tree-nav {
   display: grid;
   gap: 8px;
+  --tree-guide-color: color-mix(in srgb, var(--mvx-border) 72%, transparent);
+  --tree-guide-x: 18px;
   --tree-active-surface:
     linear-gradient(145deg, color-mix(in srgb, var(--mvx-accent) 10%, transparent), transparent 42%),
     var(--mvx-bg-panel);
@@ -213,13 +420,13 @@ mvx-app-shell {
 .tree-nav summary {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: minmax(0, 1fr) max-content auto;
   align-items: center;
   gap: 9px;
   inline-size: 100%;
   min-block-size: 34px;
   border: 0;
-  border-inline-start: 1px solid var(--mvx-border);
+  border-inline-start: 1px solid transparent;
   border-radius: 0 var(--mvx-radius-sm) var(--mvx-radius-sm) 0;
   background: transparent;
   color: var(--mvx-muted);
@@ -240,8 +447,8 @@ mvx-app-shell {
   content: "";
   inline-size: 8px;
   block-size: 8px;
-  border-block-start: 2px solid currentColor;
-  border-inline-end: 2px solid currentColor;
+  border-block-start: 2px solid var(--mvx-accent-2);
+  border-inline-end: 2px solid var(--mvx-accent-2);
   opacity: 0.72;
   transform: rotate(45deg);
   transition: transform var(--mvx-duration-fast), opacity var(--mvx-duration-fast);
@@ -253,6 +460,7 @@ mvx-app-shell {
 }
 
 .tree-nav details {
+  position: relative;
   display: grid;
   gap: 5px;
 }
@@ -263,14 +471,28 @@ mvx-app-shell {
 
 .tree-root > summary {
   min-block-size: 36px;
+  color: var(--mvx-fg);
+  font-weight: 800;
 }
 
 .tree-root > details {
   margin-inline-start: 10px;
 }
 
+.tree-root > details[open]::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 39px;
+  inset-block-end: 4px;
+  inset-inline-start: var(--tree-guide-x);
+  inline-size: 1px;
+  border-radius: 999px;
+  background: var(--tree-guide-color);
+}
+
 .tree-root > details > summary {
   min-block-size: 34px;
+  font-weight: 750;
 }
 
 .agent-root {
@@ -278,17 +500,18 @@ mvx-app-shell {
 }
 
 .agent-root > summary {
-  border-inline-start-color: color-mix(in srgb, var(--mvx-accent-2) 56%, var(--mvx-border));
+  border-inline-start-color: transparent;
 }
 
 .tree-nav details > button {
+  position: relative;
   display: grid;
   align-items: center;
   inline-size: calc(100% - 18px);
   min-block-size: 32px;
   margin-inline-start: 18px;
   border: 0;
-  border-inline-start: 1px solid var(--mvx-border);
+  border-inline-start: 1px solid transparent;
   border-radius: 0 var(--mvx-radius-sm) var(--mvx-radius-sm) 0;
   background: transparent;
   color: var(--mvx-muted);
@@ -328,16 +551,21 @@ mvx-app-shell {
 }
 
 .tree-nav summary small {
-  display: grid;
-  place-items: center;
-  min-inline-size: 24px;
-  min-block-size: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: end;
+  min-inline-size: 28px;
+  min-block-size: 20px;
   border-radius: 999px;
   border: 1px solid var(--mvx-border);
   background: color-mix(in srgb, var(--mvx-bg-panel) 84%, transparent);
   color: var(--mvx-subtle);
   font-size: 11px;
   font-weight: 800;
+  line-height: 1;
+  padding: 0 8px;
+  white-space: nowrap;
 }
 
 .tree-nav summary:hover {
@@ -684,6 +912,8 @@ body.component-page .component-detail {
 }
 
 .playground-surface {
+  position: relative;
+  z-index: 1;
   display: grid;
   gap: 12px;
   min-block-size: 170px;
@@ -692,7 +922,11 @@ body.component-page .component-detail {
   border-radius: var(--mvx-radius-md);
   background: var(--mvx-bg-inset);
   padding: 16px;
-  overflow: auto;
+  overflow: visible;
+}
+
+.playground-surface:has(mvx-dropdown-menu[open], mvx-popover[open], mvx-date-picker[open], mvx-theme-switcher[open]) {
+  z-index: 10;
 }
 
 .playground-controls {
@@ -1223,7 +1457,12 @@ body.component-page .component-detail {
 }
 
 .component-card {
+  position: relative;
   min-inline-size: 0;
+}
+
+.component-card:has(mvx-dropdown-menu[open], mvx-popover[open], mvx-date-picker[open], mvx-theme-switcher[open]) {
+  z-index: 20;
 }
 
 .component-card[hidden] {
@@ -1319,6 +1558,111 @@ body.component-page .component-detail {
 }
 
 @media (max-width: 860px) {
+  .mobile-shell-bar {
+    display: grid;
+    grid-template-columns: var(--docs-nav-control-size) minmax(0, 1fr) var(--docs-nav-control-size);
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mobile-shell-bar mvx-theme-switcher {
+    justify-self: end;
+  }
+
+  .mobile-nav-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    border: 0;
+    background: color-mix(in srgb, #000 46%, transparent);
+    cursor: pointer;
+  }
+
+  .mobile-nav-backdrop:not([hidden]) {
+    display: block;
+  }
+
+  body.mobile-nav-open {
+    overscroll-behavior: contain;
+  }
+
+  mvx-app-shell {
+    --mvx-rail-width: 0px;
+    --docs-shell-padding: 14px;
+    --docs-rail-padding: 12px;
+  }
+
+  mvx-app-shell::part(content) {
+    padding-block-start: calc(var(--docs-mobile-bar) + 14px);
+  }
+
+  mvx-app-shell::part(rail) {
+    position: fixed;
+    inset-block-start: var(--docs-mobile-bar);
+    inset-block-end: 0;
+    inset-inline-start: 0;
+    z-index: 75;
+    inline-size: min(88vw, 340px);
+    max-inline-size: calc(100vw - 48px);
+    max-block-size: none;
+    border-block-end: 0;
+    border-inline-end: 1px solid var(--mvx-border);
+    background: var(--mvx-bg-panel);
+    box-shadow: var(--mvx-shadow-raised);
+    overflow: auto;
+    padding: 12px;
+    transform: translateX(-104%);
+    transition:
+      box-shadow var(--mvx-duration-med),
+      transform var(--mvx-duration-med);
+  }
+
+  body.mobile-nav-open mvx-app-shell::part(rail) {
+    transform: translateX(0);
+  }
+
+  body.component-page mvx-app-shell::part(rail) {
+    position: fixed;
+    z-index: 75;
+    border-inline-end-color: var(--mvx-border);
+  }
+
+  body.component-page .tree-nav details > button.active {
+    inline-size: calc(100% - 18px);
+    margin-inline-end: 0;
+    border-start-end-radius: var(--mvx-radius-sm);
+    border-end-end-radius: var(--mvx-radius-sm);
+  }
+
+  body.component-page .tree-nav summary.active {
+    inline-size: 100%;
+    margin-inline-end: 0;
+    border-start-end-radius: var(--mvx-radius-sm);
+    border-end-end-radius: var(--mvx-radius-sm);
+  }
+
+  .rail {
+    gap: 12px;
+    min-block-size: 100%;
+  }
+
+  .rail-brand {
+    margin: -12px -12px 0;
+    padding: 12px;
+  }
+
+  body.component-page .workspace {
+    inline-size: min(1320px, 100%);
+    min-block-size: auto;
+    margin-block: 0;
+    margin-inline: auto;
+  }
+
+  body.component-page .component-detail {
+    border: 1px solid var(--mvx-border);
+    border-radius: var(--mvx-radius-lg);
+  }
+
   .hero-grid,
   .component-grid,
   .component-detail {

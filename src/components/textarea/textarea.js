@@ -27,6 +27,8 @@ export class MvxTextarea extends MvxElement {
     const rows = this.getAttribute('rows') || '4';
     const maxlength = this.getAttribute('maxlength');
     const resize = this.getAttribute('resize') || 'vertical';
+    const helperId = helper || maxlength ? `${id}-meta` : '';
+    const controlLabel = label || placeholder || this.t('textarea', 'Text area');
     this.shadowRoot.innerHTML = `
       <style>
         ${baseStyles}
@@ -72,8 +74,8 @@ export class MvxTextarea extends MvxElement {
       </style>
       <label for="${id}">
         ${label ? `<span>${htmlEscape(label)}</span>` : ''}
-        <textarea part="textarea" id="${id}" rows="${htmlEscape(rows)}" placeholder="${htmlEscape(placeholder)}" ${maxlength ? `maxlength="${htmlEscape(maxlength)}"` : ''} ${this.hasAttribute('disabled') ? 'disabled' : ''} ${this.hasAttribute('readonly') ? 'readonly' : ''}>${htmlEscape(this.value)}</textarea>
-        <span class="meta">
+        <textarea part="textarea" id="${id}" rows="${htmlEscape(rows)}" placeholder="${htmlEscape(placeholder)}" aria-label="${htmlEscape(controlLabel)}" ${helperId ? `aria-describedby="${helperId}"` : ''} aria-invalid="${this.hasAttribute('invalid')}" ${maxlength ? `maxlength="${htmlEscape(maxlength)}"` : ''} ${this.hasAttribute('disabled') ? 'disabled' : ''} ${this.hasAttribute('readonly') ? 'readonly' : ''}>${htmlEscape(this.value)}</textarea>
+        <span class="meta" ${helperId ? `id="${helperId}"` : ''}>
           <span>${htmlEscape(helper)}</span>
           ${maxlength ? `<span class="count">${this.value.length}/${htmlEscape(maxlength)}</span>` : ''}
         </span>

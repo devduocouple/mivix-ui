@@ -1,4 +1,4 @@
-import { baseStyles, MvxElement, parseData, htmlEscape } from '../../core.js';
+import { baseStyles, MvxElement, parseData, htmlEscape, safeUrl } from '../../core.js';
 
 export class MvxBreadcrumbs extends MvxElement {
   static observedAttributes = ['items'];
@@ -49,7 +49,7 @@ export class MvxBreadcrumbs extends MvxElement {
           ${items.map((item, index) => `
             <li>
               ${index ? '<span aria-hidden="true">/</span>' : ''}
-              ${index === items.length - 1 ? `<span aria-current="page">${htmlEscape(item.label)}</span>` : `<a href="${htmlEscape(item.href || '#')}">${htmlEscape(item.label)}</a>`}
+              ${index === items.length - 1 ? `<span aria-current="page">${htmlEscape(item.label)}</span>` : `<a href="${htmlEscape(safeUrl(item.href || '#'))}">${htmlEscape(item.label)}</a>`}
             </li>
           `).join('')}
         </ol>

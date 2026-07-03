@@ -21,8 +21,8 @@ export class MvxIconButton extends MvxElement {
           block-size: 36px;
           border: 1px solid var(--mvx-border);
           border-radius: var(--mvx-radius-sm);
-          background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)), var(--mvx-bg-panel);
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+          background: var(--mvx-control-glaze), var(--mvx-bg-panel);
+          box-shadow: var(--mvx-control-shadow);
           cursor: pointer;
           transform: perspective(640px) rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg));
           transition: transform var(--mvx-duration-fast), border-color var(--mvx-duration), color var(--mvx-duration), box-shadow var(--mvx-duration);
@@ -57,7 +57,7 @@ export class MvxIconButton extends MvxElement {
         button:hover:not(:disabled), button[aria-pressed="true"] {
           border-color: color-mix(in srgb, var(--mvx-accent) 62%, var(--mvx-border));
           color: var(--mvx-accent-2);
-          transform: perspective(640px) rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg)) translateY(-1px);
+          transform: perspective(640px) rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg)) translateY(var(--mvx-hover-lift));
         }
         button:hover:not(:disabled)::before {
           opacity: 1;
@@ -67,7 +67,7 @@ export class MvxIconButton extends MvxElement {
         }
         button:focus-visible {
           outline: none;
-          box-shadow: var(--mvx-focus);
+          box-shadow: var(--mvx-focus), var(--mvx-control-shadow);
         }
         @keyframes mvx-icon-ripple {
           0% { opacity: 0.4; transform: translate(-50%, -50%) scale(0); }

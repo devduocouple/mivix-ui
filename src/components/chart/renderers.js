@@ -1,4 +1,4 @@
-import { htmlEscape } from '../../core.js';
+import { htmlEscape, safeUrl } from '../../core.js';
 import { arcPath, clamp, defaultSeriesForType, niceMax, normalizePoint, palette, polar } from './shared.js';
 
 function plotPad(chart, regular, compact) {
@@ -43,7 +43,7 @@ export function pathForPoints(chart, points, style = 'linear') {
 
 export function pointMarker(chart, point, color, index, detail = {}) {
     const style = chart.getAttribute('point-style') || 'circle';
-    const image = chart.getAttribute('point-image');
+    const image = safeUrl(chart.getAttribute('point-image'), '', { allowDataImages: true });
     const customClass = chart.getAttribute('point-class') || '';
     const size = Number(chart.getAttribute('point-size') || 18);
     if (style === 'none') return '';

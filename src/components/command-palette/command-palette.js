@@ -42,6 +42,7 @@ export class MvxCommandPalette extends MvxElement {
       <style>
         ${baseStyles}
         :host { display: contents; }
+        :host([inline]) { display: block; }
         .wrap {
           position: fixed;
           inset: 0;
@@ -52,10 +53,23 @@ export class MvxCommandPalette extends MvxElement {
           background: rgba(0, 0, 0, 0.5);
           backdrop-filter: blur(8px);
         }
+        :host([inline]) .wrap {
+          position: relative;
+          inset: auto;
+          z-index: auto;
+          display: ${this.hasAttribute('open') ? 'grid' : 'none'};
+          place-items: stretch;
+          padding: 0;
+          background: transparent;
+          backdrop-filter: none;
+        }
         .panel {
           inline-size: min(680px, 100%);
           overflow: hidden;
           border-radius: var(--mvx-radius-lg);
+        }
+        :host([inline]) .panel {
+          inline-size: 100%;
         }
         input {
           inline-size: 100%;

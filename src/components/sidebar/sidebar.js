@@ -1,4 +1,4 @@
-import { baseStyles, MvxElement, parseData, htmlEscape } from '../../core.js';
+import { baseStyles, MvxElement, parseData, htmlEscape, safeUrl } from '../../core.js';
 
 export class MvxSidebar extends MvxElement {
   static observedAttributes = ['items', 'label', 'collapsed', 'compact'];
@@ -29,7 +29,7 @@ export class MvxSidebar extends MvxElement {
       `;
     }
     return `
-      <a href="${htmlEscape(item.href || '#')}" data-index="${htmlEscape(index)}" ${item.active ? 'aria-current="page"' : ''}>
+      <a href="${htmlEscape(safeUrl(item.href || '#'))}" data-index="${htmlEscape(index)}" ${item.active ? 'aria-current="page"' : ''}>
         <span>${htmlEscape(item.icon || '')}</span>
         <span class="label">${htmlEscape(item.label || item.href || '')}</span>
         ${item.badge ? `<small>${htmlEscape(item.badge)}</small>` : ''}

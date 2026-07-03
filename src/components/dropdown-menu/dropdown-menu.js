@@ -1,4 +1,4 @@
-import { baseStyles, MvxElement, parseData, htmlEscape } from '../../core.js';
+import { baseStyles, MvxElement, parseData, htmlEscape, safeUrl } from '../../core.js';
 
 export class MvxDropdownMenu extends MvxElement {
   static observedAttributes = ['open', 'label', 'items', 'placement', 'disabled'];
@@ -94,7 +94,7 @@ export class MvxDropdownMenu extends MvxElement {
       </button>
       <div class="menu" part="menu" role="menu" aria-label="${htmlEscape(label)}">
         ${items.map((item, index) => item.separator ? '<div class="separator" role="separator"></div>' : `
-          ${item.href ? `<a class="item" role="menuitem" href="${htmlEscape(item.href)}" data-index="${index}" aria-disabled="${Boolean(item.disabled)}">` : `<button class="item" role="menuitem" data-index="${index}" aria-disabled="${Boolean(item.disabled)}">`}
+          ${item.href ? `<a class="item" role="menuitem" href="${htmlEscape(safeUrl(item.href))}" data-index="${index}" aria-disabled="${Boolean(item.disabled)}">` : `<button class="item" role="menuitem" data-index="${index}" aria-disabled="${Boolean(item.disabled)}">`}
             <span>${htmlEscape(item.label ?? item.value ?? '')}</span>
             ${item.shortcut ? `<span class="shortcut">${htmlEscape(item.shortcut)}</span>` : ''}
           ${item.href ? '</a>' : '</button>'}

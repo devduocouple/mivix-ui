@@ -1,10 +1,11 @@
-import { baseStyles, MvxElement } from '../../core.js';
+import { baseStyles, MvxElement, htmlEscape } from '../../core.js';
 
 export class MvxSkeleton extends MvxElement {
-  static observedAttributes = ['lines'];
+  static observedAttributes = ['lines', 'label'];
 
   render() {
     const lines = Math.max(1, Number(this.getAttribute('lines') || 3));
+    const label = this.getAttribute('label') || this.t('loading', 'Loading');
     this.shadowRoot.innerHTML = `
       <style>
         ${baseStyles}
@@ -31,7 +32,7 @@ export class MvxSkeleton extends MvxElement {
           span { animation: none; }
         }
       </style>
-      <div class="skeleton" part="skeleton" aria-hidden="true">
+      <div class="skeleton" part="skeleton" role="status" aria-label="${htmlEscape(label)}">
         ${Array.from({ length: lines }, () => '<span></span>').join('')}
       </div>
     `;

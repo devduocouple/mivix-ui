@@ -1,4 +1,4 @@
-import { baseStyles, MvxElement, parseData, htmlEscape } from '../../core.js';
+import { baseStyles, MvxElement, parseData, htmlEscape, safeUrl } from '../../core.js';
 
 export class MvxNavbar extends MvxElement {
   static observedAttributes = ['brand', 'items', 'sticky', 'compact'];
@@ -84,7 +84,7 @@ export class MvxNavbar extends MvxElement {
         </a>
         <div class="links">
           ${items.map((item, index) => `
-            <a href="${htmlEscape(item.href || '#')}" data-index="${index}" ${item.active ? 'aria-current="page"' : ''}>${htmlEscape(item.label || item.href || '')}</a>
+            <a href="${htmlEscape(safeUrl(item.href || '#'))}" data-index="${index}" ${item.active ? 'aria-current="page"' : ''}>${htmlEscape(item.label || item.href || '')}</a>
           `).join('')}
         </div>
         <div class="actions"><slot name="actions"></slot></div>

@@ -17,8 +17,22 @@
     <script type="module" src="../src/index.js"></script>
   </head>
   <body>
+    <header class="mobile-shell-bar" aria-label="Mobile navigation">
+      <button class="mobile-nav-toggle" id="mobile-nav-toggle" type="button" aria-controls="docs-rail" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span class="sr-only">Open navigation</span>
+      </button>
+      <div class="mobile-shell-title" aria-hidden="true">
+        <span class="mobile-shell-mark">M</span>
+        <strong>Mivix UI</strong>
+      </div>
+      <mvx-theme-switcher></mvx-theme-switcher>
+    </header>
+    <button class="mobile-nav-backdrop" id="mobile-nav-backdrop" type="button" aria-label="Close navigation" hidden></button>
     <mvx-app-shell>
-      <div slot="rail" class="rail">
+      <div slot="rail" class="rail" id="docs-rail">
         <div class="rail-brand">
           <div class="mark">M</div>
           <div class="brand-copy">
@@ -34,10 +48,10 @@
           <span>Search</span>
           <input id="component-search" type="search" placeholder="button, timeline, tabs..." autocomplete="off" />
         </label>
-        <span id="component-count" class="sr-only">134</span>
+        <span id="component-count" class="sr-only">135</span>
         <nav class="tree-nav" aria-label="Component tree">
           <details class="tree-root" open>
-            <summary class="active" data-filter="all">All components <small>134</small></summary>
+            <summary class="active" data-filter="all">All components <small>135</small></summary>
             <details open>
               <summary data-filter="actions">Actions <small>9</small></summary>
               <button data-component="mvx-button">mvx-button</button>
@@ -64,10 +78,11 @@
               <button data-component="mvx-toast">mvx-toast</button>
             </details>
             <details>
-              <summary data-filter="navigation">Navigation <small>15</small></summary>
+              <summary data-filter="navigation">Navigation <small>16</small></summary>
               <button data-component="mvx-breadcrumbs">mvx-breadcrumbs</button>
               <button data-component="mvx-navbar">mvx-navbar</button>
               <button data-component="mvx-pagination">mvx-pagination</button>
+              <button data-component="mvx-shortcuts">mvx-shortcuts</button>
               <button data-component="mvx-sidebar">mvx-sidebar</button>
               <button data-component="mvx-stepper">mvx-stepper</button>
               <button data-component="mvx-tabs">mvx-tabs</button>
@@ -489,7 +504,7 @@
               label="Workspace"
               items='[
                 {"label":"Overview","icon":"O","active":true},
-                {"label":"Components","icon":"C","badge":"134"},
+                {"label":"Components","icon":"C","badge":"135"},
                 {"label":"Settings","icon":"S"}
               ]'
             ></mvx-sidebar>
@@ -669,6 +684,16 @@
             </div>
           </mvx-card>
 
+          <mvx-card class="component-card" title="mvx-shortcuts" eyebrow="Navigation" data-category="navigation" data-search="keyboard shortcuts hotkeys command navigation focus click route">
+            <div class="variants" aria-label="Related versions">
+              <span>hotkeys</span><span>commands</span><span>navigation</span>
+            </div>
+            <div class="stack">
+              <p class="demo-copy">Declarative keyboard commands for pages built with Mivix.</p>
+              <mvx-kbd>Mod+K</mvx-kbd>
+            </div>
+          </mvx-card>
+
           <mvx-card class="component-card" title="mvx-ai-panel" eyebrow="AI" data-category="ai" data-search="ai assistant copilot agent chat prompt">
             <div class="variants" aria-label="Related versions">
               <span>assistant</span><span>chat</span><span>message</span>
@@ -752,6 +777,7 @@
     </mvx-drawer>
 
     <mvx-command-palette id="palette" placeholder="Search Mivix UI commands"></mvx-command-palette>
+    <mvx-shortcuts id="docs-shortcuts"></mvx-shortcuts>
     <mvx-toast id="toast" tone="success">Component selected.</mvx-toast>
 
     <script type="module">
@@ -766,6 +792,7 @@
         { component: 'mvx-data-table', status: 'Beta', category: 'Data', a11y: 'Sortable' },
         { component: 'mvx-chart', status: 'Beta', category: 'Charts', a11y: 'SVG role img' },
         { component: 'mvx-command-palette', status: 'Beta', category: 'Overlay', a11y: 'Roving' },
+        { component: 'mvx-shortcuts', status: 'Alpha', category: 'Navigation', a11y: 'Keyboard' },
         { component: 'mvx-ai-panel', status: 'Alpha', category: 'AI', a11y: 'Form' },
         { component: 'mvx-chatbot', status: 'Alpha', category: 'AI', a11y: 'Live region' },
         { component: 'mvx-kanban', status: 'Alpha', category: 'Workflow', a11y: 'Selectable' }
@@ -823,15 +850,21 @@
         { time: 'Build', title: 'Added accessible primitives', description: 'Tabs, accordion, timeline, breadcrumbs, pagination, progress, skeleton, avatar, and tooltip.' }
       ];
 
+      const commandItems = [
+        { label: 'Focus component search', shortcut: '/', command: 'focus-search' },
+        { label: 'Filter navigation components', shortcut: 'N', command: 'filter-navigation' },
+        { label: 'Open modal', shortcut: 'M', command: 'open-modal' },
+        { label: 'Open drawer', shortcut: 'D', command: 'open-drawer' },
+        { label: 'Show toast', shortcut: 'T', command: 'show-toast' },
+        { label: 'Review data table', shortcut: 'G', command: 'review-data-table' },
+        { label: 'Open AI panel', shortcut: 'A', command: 'open-ai-panel' }
+      ];
       const palette = document.querySelector('#palette');
-      palette.items = [
-        { label: 'Focus component search', shortcut: '/' },
-        { label: 'Filter navigation components', shortcut: 'N' },
-        { label: 'Open modal', shortcut: 'M' },
-        { label: 'Open drawer', shortcut: 'D' },
-        { label: 'Show toast', shortcut: 'T' },
-        { label: 'Review data table', shortcut: 'G' },
-        { label: 'Open AI panel', shortcut: 'A' }
+      palette.items = commandItems;
+      const shortcuts = document.querySelector('#docs-shortcuts');
+      shortcuts.items = [
+        { label: 'Open commands', shortcut: 'Mod+K', command: 'open-command-palette', allowInput: true },
+        ...commandItems
       ];
 
       const cards = [...document.querySelectorAll('.component-card')];
@@ -840,6 +873,9 @@
       const agentFeatureLinks = [...document.querySelectorAll('[data-agent-feature]')];
       const chartDemoLinks = [...document.querySelectorAll('[data-chart-demo]')];
       const templateLinks = [...document.querySelectorAll('[data-template]')];
+      const mobileNavToggle = document.querySelector('#mobile-nav-toggle');
+      const mobileNavBackdrop = document.querySelector('#mobile-nav-backdrop');
+      const mobileNavMedia = window.matchMedia('(max-width: 860px)');
       const search = document.querySelector('#component-search');
       const count = document.querySelector('#component-count');
       const emptyState = document.querySelector('#empty-state');
@@ -880,6 +916,80 @@
       let activeApiRows = [];
       let activeSnippetName = 'Component';
       const chartGalleryState = { query: '', page: 1, pageSize: 3 };
+      function showDocsToast(message) {
+        const toast = document.querySelector('#toast');
+        toast.textContent = message;
+        toast.setAttribute('open', '');
+        toast.setAttribute('duration', '2200');
+      }
+
+      function isMobileNavViewport() {
+        return mobileNavMedia.matches;
+      }
+
+      function setMobileNav(open) {
+        if (!mobileNavToggle || !mobileNavBackdrop) return;
+        const isOpen = Boolean(open) && isMobileNavViewport();
+        document.body.classList.toggle('mobile-nav-open', isOpen);
+        mobileNavToggle.setAttribute('aria-expanded', String(isOpen));
+        mobileNavBackdrop.hidden = !isOpen;
+        const toggleLabel = mobileNavToggle.querySelector('.sr-only');
+        if (toggleLabel) toggleLabel.textContent = isOpen ? 'Close navigation' : 'Open navigation';
+      }
+
+      function closeMobileNav() {
+        setMobileNav(false);
+      }
+
+      function executeCommand(command, options = {}) {
+        const showToast = options.toast !== false;
+        const actions = {
+          'open-command-palette': () => {
+            palette.setAttribute('open', '');
+            return 'Command palette opened.';
+          },
+          'focus-search': () => {
+            setComponentPage(false);
+            clearRoute();
+            clearActiveNavigation();
+            document.querySelector('#catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            search.focus();
+            search.select?.();
+            return 'Component search focused.';
+          },
+          'filter-navigation': () => {
+            document.querySelector('[data-filter="navigation"]')?.click();
+            document.querySelector('#catalog')?.scrollIntoView({ behavior: 'smooth' });
+            return 'Navigation components filtered.';
+          },
+          'open-modal': () => {
+            document.querySelector('#modal')?.setAttribute('open', '');
+            return 'Modal opened.';
+          },
+          'open-drawer': () => {
+            document.querySelector('#drawer')?.setAttribute('open', '');
+            return 'Drawer opened.';
+          },
+          'show-toast': () => {
+            showDocsToast('Mivix UI is ready.');
+            return '';
+          },
+          'review-data-table': () => {
+            document.querySelector('#release-table')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return 'Data table focused.';
+          },
+          'open-ai-panel': () => {
+            document.querySelector('mvx-ai-panel')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return 'AI panel focused.';
+          }
+        };
+        const action = actions[command];
+        if (!action) return false;
+        const message = action();
+        closeMobileNav();
+        if (showToast && message) showDocsToast(message);
+        return true;
+      }
 
       const chartCategoryOrder = [
         'Line & area charts',
@@ -1151,6 +1261,290 @@
         usecase
       }));
 
+      const chartDemoFamilies = {
+        line: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        product: ['Search', 'Forms', 'Tables', 'Charts', 'AI', 'Themes'],
+        regions: ['North', 'West', 'Central', 'East', 'South'],
+        stages: ['Visit', 'Trial', 'Demo', 'Pilot', 'Paid'],
+        finance: ['Jul 01', 'Jul 02', 'Jul 03', 'Jul 04', 'Jul 05', 'Jul 06'],
+        schedule: ['Research', 'Design', 'Prototype', 'Build', 'Launch'],
+        skills: ['A11y', 'i18n', 'Theme', 'SSR', 'DX', 'AI'],
+        channels: ['Direct', 'Partner', 'Marketplace', 'Docs', 'Community'],
+        signals: ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8']
+      };
+
+      const chartLineStyles = ['linear', 'smooth', 'step', 'dashed', 'dotted', 'area'];
+      const chartPointStyles = ['circle', 'square', 'diamond', 'hollow'];
+      const chartBarStyles = ['rounded', 'thin', 'stripe', 'glass', 'square', 'lollipop'];
+
+      function chartTypeSeed(type) {
+        return [...String(type)].reduce((sum, char, index) => sum + char.charCodeAt(0) * (index + 3), 23);
+      }
+
+      function chartDemoValues(type, count = 6, floor = 18, spread = 72) {
+        const seed = chartTypeSeed(type);
+        return Array.from({ length: count }, (_item, index) => {
+          const wave = Math.sin((seed % 13 + index + 1) * 0.88) * 9;
+          const drift = (seed * (index + 5) + index * index * 11) % spread;
+          return Math.max(4, Math.round(floor + drift + wave));
+        });
+      }
+
+      function chartDemoPointData(type, labels, floor = 18, spread = 72) {
+        const values = chartDemoValues(type, labels.length, floor, spread);
+        return labels.map((label, index) => ({
+          label,
+          value: values[index],
+          y: values[index],
+          x: index + 1,
+          size: 10 + ((chartTypeSeed(type) + index * 7) % 30),
+          start: Math.max(0, values[index] - 18 - index * 2),
+          end: values[index] + 8 + index * 3,
+          target: values[index] + 10
+        }));
+      }
+
+      function chartDemoSeries(type, labels = chartDemoFamilies.product, names = ['Actual']) {
+        return names.map((name, seriesIndex) => ({
+          name,
+          data: chartDemoPointData(`${type}-${name}`, labels, 12 + seriesIndex * 8, 62)
+        }));
+      }
+
+      function chartDemoRangeData(type, labels) {
+        return chartDemoPointData(type, labels, 26, 46).map((item, index) => ({
+          ...item,
+          low: Math.max(4, item.value - 12 - (index % 3) * 5),
+          high: item.value + 10 + (index % 2) * 8,
+          q1: Math.max(3, item.value - 11),
+          median: item.value,
+          q3: item.value + 9
+        }));
+      }
+
+      function chartDemoFinancialData(type) {
+        const base = 74 + chartTypeSeed(type) % 18;
+        return chartDemoFamilies.finance.map((label, index) => {
+          const move = ((chartTypeSeed(type) + index * 13) % 23) - 9;
+          const open = base + index * 3 + move;
+          const close = open + (((chartTypeSeed(`${type}-${index}`) % 21) - 8));
+          return {
+            label,
+            open,
+            close,
+            high: Math.max(open, close) + 7 + index,
+            low: Math.min(open, close) - 5 - index,
+            value: close
+          };
+        });
+      }
+
+      function chartDemoHierarchyData(type) {
+        const root = type.includes('word') ? 'Knowledge base' : type.includes('org') ? 'Mivix team' : 'Mivix platform';
+        return [
+          { label: root, value: 100, parent: '' },
+          { label: 'Core', value: 38, parent: root },
+          { label: 'Charts', value: 31, parent: root },
+          { label: 'AI tools', value: 24, parent: root },
+          { label: 'Forms', value: 17, parent: 'Core' },
+          { label: 'Data grid', value: 15, parent: 'Core' },
+          { label: 'Telemetry', value: 13, parent: 'Charts' },
+          { label: 'Copilot', value: 11, parent: 'AI tools' }
+        ];
+      }
+
+      function chartDemoFlowData(type) {
+        const source = type === 'process-flow' ? 'Intake' : type === 'alluvial' ? 'Visitors' : 'Traffic';
+        return [
+          { from: source, to: 'Docs', value: 38 + chartTypeSeed(type) % 16 },
+          { from: source, to: 'Trial', value: 26 + chartTypeSeed(type) % 13 },
+          { from: 'Docs', to: 'Activated', value: 24 },
+          { from: 'Trial', to: 'Activated', value: 31 },
+          { from: 'Activated', to: 'Paid', value: 18 },
+          { from: 'Activated', to: 'Expansion', value: 12 }
+        ];
+      }
+
+      function chartDemoNetworkData(type) {
+        const nodes = type === 'dependency-graph'
+          ? ['App', 'Router', 'Store', 'API', 'Charts', 'Forms', 'Theme']
+          : ['User', 'Docs', 'Trial', 'AI', 'Charts', 'Teams', 'Billing'];
+        return nodes.map((label, index) => ({
+          id: label,
+          label,
+          value: 12 + ((chartTypeSeed(type) + index * 9) % 32),
+          links: nodes.slice(index + 1, index + 3)
+        }));
+      }
+
+      function chartDemoGeoData(type) {
+        const seed = chartTypeSeed(type);
+        return [
+          { label: 'North', value: 42 + seed % 35, x: 138, y: 98 },
+          { label: 'West', value: 34 + seed % 24, x: 238, y: 204 },
+          { label: 'Central', value: 58 + seed % 31, x: 365, y: 150 },
+          { label: 'East', value: 29 + seed % 29, x: 525, y: 128 },
+          { label: 'South', value: 46 + seed % 27, x: 426, y: 272 },
+          { label: 'Coast', value: 22 + seed % 22, x: 610, y: 225 }
+        ];
+      }
+
+      function chartDemoConfig(item) {
+        const type = item.type;
+        const seed = chartTypeSeed(type);
+        const attrs = {
+          type,
+          title: `${item.name} demo`,
+          subtitle: item.usecase,
+          legend: true,
+          labels: true,
+          grid: true,
+          height: 320,
+          'view-height': 520,
+          'line-style': chartLineStyles[seed % chartLineStyles.length],
+          'point-style': chartPointStyles[seed % chartPointStyles.length],
+          'bar-style': chartBarStyles[seed % chartBarStyles.length],
+          thresholds: [{ value: 58 + seed % 22, label: 'Goal', color: 'var(--mvx-warning)' }]
+        };
+        const setSeries = series => {
+          attrs.series = series;
+          attrs.categories = series[0]?.data?.map(point => point.label).filter(Boolean) || [];
+        };
+
+        if (['line', 'area', 'multi-line', 'step-line', 'range-area', 'stacked-area', 'stacked-100-area', 'confidence-band', 'error-band', 'combo', 'streamgraph'].includes(type)) {
+          setSeries(chartDemoSeries(type, chartDemoFamilies.line, type === 'multi-line' || type.includes('stacked') || type === 'streamgraph' ? ['Website', 'Product', 'API'] : ['Activation', type === 'combo' ? 'Revenue' : 'Retention']));
+          attrs['line-style'] = type === 'step-line' ? 'step' : type === 'area' || type.includes('band') || type.includes('area') ? 'smooth' : attrs['line-style'];
+          return attrs;
+        }
+        if (['bar', 'column', 'grouped-bar', 'grouped-column', 'stacked-bar', 'stacked-column', '100%-stacked-bar', '100%-stacked-column', 'range-bar', 'range-column', 'floating-bar', 'error-bar', 'histogram', 'waterfall', 'pareto', 'lollipop'].includes(type)) {
+          setSeries(chartDemoSeries(type, chartDemoFamilies.product, type.includes('grouped') || type.includes('stacked') ? ['Current', 'Previous'] : ['Usage']));
+          attrs['bar-style'] = type === 'lollipop' ? 'lollipop' : type.includes('range') || type.includes('error') ? 'thin' : attrs['bar-style'];
+          return attrs;
+        }
+        if (['slope', 'dumbbell', 'bump'].includes(type)) {
+          setSeries([{ name: 'Before and after', data: chartDemoRangeData(type, chartDemoFamilies.channels) }]);
+          attrs.grid = false;
+          return attrs;
+        }
+        if (['pie', 'donut', 'nested-donut', 'semi-donut', 'rose', 'polar-area', 'radial-bar', 'progress-ring'].includes(type)) {
+          setSeries([{ name: 'Share', data: chartDemoPointData(type, chartDemoFamilies.channels, 10, 45) }]);
+          attrs.grid = false;
+          return attrs;
+        }
+        if (['gauge', 'meter', 'kpi', 'liquid-fill'].includes(type)) {
+          attrs.value = 54 + seed % 39;
+          attrs.min = 0;
+          attrs.max = 100;
+          attrs.series = [{ name: 'Readiness', data: [{ label: 'Readiness', value: attrs.value }] }];
+          attrs.grid = false;
+          return attrs;
+        }
+        if (['radar', 'spider', 'parallel-coordinates'].includes(type)) {
+          setSeries([{ name: 'Capability score', data: chartDemoPointData(type, chartDemoFamilies.skills, 46, 48) }]);
+          return attrs;
+        }
+        if (['scatter', 'bubble', 'qq-plot', 'probability-plot', 'beeswarm', 'dot-plot', 'strip-plot', 'ternary', 'vector-field'].includes(type)) {
+          attrs.series = [{ name: 'Telemetry samples', data: chartDemoPointData(type, chartDemoFamilies.signals, 16, 76) }];
+          attrs.categories = chartDemoFamilies.signals;
+          attrs.grid = type === 'scatter' || type === 'bubble';
+          return attrs;
+        }
+        if (['boxplot', 'violin', 'ridgeline', 'contour', 'density', 'hexbin', 'control-chart'].includes(type)) {
+          attrs.series = [{ name: 'Latency distribution', data: chartDemoRangeData(type, chartDemoFamilies.signals) }];
+          attrs.categories = chartDemoFamilies.signals;
+          attrs.min = 22;
+          attrs.max = 94;
+          return attrs;
+        }
+        if (['heatmap', 'calendar-heatmap', 'barcode-chart', 'spectrogram'].includes(type)) {
+          attrs.series = [{ name: 'Activity intensity', data: chartDemoPointData(type, ['Mon AM', 'Mon PM', 'Tue AM', 'Tue PM', 'Wed AM', 'Wed PM', 'Thu AM', 'Thu PM', 'Fri AM', 'Fri PM', 'Sat AM', 'Sat PM'], 8, 88) }];
+          attrs.categories = attrs.series[0].data.map(point => point.label);
+          attrs.grid = false;
+          return attrs;
+        }
+        if (['treemap', 'sunburst', 'word-cloud', 'marimekko', 'mosaic', 'waffle', 'pictogram', 'unit-chart', 'bullet'].includes(type)) {
+          setSeries([{ name: 'Portfolio mix', data: chartDemoPointData(type, chartDemoFamilies.product, 12, 58) }]);
+          attrs.max = 100;
+          attrs.grid = false;
+          return attrs;
+        }
+        if (['candlestick', 'ohlc', 'volume-candlestick', 'heikin-ashi', 'renko', 'kagi', 'point-and-figure', 'market-depth'].includes(type)) {
+          attrs.series = [{ name: 'MIVX price', data: chartDemoFinancialData(type) }];
+          attrs.categories = chartDemoFamilies.finance;
+          return attrs;
+        }
+        if (['gantt', 'timeline-range', 'journey-map'].includes(type)) {
+          attrs.series = [{ name: 'Release plan', data: chartDemoFamilies.schedule.map((label, index) => ({ label, start: index * 2, end: index * 2 + 3 + (seed + index) % 3, value: index * 2 + 3 })) }];
+          attrs.categories = chartDemoFamilies.schedule;
+          attrs.grid = false;
+          return attrs;
+        }
+        if (['timeline-event', 'status-timeline', 'milestone', 'calendar-event'].includes(type)) {
+          attrs.series = [{ name: 'Launch events', data: chartDemoPointData(type, ['Kickoff', 'Alpha', 'Beta', 'Audit', 'Release', 'Review'], 10, 70) }];
+          attrs.categories = attrs.series[0].data.map(point => point.label);
+          attrs.grid = false;
+          return attrs;
+        }
+        if (['funnel', 'pyramid', 'sankey', 'alluvial', 'process-flow'].includes(type)) {
+          attrs.series = [{ name: 'Conversion flow', data: type === 'funnel' || type === 'pyramid' ? chartDemoPointData(type, chartDemoFamilies.stages, 22, 78).sort((a, b) => b.value - a.value) : chartDemoFlowData(type) }];
+          attrs.categories = chartDemoFamilies.stages;
+          attrs.grid = false;
+          return attrs;
+        }
+        if (type === 'chord') {
+          attrs.series = [{ name: 'Relationship flow', data: chartDemoNetworkData(type) }];
+          attrs.grid = false;
+          return attrs;
+        }
+        if (['network', 'network-graph', 'force-directed', 'dependency-graph', 'arc-diagram', 'matrix-network', 'edge-bundling'].includes(type)) {
+          attrs.series = [{ name: 'Relationships', data: chartDemoNetworkData(type) }];
+          attrs.grid = false;
+          return attrs;
+        }
+        if (['org-chart', 'mind-map', 'tree-diagram', 'icicle', 'word-tree'].includes(type)) {
+          attrs.series = [{ name: 'Hierarchy', data: chartDemoHierarchyData(type) }];
+          attrs.grid = false;
+          return attrs;
+        }
+        if (['choropleth', 'symbol-map', 'flow-map', 'geo-heatmap', 'bubble-map', 'tile-map', 'cartogram', 'route-map', 'map-with-markers', 'map-with-clusters'].includes(type)) {
+          attrs.series = [{ name: 'Regional demand', data: chartDemoGeoData(type) }];
+          attrs.grid = false;
+          return attrs;
+        }
+        if (['3d-surface', 'surface', 'mesh'].includes(type)) {
+          attrs.series = [{ name: 'Surface scan', data: chartDemoPointData(type, chartDemoFamilies.signals, 20, 75) }];
+          attrs.grid = false;
+          return attrs;
+        }
+        attrs.series = chartDemoSeries(type, chartDemoFamilies.product, ['Actual']);
+        attrs.categories = chartDemoFamilies.product;
+        return attrs;
+      }
+
+      function chartDemoAttributeValue(value) {
+        return escapeHtml(typeof value === 'string' ? value : JSON.stringify(value));
+      }
+
+      function chartDemoAttributeString(attrs, overrides = {}) {
+        return Object.entries({ ...attrs, ...overrides })
+          .filter(([, value]) => value !== false && value !== null && value !== undefined)
+          .map(([name, value]) => value === true ? name : `${name}="${chartDemoAttributeValue(value)}"`)
+          .join(' ');
+      }
+
+      function applyChartDemoAttributes(chart, attrs, overrides = {}) {
+        const next = { ...attrs, ...overrides };
+        [...chart.attributes].forEach(attribute => {
+          if (!attribute.name.startsWith('data-') && !['id', 'class', 'part', 'slot'].includes(attribute.name)) {
+            chart.removeAttribute(attribute.name);
+          }
+        });
+        Object.entries(next).forEach(([name, value]) => {
+          if (value === false || value === null || value === undefined) return;
+          chart.setAttribute(name, value === true ? '' : typeof value === 'string' ? value : JSON.stringify(value));
+        });
+      }
+
       function setComponentPage(enabled) {
         document.body.classList.toggle('component-page', enabled);
         detail.section.hidden = !enabled;
@@ -1181,8 +1575,10 @@
         { name: 'component-style', type: 'console | minimal | glass | dashboard', default: 'console', description: 'Structural style: changes component layout, surface treatment, density, and animation without changing color tokens.', options: ['console', 'minimal', 'glass', 'dashboard'] },
         { name: 'radius', type: 'number | CSS length | square | rounded', default: 'inherit', description: 'Controls corners from square edges to a specific rounding amount.' },
         { name: 'dir', type: 'ltr | rtl | auto', default: 'inherit', description: 'Direction-aware layout for bidirectional interfaces.' },
-        { name: 'lang', type: 'BCP 47 tag', default: 'document lang', description: 'Language metadata for assistive technology and globalization.' },
-        { name: 'locale', type: 'BCP 47 locale', default: 'document lang', description: 'Locale used by comparison/format-aware components such as data table sorting.' },
+        { name: 'lang', type: 'BCP 47 tag', default: 'document lang', description: 'Language metadata for assistive technology and globalization. The playground lists standard ISO 639 language tags.' },
+        { name: 'locale', type: 'BCP 47 locale', default: 'document lang', description: 'Locale used by comparison/format-aware components such as date formatting and data table sorting.' },
+        { name: 'skeleton', type: 'boolean attribute | text | card | chart | table | avatar | button | input', default: 'false', description: 'Renders a component-shaped loading placeholder and marks the host aria-busy.' },
+        { name: 'skeleton-lines', type: 'number', default: '3', description: 'Number of placeholder rows for the global skeleton state.' },
         { name: 'i18n', type: 'JSON object', default: '{}', description: 'Overrides built-in component labels such as close, previous, next, and empty states.' }
       ];
 
@@ -1342,13 +1738,15 @@
         },
         'mvx-date-picker': {
           family: 'Forms',
-          description: 'Native date/time picker wrapper with range mode, min/max constraints, helper text, and form states.',
+          description: 'Mivix-themed date picker with native single-date input and a single-field calendar range selector.',
           usage: 'Use for schedules, release windows, filters, due dates, and date/time settings.',
-          features: ['Native date/time input behavior', 'Single date or range mode', 'Min/max constraints', 'Required/disabled states', 'mvx-change event'],
+          features: ['Single date or calendar range mode', 'One-field range trigger with themed calendar popover', 'Min/max constraints', 'Required/disabled states', 'mvx-change event'],
           api: [
             { name: 'value', type: 'date string | start,end', default: "''", description: 'Selected date or comma-separated date range.' },
             { name: 'type', type: 'date | datetime-local | month | week | time', default: 'date', description: 'Native input type.', options: ['date', 'datetime-local', 'month', 'week', 'time'] },
-            { name: 'range', type: 'boolean attribute', default: 'false', description: 'Renders start and end date inputs.' },
+            { name: 'range', type: 'boolean attribute', default: 'false', description: 'Renders a single range field with a themed calendar for type=date.' },
+            { name: 'open', type: 'boolean attribute', default: 'false', description: 'Controls the range calendar popover.' },
+            { name: 'auto-close', type: 'boolean attribute', default: 'false', description: 'Closes the range calendar automatically after both start and end dates are selected.' },
             { name: 'min', type: 'date string', default: '-', description: 'Minimum selectable date.' },
             { name: 'max', type: 'date string', default: '-', description: 'Maximum selectable date.' },
             commonApi.events[0]
@@ -1478,7 +1876,7 @@
   label="Workspace"
   items='[
     {"label":"Overview","icon":"O","active":true},
-    {"label":"Components","icon":"C","badge":"134"},
+    {"label":"Components","icon":"C","badge":"135"},
     {"label":"Settings","icon":"S"}
   ]'
 ></mvx-sidebar>`
@@ -1515,7 +1913,7 @@
             { name: 'label', type: 'string', default: 'Dialog', description: 'Accessible dialog label.' },
             { name: 'mvx-close', type: 'CustomEvent', default: '-', description: 'Emitted on close.' }
           ],
-          demo: '<mvx-modal data-playground-target id="play-modal" label="Preview dialog"><p>Use the open option to show or hide this dialog.</p></mvx-modal>'
+          demo: '<mvx-modal data-playground-target id="play-modal" label="Preview dialog" inline open><p>Use the open option to show or hide this dialog.</p></mvx-modal>'
         },
         'mvx-drawer': {
           family: 'Overlays',
@@ -1527,7 +1925,7 @@
             { name: 'label', type: 'string', default: 'Drawer', description: 'Accessible drawer label.' },
             { name: 'side', type: 'left | right', default: 'right', description: 'Panel placement.' }
           ],
-          demo: '<mvx-drawer data-playground-target id="play-drawer" label="Preview drawer"><p>Use side, label, and open to tune this drawer.</p></mvx-drawer>'
+          demo: '<mvx-drawer data-playground-target id="play-drawer" label="Preview drawer" inline open><p>Use side, label, and open to tune this drawer.</p></mvx-drawer>'
         },
         'mvx-tooltip': {
           family: 'Overlays',
@@ -1586,26 +1984,30 @@
             { name: 'tone', type: 'info | success | warning | danger', default: 'info', description: 'Notification tone.' },
             { name: 'duration', type: 'number', default: '0', description: 'Auto-close milliseconds.' }
           ],
-          demo: '<mvx-toast data-playground-target id="play-toast" tone="success">Component saved.</mvx-toast>'
+          demo: '<mvx-toast data-playground-target id="play-toast" tone="success" inline open>Component saved.</mvx-toast>'
         },
         'mvx-progress': {
           family: 'Feedback',
-          description: 'Linear progress indicator for completion, coverage, uploads, and background work.',
-          usage: 'Use when progress is determinate and can be expressed as a percentage.',
-          features: ['role=progressbar', 'aria-valuenow', 'Label and value display', 'Gradient fill'],
+          description: 'Linear progress indicator for completion, coverage, uploads, and background work, with animated, striped, and indeterminate states.',
+          usage: 'Use when progress is determinate, or when background work is active but the exact completion is unknown.',
+          features: ['role=progressbar', 'Determinate and indeterminate states', 'Label and value display', 'Animated shine and striped motion', 'Reduced-motion support'],
           api: [
             { name: 'value', type: 'number 0-100', default: '0', description: 'Completion percentage.' },
-            { name: 'label', type: 'string', default: 'value%', description: 'Accessible progress label.' }
+            { name: 'label', type: 'string', default: 'value%', description: 'Accessible progress label.' },
+            { name: 'animated', type: 'boolean attribute', default: 'false', description: 'Adds motion to the fill for active progress.' },
+            { name: 'striped', type: 'boolean attribute', default: 'false', description: 'Adds diagonal stripes to the progress fill.' },
+            { name: 'indeterminate', type: 'boolean attribute', default: 'false', description: 'Shows an animated loading bar and omits aria-valuenow.' }
           ],
-          demo: '<mvx-progress data-playground-target value="68" label="Component coverage"></mvx-progress>'
+          demo: '<mvx-progress data-playground-target value="68" label="Component coverage" animated striped></mvx-progress>'
         },
         'mvx-skeleton': {
           family: 'Feedback',
           description: 'Loading placeholder for content that has not arrived yet.',
           usage: 'Use in cards, lists, tables, and assistant responses while data is loading.',
-          features: ['Configurable line count', 'Reduced motion support', 'aria-hidden visual skeleton', 'Graphite shimmer'],
+          features: ['Configurable line count', 'Reduced motion support', 'Accessible loading status', 'Graphite shimmer'],
           api: [
-            { name: 'lines', type: 'number', default: '3', description: 'Number of placeholder rows.' }
+            { name: 'lines', type: 'number', default: '3', description: 'Number of placeholder rows.' },
+            { name: 'label', type: 'string', default: 'Loading', description: 'Accessible loading status label.' }
           ],
           demo: '<mvx-skeleton data-playground-target lines="4"></mvx-skeleton>'
         },
@@ -1762,7 +2164,43 @@
             { name: 'items', type: 'array | JSON', default: '[]', description: 'Commands with label and shortcut.' },
             { name: 'placeholder', type: 'string', default: 'Search commands', description: 'Input placeholder.' }
           ],
-          demo: '<mvx-command-palette data-playground-target id="play-command" placeholder="Search commands"></mvx-command-palette>'
+          demo: '<mvx-command-palette data-playground-target id="play-command" placeholder="Search commands" inline open></mvx-command-palette>'
+        },
+        'mvx-shortcuts': {
+          family: 'Navigation',
+          description: 'Declarative keyboard shortcut controller for website navigation, command triggers, focus targets, and app hotkeys.',
+          usage: 'Use once near the root of a page or app shell to make Mivix-built websites navigable by keyboard shortcuts without framework-specific code.',
+          features: ['Single-key shortcuts, modifier chords, and multi-key sequences', 'Safe defaults that ignore text fields unless allowInput is enabled', 'Built-in click, focus, scroll, and navigate actions', 'Cancellable mvx-shortcut event and mvx-command event for app logic'],
+          api: [
+            { name: 'items', type: 'array | JSON', default: '[]', description: 'Shortcut items with label, shortcut/keys, command, action, selector, href, and allowInput.' },
+            { name: 'disabled', type: 'boolean attribute', default: 'false', description: 'Disables all shortcuts.' },
+            { name: 'capture', type: 'boolean attribute', default: 'false', description: 'Listens during capture phase for app-shell level shortcuts.' },
+            { name: 'timeout', type: 'number', default: '900', description: 'Milliseconds to wait between keys in a sequence like g h.' },
+            { name: 'mvx-shortcut', type: 'CustomEvent', default: '-', description: 'Cancellable event emitted before a shortcut action runs.' },
+            { name: 'mvx-command', type: 'CustomEvent', default: '-', description: 'Emitted when a matched item has a command value.' }
+          ],
+          demo: `<div class="stack">
+  <mvx-shortcuts
+    data-playground-target
+    id="play-shortcuts"
+    items='[
+      {
+        "label": "Focus search",
+        "shortcut": "s",
+        "action": "focus",
+        "selector": "#shortcut-demo-search"
+      },
+      {
+        "label": "Press primary action",
+        "shortcut": "p",
+        "action": "click",
+        "selector": "#shortcut-demo-action"
+      }
+    ]'
+  ></mvx-shortcuts>
+  <mvx-input id="shortcut-demo-search" label="Search" placeholder="Press S to focus"></mvx-input>
+  <mvx-button id="shortcut-demo-action" variant="primary">Primary action</mvx-button>
+</div>`
         },
         'mvx-ai-panel': {
           family: 'AI surfaces',
@@ -1862,7 +2300,7 @@
         'mvx-date-picker': '<mvx-date-picker label="Release window" range value="2026-07-02,2026-07-09"></mvx-date-picker>',
         'mvx-alert': '<mvx-alert tone="success" title="Deployment complete" closable>Your production build is live.</mvx-alert>',
         'mvx-badge': '<mvx-badge tone="success">Production</mvx-badge>',
-        'mvx-card': '<mvx-card title="Release health" eyebrow="Dashboard" interactive>All checks passed across 134 components.</mvx-card>',
+        'mvx-card': '<mvx-card title="Release health" eyebrow="Dashboard" interactive>All checks passed across 135 components.</mvx-card>',
         'mvx-accordion': `<mvx-accordion
   multiple
   items='[
@@ -1930,7 +2368,7 @@
   <p>Agent-readable attributes, events, and copyable snippets.</p>
 </mvx-popover>`,
         'mvx-toast': '<mvx-toast open tone="success" duration="2400">Settings saved.</mvx-toast>',
-        'mvx-progress': '<mvx-progress value="72" label="Migration progress"></mvx-progress>',
+        'mvx-progress': '<mvx-progress value="72" label="Migration progress" animated striped></mvx-progress>',
         'mvx-skeleton': '<mvx-skeleton lines="4"></mvx-skeleton>',
         'mvx-spinner': '<mvx-spinner label="Loading components" variant="ring" tone="accent"></mvx-spinner>',
         'mvx-avatar': '<mvx-avatar initials="SB" label="Saurya Bhoi" size="48"></mvx-avatar>',
@@ -2015,6 +2453,28 @@
     }
   ]'
 ></mvx-command-palette>`,
+        'mvx-shortcuts': `<mvx-shortcuts
+  items='[
+    {
+      "label": "Open commands",
+      "shortcut": "Mod+K",
+      "command": "open-commands",
+      "allowInput": true
+    },
+    {
+      "label": "Focus search",
+      "shortcut": "/",
+      "action": "focus",
+      "selector": "#site-search"
+    },
+    {
+      "label": "Go home",
+      "shortcut": "g h",
+      "action": "navigate",
+      "href": "/"
+    }
+  ]'
+></mvx-shortcuts>`,
         'mvx-ai-panel': `<mvx-ai-panel name="Review Agent" status="Ready">
   <mvx-button slot="actions" size="sm" variant="primary">Run review</mvx-button>
   <p slot="message">I can inspect this component and suggest safer defaults.</p>
@@ -2144,7 +2604,7 @@ navbar.items = [
           setup: `const sidebar = document.querySelector('#workspace-sidebar');
 sidebar.items = [
   { label: 'Overview', icon: 'O', active: true },
-  { label: 'Components', icon: 'C', badge: '134' },
+  { label: 'Components', icon: 'C', badge: '135' },
   { label: 'Settings', icon: 'S' }
 ];`
         },
@@ -2198,6 +2658,21 @@ palette.items = [
   { label: 'Open deployment logs', shortcut: 'L' }
 ];`
         },
+        'mvx-shortcuts': {
+          markup: '<mvx-shortcuts id="app-shortcuts"></mvx-shortcuts>',
+          setup: `const shortcuts = document.querySelector('#app-shortcuts');
+shortcuts.items = [
+  { label: 'Open commands', shortcut: 'Mod+K', command: 'open-commands', allowInput: true },
+  { label: 'Focus search', shortcut: '/', action: 'focus', selector: '#site-search' },
+  { label: 'Open settings', shortcut: 'g s', action: 'navigate', href: '/settings' }
+];
+
+shortcuts.addEventListener('mvx-command', event => {
+  if (event.detail.command === 'open-commands') {
+    document.querySelector('#command-menu')?.setAttribute('open', '');
+  }
+});`
+        },
         'mvx-chatbot': {
           markup: '<mvx-chatbot id="support-copilot" name="Support Copilot" endpoint="/api/ai/chat" model="gpt-4.1-mini"></mvx-chatbot>',
           setup: `const chatbot = document.querySelector('#support-copilot');
@@ -2238,6 +2713,7 @@ timeline.items = [
 
       const parityApiRows = {
         active: { name: 'active', type: 'number', default: '0', description: 'Active item, slide, or step index.' },
+        align: { name: 'align', type: 'CSS align-items value', default: 'stretch', description: 'Cross-axis alignment for grid or stack children.' },
         checked: { name: 'checked', type: 'boolean attribute', default: 'false', description: 'Marks a binary or toggle-like state as selected.' },
         columns: { name: 'columns', type: 'number | JSON array', default: '-', description: 'Grid column count or table column definitions.' },
         config: { name: 'config', type: 'JSON object | array', default: '[]', description: 'Declarative JSON tree used to render markup or components.' },
@@ -2251,27 +2727,33 @@ timeline.items = [
         eventRemove: { name: 'mvx-remove', type: 'CustomEvent', default: '-', description: 'Emitted when a removable item is dismissed.' },
         eventSelect: commonApi.events[1],
         formData: { name: 'form-data', type: 'JSON object', default: '{}', description: 'Current schema form values.' },
+        fluid: { name: 'fluid', type: 'boolean attribute', default: 'false', description: 'Lets a container use the full available width.' },
         gap: { name: 'gap', type: 'CSS length', default: 'component default', description: 'Spacing between child items.' },
         headers: { name: 'headers', type: 'JSON object', default: '{}', description: 'Optional backend request headers for trusted same-origin gateways.' },
         height: { name: 'height', type: 'CSS length', default: 'component default', description: 'Visible height or viewport height.' },
         href: { name: 'href', type: 'URL', default: '#', description: 'Navigation target.' },
         inline: { name: 'inline', type: 'boolean attribute', default: 'false', description: 'Renders overlay-like components inline for demos and embedded layouts.' },
         items: { name: 'items', type: 'JSON array', default: '[]', description: 'Structured items with label, value, href, icon, description, children, disabled, or metadata.' },
+        justify: { name: 'justify', type: 'CSS justify-content value', default: 'start', description: 'Main-axis alignment for stack children.' },
         label: { name: 'label', type: 'string', default: '-', description: 'Visible or accessible label.' },
         length: { name: 'length', type: 'number', default: '-', description: 'Number of generated input cells or segments.' },
         lines: { name: 'lines', type: 'number', default: '3', description: 'Number of placeholder or skeleton rows.' },
         max: { name: 'max', type: 'number', default: '-', description: 'Maximum value.' },
+        maxWidth: { name: 'max-width', type: 'CSS length', default: '1440px', description: 'Maximum container width before centering content on large screens.' },
         min: { name: 'min', type: 'number', default: '-', description: 'Minimum value.' },
+        minColumnWidth: { name: 'min-column-width', type: 'CSS length', default: '220px', description: 'Minimum responsive grid column width; enables auto-fit columns.' },
         multiple: { name: 'multiple', type: 'boolean attribute', default: 'false', description: 'Allows more than one selected value.' },
         open: { name: 'open', type: 'boolean attribute', default: 'false', description: 'Controls visible/open state.' },
         options: { name: 'options', type: 'JSON array', default: '[]', description: 'Option data with label, value, description, and disabled.' },
         orientation: { name: 'orientation', type: 'horizontal | vertical', default: 'component default', description: 'Controls layout direction.', options: ['horizontal', 'vertical'] },
+        padding: { name: 'padding', type: 'CSS length', default: 'clamp(12px, 2vw, 32px)', description: 'Responsive inline padding for containers.' },
         placeholder: { name: 'placeholder', type: 'string', default: '-', description: 'Placeholder text for form fields.' },
         provider: { name: 'provider', type: 'string', default: '-', description: 'Backend-selected AI provider name such as ollama, openai, anthropic, or azure.' },
         model: { name: 'model', type: 'string', default: '-', description: 'Backend-selected model name passed through with AI requests.' },
         ratio: { name: 'ratio', type: 'CSS aspect-ratio', default: '16 / 9', description: 'Aspect ratio used by media wrappers.' },
         removable: { name: 'removable', type: 'boolean attribute', default: 'false', description: 'Shows a remove/dismiss control.' },
         responseMode: { name: 'response-mode', type: 'insert | replace | chat', default: 'insert', description: 'How AI responses update the editor.' },
+        responsive: { name: 'responsive', type: 'auto-fit | false | boolean attribute', default: 'enabled', description: 'Controls automatic small-screen collapsing or auto-fit grid behavior.' },
         schema: { name: 'schema', type: 'JSON Schema object', default: '{}', description: 'JSON Schema used to generate fields.' },
         shape: { name: 'shape', type: 'squircle | circle | diamond', default: 'squircle', description: 'Visual mask shape.', options: ['squircle', 'circle', 'diamond'] },
         side: { name: 'side', type: 'left | right', default: 'right', description: 'Side placement for sheet-like panels.', options: ['left', 'right'] },
@@ -2281,7 +2763,8 @@ timeline.items = [
         tone: { name: 'tone', type: 'accent | info | success | warning | danger', default: 'accent', description: 'Semantic color tone.', options: ['accent', 'info', 'success', 'warning', 'danger'] },
         uiSchema: { name: 'ui-schema', type: 'JSON object', default: '{}', description: 'UI schema hints for field order, widgets, labels, and helper text.' },
         value: { name: 'value', type: 'string | number', default: "''", description: 'Current value.' },
-        variant: { name: 'variant', type: 'string', default: 'default', description: 'Component-specific visual variant.' }
+        variant: { name: 'variant', type: 'string', default: 'default', description: 'Component-specific visual variant.' },
+        wide: { name: 'wide', type: 'boolean attribute', default: 'false', description: 'Uses the wider 1920px container target for dashboard and 4K layouts.' }
       };
 
       function parityApi(keys = []) {
@@ -2606,10 +3089,16 @@ autocomplete.options = [
           description: 'FAB-style action launcher with expandable secondary actions.',
           usage: 'Use when a primary action has a few closely related quick actions.',
           tags: ['speed dial', 'fab', 'actions'],
-          api: ['items', 'open', 'eventSelect'],
+          api: ['items', 'open', 'placement', 'persistent', 'icon', 'icon-size', 'main-icon-size', 'action-icon-size', 'action-icon-box-size', 'eventSelect'],
           demo: `<mvx-speed-dial
   open
-  items='["Create issue","Invite user","Upload file"]'
+  icon="×"
+  action-icon-size="19px"
+  items='[
+    {"label":"Create issue","icon":"+"},
+    {"label":"Invite user","icon":"@"},
+    {"label":"Upload file","icon":"↑"}
+  ]'
 ></mvx-speed-dial>`
         },
         {
@@ -2659,8 +3148,8 @@ autocomplete.options = [
           description: 'Centered responsive content container.',
           usage: 'Use to constrain page, docs, and dashboard content width.',
           tags: ['container', 'layout', 'max width'],
-          api: ['gap'],
-          demo: '<mvx-container max-width="720px"><mvx-paper>Centered content container.</mvx-paper></mvx-container>'
+          api: ['maxWidth', 'padding', 'fluid', 'wide'],
+          demo: '<mvx-container max-width="960px"><mvx-paper>Centered content container.</mvx-paper></mvx-container>'
         },
         {
           name: 'mvx-grid',
@@ -2669,8 +3158,8 @@ autocomplete.options = [
           description: 'Responsive grid wrapper with configurable columns and gap.',
           usage: 'Use for card grids, settings layouts, and repeated content blocks.',
           tags: ['grid', 'columns', 'layout'],
-          api: ['columns', 'gap'],
-          demo: '<mvx-grid columns="3"><mvx-paper>A</mvx-paper><mvx-paper>B</mvx-paper><mvx-paper>C</mvx-paper></mvx-grid>'
+          api: ['columns', 'minColumnWidth', 'gap', 'align', 'responsive'],
+          demo: '<mvx-grid columns="3" min-column-width="220px"><mvx-paper>A</mvx-paper><mvx-paper>B</mvx-paper><mvx-paper>C</mvx-paper></mvx-grid>'
         },
         {
           name: 'mvx-stack',
@@ -2679,8 +3168,8 @@ autocomplete.options = [
           description: 'Stack layout primitive for vertical or horizontal spacing.',
           usage: 'Use instead of one-off margins for predictable grouped layout.',
           tags: ['stack', 'gap', 'layout'],
-          api: ['orientation', 'gap'],
-          demo: '<mvx-stack gap="8px"><mvx-chip>Design</mvx-chip><mvx-chip>Build</mvx-chip></mvx-stack>'
+          api: ['orientation', 'gap', 'align', 'justify', 'responsive'],
+          demo: '<mvx-stack orientation="horizontal" responsive><mvx-chip>Design</mvx-chip><mvx-chip>Build</mvx-chip></mvx-stack>'
         },
         {
           name: 'mvx-box',
@@ -2740,7 +3229,7 @@ autocomplete.options = [
           usage: 'Use for KPI panels, dashboard metrics, and compact summaries.',
           tags: ['stat', 'metric', 'kpi'],
           api: ['value', 'label'],
-          demo: '<mvx-stat label="Coverage" value="134" delta="+93"></mvx-stat>'
+          demo: '<mvx-stat label="Coverage" value="135" delta="+94"></mvx-stat>'
         },
         {
           name: 'mvx-status',
@@ -3086,7 +3575,7 @@ autocomplete.options = [
           usage: 'Use for list rows, menu-like content, cards inside panels, and object summaries.',
           tags: ['item', 'row', 'list item'],
           api: ['label'],
-          demo: '<mvx-item title="Component audit" description="134 components covered"><mvx-badge slot="actions" tone="success">Done</mvx-badge></mvx-item>'
+          demo: '<mvx-item title="Component audit" description="135 components covered"><mvx-badge slot="actions" tone="success">Done</mvx-badge></mvx-item>'
         },
         {
           name: 'mvx-icon',
@@ -3127,10 +3616,10 @@ autocomplete.options = [
           family: 'Actions',
           category: 'actions',
           description: 'Swap/toggle content control with off and on slots.',
-          usage: 'Use for visual toggles such as mute/unmute, favorite/unfavorite, and mode switching.',
-          tags: ['swap', 'toggle', 'state'],
-          api: ['checked', 'disabled', 'eventChange'],
-          demo: '<mvx-swap checked><span slot="on">Enabled</span><span slot="off">Disabled</span></mvx-swap>'
+          usage: 'Use for visual toggles such as mute/unmute, favorite/unfavorite, mode switching, and async state changes that wait for API confirmation.',
+          tags: ['swap', 'toggle', 'state', 'loading'],
+          api: ['checked', 'loading', 'disabled', 'slot="on"', 'slot="off"', 'slot="loading"', 'eventChange'],
+          demo: '<mvx-swap checked><span slot="on">Enabled</span><span slot="off">Disabled</span><span slot="loading">Saving</span></mvx-swap>'
         },
         {
           name: 'mvx-text-rotate',
@@ -3407,7 +3896,7 @@ table.data = [
       };
 
       function renderComponentDemo(name, doc) {
-        const source = doc.code || doc.demo;
+        const source = doc.demo || doc.code;
         const template = document.createElement('template');
         template.innerHTML = source.trim();
         const target = template.content.querySelector(name) || template.content.firstElementChild;
@@ -3967,22 +4456,55 @@ table.data = [
         });
       }
 
+      const htmlVoidElements = new Set([
+        'area',
+        'base',
+        'br',
+        'col',
+        'embed',
+        'hr',
+        'img',
+        'input',
+        'link',
+        'meta',
+        'param',
+        'source',
+        'track',
+        'wbr'
+      ]);
+
       function formatElement(element, depth = 0) {
         const indent = '  '.repeat(depth);
         const childIndent = '  '.repeat(depth + 1);
         const inlineAttributes = [...element.attributes].map(formatAttribute);
         const inlineOpenTag = `${indent}<${element.localName}${inlineAttributes.length ? ` ${inlineAttributes.join(' ')}` : ''}>`;
+        const shouldBreakAttributes = inlineOpenTag.length > 112 || inlineAttributes.length > 5;
+        if (htmlVoidElements.has(element.localName)) {
+          if (shouldBreakAttributes && inlineAttributes.length) {
+            const attributeLines = formatAttributes(element.attributes, childIndent);
+            attributeLines[attributeLines.length - 1] = `${attributeLines[attributeLines.length - 1]}>`;
+            return [`${indent}<${element.localName}`, ...attributeLines];
+          }
+          return [inlineOpenTag];
+        }
         const directText = [...element.childNodes]
           .filter(child => child.nodeType === Node.TEXT_NODE)
           .map(child => child.textContent.trim().replace(/\s+/g, ' '))
           .filter(Boolean)
           .join(' ');
         const elementChildren = [...element.children];
-        const oneLineTag = `${inlineOpenTag}${directText}</${element.localName}>`;
-        if (!elementChildren.length && oneLineTag.length <= 112) return [oneLineTag];
-        const emptyTag = `${inlineOpenTag}</${element.localName}>`;
-        if (!elementChildren.length && !directText && emptyTag.length <= 112) return [emptyTag];
-        const shouldBreakAttributes = inlineOpenTag.length > 112 || inlineAttributes.length > 5;
+        if (!elementChildren.length) {
+          if (directText) {
+            const oneLineTag = `${inlineOpenTag}${directText}</${element.localName}>`;
+            if (oneLineTag.length <= 112) return [oneLineTag];
+          } else {
+            const emptyTag = `${inlineOpenTag}</${element.localName}>`;
+            if (element.localName.includes('-') && inlineOpenTag.length <= 112) {
+              return [inlineOpenTag, `${indent}</${element.localName}>`];
+            }
+            if (emptyTag.length <= 112) return [emptyTag];
+          }
+        }
         if (shouldBreakAttributes) {
           const attributeLines = formatAttributes(element.attributes, childIndent);
           if (!elementChildren.length && !directText && attributeLines.length) {
@@ -4042,11 +4564,6 @@ table.data = [
         return source.startsWith('<') ? formatHtmlExample(source) : formatJsExample(source);
       }
 
-      function indentCode(value, depth = 4) {
-        const indent = ' '.repeat(depth);
-        return String(value).split('\n').map(line => line ? `${indent}${line}` : line).join('\n');
-      }
-
       function inferComponentName(value, fallback = '') {
         if (fallback && fallback.startsWith('mvx-')) return fallback;
         const match = String(value || '').match(/<\s*(mvx-[\w-]+)/i);
@@ -4064,17 +4581,21 @@ table.data = [
 
       function completeSnippetExample(value, setup = '', componentName = '') {
         const source = String(value || '').trim();
-        const componentMarkup = source.includes('\n') ? source : formatHtmlExample(source);
-        const inferredComponents = componentName ? [inferComponentName(componentMarkup, componentName)] : inferComponentNames(componentMarkup);
-        const inferredComponent = inferredComponents.length > 1 ? '' : inferComponentName(componentMarkup, componentName);
+        const componentMarkup = formatHtmlExample(source);
+        const inferredComponents = inferComponentNames(componentMarkup);
+        if (componentName && componentName.startsWith('mvx-') && !inferredComponents.includes(componentName)) {
+          inferredComponents.unshift(componentName);
+        }
+        if (!inferredComponents.length) {
+          const inferredComponent = inferComponentName(componentMarkup, componentName);
+          if (inferredComponent) inferredComponents.push(inferredComponent);
+        }
         const imports = [
           `import 'mivix-ui/styles';`,
-          `import '${componentImportPath(inferredComponent)}';`
+          ...inferredComponents.map(component => `import '${componentImportPath(component)}';`)
         ];
-        const scriptOpen = '<' + 'script type="module">';
-        const scriptClose = '<' + '/script>';
-        const scriptContent = `${imports.join('\n')}${setup ? `\n\n${setup.trim()}` : ''}`;
-        return `${scriptOpen}\n${indentCode(scriptContent, 2)}\n${scriptClose}\n\n${componentMarkup}`;
+        const importBlock = [...new Set(imports)].join('\n');
+        return `${importBlock}\n\n${componentMarkup}${setup ? `\n\n${setup.trim()}` : ''}`;
       }
 
       function completeExampleCode(value, setup = '', componentName = '') {
@@ -4121,9 +4642,13 @@ table.data = [
           .replace(/(&lt;!--.*?--&gt;)/g, match => protector.protect('tok-comment', match))
           .replace(/(&quot;.*?&quot;|'.*?')/g, match => protector.protect('tok-string', match));
         escaped = escaped
-          .replace(/(&lt;\/?)([\w-]+)/g, '<span class="tok-punc">$1</span><span class="tok-tag">$2</span>')
-          .replace(/(\s)([\w:-]+)(=)/g, '$1<span class="tok-property">$2</span><span class="tok-punc">$3</span>')
-          .replace(/(\/?&gt;)/g, '<span class="tok-punc">$1</span>');
+          .replace(/(&lt;\/?)([\w-]+)/g, (_match, punc, tag) => {
+            return `${protector.protect('tok-punc', punc)}${protector.protect('tok-tag', tag)}`;
+          })
+          .replace(/(\s)([\w:-]+)(=)/g, (_match, space, property, equals) => {
+            return `${space}${protector.protect('tok-property', property)}${protector.protect('tok-punc', equals)}`;
+          })
+          .replace(/(\/?&gt;)/g, match => protector.protect('tok-punc', match));
         return restoreProtectedTokens(escaped, protector.tokens);
       }
 
@@ -4183,6 +4708,138 @@ table.data = [
 
       function normalizeControlName(name) {
         return String(name).replace(/^slot="(.+)"$/, '$1');
+      }
+
+      const globalApiNames = new Set(globalApi.map(row => normalizeControlName(row.name)));
+
+      const apiImportance = new Map([
+        ['type', 0],
+        ['steps', 1],
+        ['items', 1],
+        ['options', 1],
+        ['tabs', 1],
+        ['columns', 1],
+        ['data', 1],
+        ['series', 1],
+        ['categories', 2],
+        ['schema', 2],
+        ['ui-schema', 2],
+        ['form-data', 2],
+        ['config', 2],
+        ['value', 5],
+        ['checked', 5],
+        ['open', 5],
+        ['active', 5],
+        ['selected', 5],
+        ['page', 5],
+        ['pages', 6],
+        ['label', 10],
+        ['title', 10],
+        ['name', 10],
+        ['subtitle', 11],
+        ['placeholder', 11],
+        ['helper', 12],
+        ['description', 12],
+        ['src', 13],
+        ['href', 13],
+        ['endpoint', 14],
+        ['provider', 15],
+        ['model', 15],
+        ['headers', 16],
+        ['response-mode', 16],
+        ['variant', 20],
+        ['size', 20],
+        ['tone', 20],
+        ['density', 20],
+        ['orientation', 21],
+        ['side', 21],
+        ['placement', 21],
+        ['shape', 22],
+        ['ratio', 22],
+        ['height', 23],
+        ['gap', 23],
+        ['min', 24],
+        ['max', 24],
+        ['step', 24],
+        ['duration', 25],
+        ['lines', 25],
+        ['length', 25],
+        ['disabled', 30],
+        ['loading', 30],
+        ['required', 30],
+        ['readonly', 30],
+        ['read-only', 30],
+        ['invalid', 30],
+        ['multiple', 31],
+        ['selectable', 31],
+        ['filterable', 31],
+        ['sortable', 31],
+        ['sticky-header', 32],
+        ['expandable', 32],
+        ['tree', 32],
+        ['column-toggle', 32],
+        ['pin-columns', 32],
+        ['pin-rows', 32],
+        ['inline', 33],
+        ['removable', 33],
+        ['closable', 33],
+        ['motion', 40],
+        ['line-style', 41],
+        ['point-style', 41],
+        ['point-image', 41],
+        ['point-class', 41],
+        ['point-size', 41],
+        ['bar-style', 41],
+        ['hover-animation', 41],
+        ['legend', 42],
+        ['labels', 42],
+        ['grid', 42],
+        ['axes', 42],
+        ['no-axes', 42],
+        ['stacked', 42],
+        ['thresholds', 43],
+        ['empty', 44],
+        ['watermark', 44],
+        ['no-watermark', 44],
+        ['chart-only', 44],
+        ['themes', 50],
+        ['default slot', 70],
+        ['actions', 70],
+        ['trigger', 70],
+        ['slot', 70],
+        ['mvx-change', 80],
+        ['mvx-select', 80],
+        ['mvx-close', 80],
+        ['mvx-open', 80],
+        ['mvx-remove', 80],
+        ['mvx-ai-request', 80],
+        ['mvx-ai-response', 80],
+        ['CSS parts', 90],
+        ['theme', 100],
+        ['component-style', 101],
+        ['radius', 102],
+        ['dir', 103],
+        ['lang', 104],
+        ['locale', 105],
+        ['i18n', 106]
+      ]);
+
+      function apiRowRank(row, sourceIndex, originalIndex) {
+        const name = normalizeControlName(row.name);
+        const type = String(row.type || '').toLowerCase();
+        let rank = apiImportance.has(name) ? apiImportance.get(name) : 55;
+        if (name.startsWith('mvx-') || type.includes('customevent')) rank = Math.max(rank, 80);
+        if (type.includes('slot')) rank = Math.max(rank, 70);
+        if (type.includes('css variable') || type.includes('part attribute') || name.startsWith('--')) rank = Math.max(rank, 90);
+        if (sourceIndex > 0 || globalApiNames.has(name)) rank += 200;
+        return rank * 1000 + originalIndex;
+      }
+
+      function orderApiRows(componentRows = [], globalRows = []) {
+        return [
+          ...componentRows.map((row, index) => ({ row, rank: apiRowRank(row, 0, index) })),
+          ...globalRows.map((row, index) => ({ row, rank: apiRowRank(row, 1, index) }))
+        ].sort((a, b) => a.rank - b.rank).map(item => item.row);
       }
 
       function isControlRow(row) {
@@ -4285,11 +4942,97 @@ table.data = [
         return 'text';
       }
 
+      const bcp47LanguageTags = [
+        'aa', 'ab', 'ae', 'af', 'ak', 'am', 'an', 'ar', 'as', 'av', 'ay', 'az',
+        'ba', 'be', 'bg', 'bh', 'bi', 'bm', 'bn', 'bo', 'br', 'bs', 'ca', 'ce',
+        'ch', 'co', 'cr', 'cs', 'cu', 'cv', 'cy', 'da', 'de', 'dv', 'dz', 'ee',
+        'el', 'en', 'eo', 'es', 'et', 'eu', 'fa', 'ff', 'fi', 'fj', 'fo', 'fr',
+        'fy', 'ga', 'gd', 'gl', 'gn', 'gu', 'gv', 'ha', 'he', 'hi', 'ho', 'hr',
+        'ht', 'hu', 'hy', 'hz', 'ia', 'id', 'ie', 'ig', 'ii', 'ik', 'io', 'is',
+        'it', 'iu', 'ja', 'jv', 'ka', 'kg', 'ki', 'kj', 'kk', 'kl', 'km', 'kn',
+        'ko', 'kr', 'ks', 'ku', 'kv', 'kw', 'ky', 'la', 'lb', 'lg', 'li', 'ln',
+        'lo', 'lt', 'lu', 'lv', 'mg', 'mh', 'mi', 'mk', 'ml', 'mn', 'mr', 'ms',
+        'mt', 'my', 'na', 'nb', 'nd', 'ne', 'ng', 'nl', 'nn', 'no', 'nr', 'nv',
+        'ny', 'oc', 'oj', 'om', 'or', 'os', 'pa', 'pi', 'pl', 'ps', 'pt', 'qu',
+        'rm', 'rn', 'ro', 'ru', 'rw', 'sa', 'sc', 'sd', 'se', 'sg', 'si', 'sk',
+        'sl', 'sm', 'sn', 'so', 'sq', 'sr', 'ss', 'st', 'su', 'sv', 'sw', 'ta',
+        'te', 'tg', 'th', 'ti', 'tk', 'tl', 'tn', 'to', 'tr', 'ts', 'tt', 'tw',
+        'ty', 'ug', 'uk', 'ur', 'uz', 've', 'vi', 'vo', 'wa', 'wo', 'xh', 'yi',
+        'yo', 'za', 'zh', 'zu'
+      ];
+
+      const bcp47LocaleTags = [
+        'af-ZA', 'am-ET', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO',
+        'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-OM', 'ar-QA', 'ar-SA', 'ar-SD',
+        'ar-SY', 'ar-TN', 'ar-YE', 'as-IN', 'az-AZ', 'be-BY', 'bg-BG', 'bn-BD',
+        'bn-IN', 'bo-CN', 'br-FR', 'bs-BA', 'ca-ES', 'cs-CZ', 'cy-GB', 'da-DK',
+        'de-AT', 'de-BE', 'de-CH', 'de-DE', 'de-LI', 'de-LU', 'dsb-DE', 'dz-BT',
+        'el-CY', 'el-GR', 'en-AE', 'en-AU', 'en-BE', 'en-BZ', 'en-CA', 'en-GB',
+        'en-HK', 'en-ID', 'en-IE', 'en-IN', 'en-JM', 'en-MT', 'en-MY', 'en-NZ',
+        'en-PH', 'en-SG', 'en-TT', 'en-US', 'en-ZA', 'en-ZW', 'es-AR', 'es-BO',
+        'es-CL', 'es-CO', 'es-CR', 'es-CU', 'es-DO', 'es-EC', 'es-ES', 'es-GT',
+        'es-HN', 'es-MX', 'es-NI', 'es-PA', 'es-PE', 'es-PR', 'es-PY', 'es-SV',
+        'es-US', 'es-UY', 'es-VE', 'et-EE', 'eu-ES', 'fa-AF', 'fa-IR', 'fi-FI',
+        'fil-PH', 'fo-FO', 'fr-BE', 'fr-CA', 'fr-CH', 'fr-FR', 'fr-LU', 'fr-MC',
+        'fy-NL', 'ga-IE', 'gd-GB', 'gl-ES', 'gu-IN', 'ha-NG', 'he-IL', 'hi-IN',
+        'hr-BA', 'hr-HR', 'hsb-DE', 'hu-HU', 'hy-AM', 'id-ID', 'ig-NG', 'is-IS',
+        'it-CH', 'it-IT', 'ja-JP', 'ka-GE', 'kk-KZ', 'kl-GL', 'km-KH', 'kn-IN',
+        'ko-KR', 'kok-IN', 'ky-KG', 'lb-LU', 'lo-LA', 'lt-LT', 'lv-LV', 'mi-NZ',
+        'mk-MK', 'ml-IN', 'mn-MN', 'mr-IN', 'ms-BN', 'ms-MY', 'mt-MT', 'my-MM',
+        'nb-NO', 'ne-IN', 'ne-NP', 'nl-BE', 'nl-NL', 'nn-NO', 'om-ET', 'or-IN',
+        'pa-Arab-PK', 'pa-Guru-IN', 'pl-PL', 'ps-AF', 'pt-AO', 'pt-BR', 'pt-CH',
+        'pt-CV', 'pt-GQ', 'pt-GW', 'pt-LU', 'pt-MO', 'pt-MZ', 'pt-PT', 'pt-ST',
+        'pt-TL', 'ro-MD', 'ro-RO', 'ru-BY', 'ru-KG', 'ru-KZ', 'ru-MD', 'ru-RU',
+        'ru-UA', 'se-FI', 'se-NO', 'se-SE', 'si-LK', 'sk-SK', 'sl-SI', 'sq-AL',
+        'sq-MK', 'sr-Cyrl-BA', 'sr-Cyrl-ME', 'sr-Cyrl-RS', 'sr-Latn-BA',
+        'sr-Latn-ME', 'sr-Latn-RS', 'sv-AX', 'sv-FI', 'sv-SE', 'sw-KE', 'sw-TZ',
+        'ta-IN', 'ta-LK', 'ta-MY', 'ta-SG', 'te-IN', 'th-TH', 'ti-ER', 'ti-ET',
+        'tk-TM', 'tr-CY', 'tr-TR', 'uk-UA', 'ur-IN', 'ur-PK', 'uz-Cyrl-UZ',
+        'uz-Latn-UZ', 'vi-VN', 'yo-NG', 'zh-CN', 'zh-Hans-CN', 'zh-Hans-HK',
+        'zh-Hans-MO', 'zh-Hans-SG', 'zh-Hant-HK', 'zh-Hant-MO', 'zh-Hant-TW',
+        'zh-HK', 'zh-MO', 'zh-SG', 'zh-TW', 'zu-ZA'
+      ];
+
+      function canonicalTags(tags) {
+        const seen = new Set();
+        return tags.flatMap(tag => {
+          try {
+            const [canonical] = Intl.getCanonicalLocales(tag);
+            if (!canonical || seen.has(canonical)) return [];
+            seen.add(canonical);
+            return [canonical];
+          } catch {
+            return [];
+          }
+        });
+      }
+
+      const displayLocale = document.documentElement.lang || 'en';
+      const languageNames = typeof Intl.DisplayNames === 'function' ? new Intl.DisplayNames([displayLocale], { type: 'language' }) : null;
+
+      function languageLabel(tag) {
+        try {
+          return `${languageNames?.of(tag) || tag} - ${tag}`;
+        } catch {
+          return tag;
+        }
+      }
+
+      const supportedLanguageOptions = canonicalTags(bcp47LanguageTags)
+        .map(tag => ({ value: tag, label: languageLabel(tag) }))
+        .sort((a, b) => a.label.localeCompare(b.label));
+
+      const supportedLocaleOptions = Intl.DateTimeFormat.supportedLocalesOf(canonicalTags(bcp47LocaleTags))
+        .map(tag => ({ value: tag, label: languageLabel(tag) }))
+        .sort((a, b) => a.label.localeCompare(b.label));
+
       const playgroundOptionSets = {
         theme: ['dark', 'light', 'graphite', 'aurora', 'terminal'],
         'component-style': ['console', 'minimal', 'glass', 'dashboard'],
         radius: ['0', '2px', '4px', '6px', '8px', '12px', '16px', '24px', '999px', 'square', 'rounded'],
         dir: ['ltr', 'rtl', 'auto'],
+        lang: supportedLanguageOptions,
+        locale: supportedLocaleOptions,
         motion: ['subtle', 'none'],
         density: ['compact', 'comfortable', 'spacious'],
         size: ['sm', 'md', 'lg'],
@@ -4307,6 +5050,65 @@ table.data = [
           .split('|')
           .map(option => option.trim())
           .filter(option => option && !['string', 'number', 'url', 'css length'].includes(option.toLowerCase()));
+      }
+
+      function selectOptionValue(option) {
+        return typeof option === 'object' && option !== null ? String(option.value ?? '') : String(option ?? '');
+      }
+
+      function selectOptionLabel(option) {
+        return typeof option === 'object' && option !== null ? String(option.label ?? option.value ?? '') : String(option ?? '');
+      }
+
+      const suggestedTextOptionSets = {
+        label: ['Project', 'Release window', 'AI ready', 'Density', 'Framework', 'Loading components', 'Preview dialog'],
+        title: ['Release health', 'Component adoption', 'Synced', 'Preview dialog', 'Command center', 'Mivix UI'],
+        subtitle: ['Weekly adoption', 'Live preview', 'Production ready', 'Workflow summary'],
+        eyebrow: ['Actions', 'Forms', 'Feedback', 'Layout', 'Data', 'Overlay'],
+        placeholder: ['Search commands', 'Describe the change', 'Select an option', 'Search components', 'Type a message'],
+        helper: ['Lowercase package name', 'Run keyboard and contrast validation', 'Shown below the field', 'Optional supporting text'],
+        description: ['Default spacing', 'Dense tables', 'Presentation mode', 'Generated from component metadata'],
+        name: ['project', 'email', 'priority', 'release-window', 'workspace'],
+        value: ['comfortable', 'web-components', '72', '2026-07-02,2026-07-09', 'preview'],
+        brand: ['Mivix', 'Mivix UI', 'Workspace'],
+        initials: ['MX', 'UI', 'SA'],
+        unit: ['%', 'ms', 'px', 'items'],
+        icon: ['settings', 'search', 'bell', 'check', 'file'],
+        caption: ['Generated preview', 'Component example', 'Release status'],
+        text: ['Tooltips explain compact controls.', 'Component saved.', 'All components are indexed.'],
+        alt: ['Mivix preview', 'Component image', 'Dashboard screenshot']
+      };
+
+      function isTypedOnlyControl(row) {
+        const name = normalizeControlName(row.name);
+        const type = String(row.type || '').toLowerCase();
+        if (['href', 'src', 'endpoint', 'headers', 'i18n', 'schema', 'ui-schema', 'form-data', 'config', 'css parts'].includes(name)) return true;
+        return /json|array|object|url|uri|css|function|handler|callback|regexp|regular expression|date string/.test(type);
+      }
+
+      function uniqueOptionValues(options) {
+        const seen = new Set();
+        return options
+          .map(option => typeof option === 'object' && option !== null ? option : { value: option, label: option })
+          .map(option => ({
+            value: String(option.value ?? ''),
+            label: String(option.label ?? option.value ?? '')
+          }))
+          .filter(option => {
+            if (!option.value || seen.has(option.value)) return false;
+            seen.add(option.value);
+            return true;
+          });
+      }
+
+      function textSuggestions(row, target, value) {
+        if (isTypedOnlyControl(row)) return [];
+        const name = normalizeControlName(row.name);
+        const defaults = row.default && !['-', "''", 'inherit', 'document lang'].includes(String(row.default)) ? [row.default] : [];
+        const current = value ? [value] : [];
+        const source = suggestedTextOptionSets[name] || [];
+        const slotText = name === 'default slot' && target?.textContent?.trim() ? [target.textContent.trim()] : [];
+        return uniqueOptionValues([...current, ...defaults, ...slotText, ...source]);
       }
 
       function getPlaygroundTarget(name) {
@@ -4328,6 +5130,7 @@ table.data = [
         const kind = controlKind(row);
         if (kind === 'boolean') return target.hasAttribute(name);
         if (kind === 'json') return readableJson(target[name], target.getAttribute(name) || row.default || '');
+        if ((name === 'lang' || name === 'locale') && !target.hasAttribute(name)) return '';
         return target.getAttribute(name) ?? (row.default === '-' || row.default === 'inherit' ? '' : row.default);
       }
 
@@ -4403,13 +5206,18 @@ table.data = [
         if (kind === 'select') {
           const options = enumOptions(row);
           const selectedValue = String(value ?? '');
-          const optionValues = selectedValue && !options.includes(selectedValue) ? [selectedValue, ...options] : options;
+          const hasSelectedOption = options.some(option => selectOptionValue(option) === selectedValue);
+          const optionValues = selectedValue && !hasSelectedOption ? [{ value: selectedValue, label: `${selectedValue} (custom)` }, ...options] : options;
+          const blankLabel = name === 'locale' ? 'document locale' : name === 'lang' ? 'document lang' : 'inherit';
           return `
             <label class="control-field" for="${id}">
               <span>${escapeHtml(name)}</span>
               <select id="${id}" data-api="${escapeHtml(name)}">
-                ${row.default === 'inherit' ? '<option value="">inherit</option>' : ''}
-                ${optionValues.map(option => `<option value="${escapeHtml(option)}" ${selectedValue === option ? 'selected' : ''}>${escapeHtml(option)}</option>`).join('')}
+                ${row.default === 'inherit' || name === 'lang' || name === 'locale' ? `<option value="">${blankLabel}</option>` : ''}
+                ${optionValues.map(option => {
+                  const optionValue = selectOptionValue(option);
+                  return `<option value="${escapeHtml(optionValue)}" ${selectedValue === optionValue ? 'selected' : ''}>${escapeHtml(selectOptionLabel(option))}</option>`;
+                }).join('')}
               </select>
             </label>
           `;
@@ -4422,10 +5230,17 @@ table.data = [
             </label>
           `;
         }
+        const suggestions = kind === 'text' ? textSuggestions(row, target, value) : [];
+        const listId = suggestions.length ? `${id}-options` : '';
         return `
           <label class="control-field" for="${id}">
             <span>${escapeHtml(name)}</span>
-            <input id="${id}" type="${kind === 'number' ? 'number' : 'text'}" data-api="${escapeHtml(name)}" value="${escapeHtml(value)}" placeholder="${escapeHtml(row.default || '')}" />
+            <input id="${id}" type="${kind === 'number' ? 'number' : 'text'}" data-api="${escapeHtml(name)}" value="${escapeHtml(value)}" placeholder="${escapeHtml(row.default || '')}" ${listId ? `list="${escapeHtml(listId)}"` : ''} />
+            ${listId ? `
+              <datalist id="${escapeHtml(listId)}">
+                ${suggestions.map(option => `<option value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</option>`).join('')}
+              </datalist>
+            ` : ''}
           </label>
         `;
       }
@@ -4500,9 +5315,21 @@ table.data = [
               <span>${items.length} chart${items.length === 1 ? '' : 's'}</span>
             </div>
             <div class="chart-group-grid">
-              ${items.map(item => `
+              ${items.map(item => {
+                const attrs = chartDemoConfig(item);
+                const previewAttrs = chartDemoAttributeString(attrs, {
+                  title: item.name,
+                  height: 208,
+                  'view-height': 520,
+                  'chart-only': true,
+                  'no-watermark': true,
+                  legend: false,
+                  grid: false,
+                  labels: false
+                });
+                return `
                 <button class="chart-demo-card" type="button" data-chart-type="${escapeHtml(item.type)}" aria-label="Open ${escapeHtml(item.name)} chart demo">
-                  <mvx-chart type="${escapeHtml(item.type)}" title="${escapeHtml(item.name)}" subtitle="${escapeHtml(item.usecase)}" chart-only height="208" view-height="520" no-watermark></mvx-chart>
+                  <mvx-chart ${previewAttrs}></mvx-chart>
                   <span class="chart-card-label">
                     <strong>${escapeHtml(item.name)}</strong>
                     <code>${escapeHtml(item.type)}</code>
@@ -4512,7 +5339,8 @@ table.data = [
                     <span>${escapeHtml(item.usecase)}</span>
                   </span>
                 </button>
-              `).join('')}
+              `;
+              }).join('')}
             </div>
           </section>
         `).join('') || '<mvx-alert tone="info" title="No charts found">Try another chart name or use case.</mvx-alert>';
@@ -4541,18 +5369,13 @@ table.data = [
         document.querySelector('#chart-modal-type').textContent = item.type;
         document.querySelector('#chart-modal-title').textContent = `${item.name} chart`;
         document.querySelector('#chart-modal-usecase').textContent = item.usecase;
-        chart.setAttribute('type', item.type);
-        chart.setAttribute('title', `${item.name} chart`);
-        chart.setAttribute('subtitle', item.usecase);
-        chart.setAttribute('height', '390');
-        chart.setAttribute('legend', '');
-        chart.setAttribute('grid', '');
-        chart.setAttribute('labels', '');
-        chart.removeAttribute('chart-only');
-        chart.removeAttribute('no-watermark');
-        chart.removeAttribute('series');
-        chart.removeAttribute('data');
-        chart.removeAttribute('categories');
+        applyChartDemoAttributes(chart, chartDemoConfig(item), {
+          title: `${item.name} chart`,
+          height: 390,
+          'view-height': 520,
+          legend: true,
+          labels: true
+        });
         modal.setAttribute('open', '');
       }
 
@@ -4691,14 +5514,25 @@ table.data = [
             <span>use-case overlay</span>
           </div>
         `;
-        detail.playground.innerHTML = '<mvx-chart data-playground-target type="combo" title="Chart gallery preview" subtitle="Pick any chart below for a larger demo" legend grid labels height="320"></mvx-chart>';
+        const galleryPreviewItem = chartGalleryItems.find(item => item.type === 'combo') || chartGalleryItems[0];
+        const galleryPreviewAttrs = chartDemoConfig(galleryPreviewItem);
+        detail.playground.innerHTML = `<mvx-chart data-playground-target ${chartDemoAttributeString(galleryPreviewAttrs, {
+          title: 'Activation and revenue',
+          subtitle: 'Weekly product usage with target line',
+          height: 320
+        })}></mvx-chart>`;
         detail.api.innerHTML = renderRows([
           ['Groups', 'Organizes chart cards by family such as line, bar, radial, hierarchy, flow, timeline, and geo.'],
           ['Search', 'Filters charts immediately by name, category, type, or use case.'],
           ['Pagination', 'Shows up to 3 chart families per page to keep related chart types together.'],
           ['Modal demo', 'Opens a larger chart instance with title, subtitle, legend, labels, and watermark.']
         ]);
-        setExampleCode('<mvx-chart type="combo" title="Chart gallery preview" legend grid labels></mvx-chart>');
+        setExampleCode(`<mvx-chart ${chartDemoAttributeString(galleryPreviewAttrs, {
+          title: 'Activation and revenue',
+          subtitle: 'Weekly product usage with target line',
+          height: 320
+        })}>
+</mvx-chart>`);
         setChartGalleryVisible(true);
       }
 
@@ -4715,7 +5549,7 @@ table.data = [
         detail.usage.textContent = doc.usage;
         detail.tag.textContent = `<${name}>`;
         detail.features.innerHTML = doc.features.map(feature => `<li>${escapeHtml(feature)}</li>`).join('');
-        const apiRows = [...globalApi, ...doc.api];
+        const apiRows = orderApiRows(doc.api, globalApi);
         detail.api.innerHTML = apiRows.map(row => `
           <tr>
             <td><code>${escapeHtml(row.name)}</code></td>
@@ -4901,6 +5735,7 @@ table.data = [
         renderComponentDoc(name);
         if (updateRoute) setRoute('component', name);
         if (scroll) document.querySelector('#component-detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        closeMobileNav();
       }
 
       function selectAgentFeature(key, options = {}) {
@@ -4920,6 +5755,7 @@ table.data = [
         renderAgentFeature(key);
         if (updateRoute) setRoute('agent', key);
         if (scroll) document.querySelector('#component-detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        closeMobileNav();
       }
 
       function selectTemplate(key, options = {}) {
@@ -4940,6 +5776,7 @@ table.data = [
         renderTemplatePage(key);
         if (updateRoute) setRoute('template', key);
         if (scroll) document.querySelector('#component-detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        closeMobileNav();
       }
 
       function selectChartDemo(options = {}) {
@@ -4959,6 +5796,7 @@ table.data = [
         renderChartDemoPage();
         if (updateRoute) setRoute('chartDemo', 'all');
         if (scroll) document.querySelector('#component-detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        closeMobileNav();
       }
 
       function restoreRoute(options = {}) {
@@ -5004,7 +5842,9 @@ table.data = [
           search.value = '';
           groupLinks.forEach(item => item.classList.toggle('active', item === filter));
           clearActiveNavigation();
+          filter.classList.add('active');
           updateCatalog();
+          closeMobileNav();
         });
       });
 
@@ -5038,8 +5878,21 @@ table.data = [
         clearActiveNavigation();
         document.querySelector('#catalog').scrollIntoView({ behavior: 'smooth' });
       });
-      document.querySelector('#open-command').addEventListener('click', () => palette.setAttribute('open', ''));
-      document.querySelector('#open-command-card').addEventListener('click', () => palette.setAttribute('open', ''));
+      mobileNavToggle?.addEventListener('click', () => {
+        setMobileNav(!document.body.classList.contains('mobile-nav-open'));
+      });
+      mobileNavBackdrop?.addEventListener('click', closeMobileNav);
+      if (mobileNavMedia.addEventListener) {
+        mobileNavMedia.addEventListener('change', event => {
+          if (!event.matches) closeMobileNav();
+        });
+      } else {
+        mobileNavMedia.addListener(event => {
+          if (!event.matches) closeMobileNav();
+        });
+      }
+      document.querySelector('#open-command').addEventListener('click', () => executeCommand('open-command-palette', { toast: false }));
+      document.querySelector('#open-command-card').addEventListener('click', () => executeCommand('open-command-palette', { toast: false }));
       document.querySelector('#open-modal').addEventListener('click', () => document.querySelector('#modal').setAttribute('open', ''));
       document.querySelector('#open-drawer').addEventListener('click', () => document.querySelector('#drawer').setAttribute('open', ''));
       document.querySelector('#open-drawer-card').addEventListener('click', () => document.querySelector('#drawer').setAttribute('open', ''));
@@ -5059,37 +5912,23 @@ table.data = [
       });
       document.querySelector('#close-modal').addEventListener('click', () => document.querySelector('#modal').removeAttribute('open'));
       document.querySelector('#open-toast').addEventListener('click', () => {
-        const toast = document.querySelector('#toast');
-        toast.textContent = 'Mivix UI is ready.';
-        toast.setAttribute('open', '');
-        toast.setAttribute('duration', '2200');
+        showDocsToast('Mivix UI is ready.');
       });
 
       document.addEventListener('mvx-select', event => {
-        const label = event.detail?.item?.label;
-        if (label === 'Focus component search') {
-          search.focus();
-          return;
-        }
-        if (label === 'Filter navigation components') {
-          document.querySelector('[data-filter="navigation"]').click();
-          document.querySelector('#catalog').scrollIntoView({ behavior: 'smooth' });
-        }
-        if (label === 'Open modal') document.querySelector('#modal').setAttribute('open', '');
-        if (label === 'Open drawer') document.querySelector('#drawer').setAttribute('open', '');
-        if (label === 'Show toast') document.querySelector('#open-toast').click();
-        if (label === 'Review data table') document.querySelector('#release-table').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        if (label === 'Open AI panel') document.querySelector('mvx-ai-panel').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        const toast = document.querySelector('#toast');
-        toast.textContent = label || event.detail?.row?.component || event.detail?.item?.title || 'Component selected.';
-        toast.setAttribute('open', '');
-        toast.setAttribute('duration', '2200');
+        const item = event.detail?.item;
+        if (item?.command && executeCommand(item.command)) return;
+        showDocsToast(item?.label || event.detail?.row?.component || item?.title || 'Component selected.');
+      });
+
+      document.addEventListener('mvx-command', event => {
+        if (event.target !== shortcuts) return;
+        executeCommand(event.detail?.command);
       });
 
       document.addEventListener('keydown', event => {
-        if (event.key === '/' && !event.metaKey && !event.ctrlKey && !event.altKey) {
-          event.preventDefault();
-          search.focus();
+        if (event.key === 'Escape') {
+          closeMobileNav();
         }
       });
 

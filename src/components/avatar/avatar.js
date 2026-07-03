@@ -1,10 +1,10 @@
-import { baseStyles, MvxElement, htmlEscape } from '../../core.js';
+import { baseStyles, MvxElement, htmlEscape, safeUrl } from '../../core.js';
 
 export class MvxAvatar extends MvxElement {
   static observedAttributes = ['src', 'initials', 'label', 'size'];
 
   render() {
-    const src = this.getAttribute('src');
+    const src = safeUrl(this.getAttribute('src'), '', { allowDataImages: true });
     const initials = this.getAttribute('initials') || 'MX';
     const label = this.getAttribute('label') || initials;
     const size = Number(this.getAttribute('size') || 38);

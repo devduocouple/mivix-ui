@@ -78,11 +78,13 @@ export class MvxRadioGroup extends MvxElement {
           min-block-size: 34px;
           border: 1px solid var(--mvx-border);
           border-radius: var(--mvx-radius-sm);
-          background: var(--mvx-bg-inset);
+          background: var(--mvx-control-glaze), var(--mvx-bg-inset);
           color: var(--mvx-fg);
           cursor: pointer;
+          box-shadow: var(--mvx-control-shadow);
           padding: 8px 10px;
           text-align: start;
+          transition: background var(--mvx-duration), border-color var(--mvx-duration), box-shadow var(--mvx-duration), transform var(--mvx-duration-fast);
         }
         .dot {
           display: grid;
@@ -91,7 +93,9 @@ export class MvxRadioGroup extends MvxElement {
           block-size: 18px;
           border: 1px solid var(--mvx-border);
           border-radius: 999px;
-          background: var(--mvx-bg-panel);
+          background: var(--mvx-control-glaze), var(--mvx-bg-panel);
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+          transition: background var(--mvx-duration), border-color var(--mvx-duration), box-shadow var(--mvx-duration);
         }
         .dot::after {
           content: "";
@@ -105,11 +109,19 @@ export class MvxRadioGroup extends MvxElement {
         }
         button[aria-checked="true"] {
           border-color: color-mix(in srgb, var(--mvx-accent) 58%, var(--mvx-border));
-          background: color-mix(in srgb, var(--mvx-accent) 14%, var(--mvx-bg-inset));
+          background:
+            linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 14%, transparent), transparent),
+            color-mix(in srgb, var(--mvx-accent) 14%, var(--mvx-bg-inset));
+          box-shadow: var(--mvx-control-shadow), 0 8px 18px color-mix(in srgb, var(--mvx-accent) 14%, transparent);
         }
         button[aria-checked="true"] .dot {
           border-color: var(--mvx-accent);
-          background: var(--mvx-accent);
+          background:
+            linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 32%, transparent), transparent),
+            var(--mvx-accent);
+          box-shadow:
+            0 6px 14px color-mix(in srgb, var(--mvx-accent) 24%, transparent),
+            inset 0 1px 0 rgba(255, 255, 255, 0.24);
         }
         button[aria-checked="true"] .dot::after {
           opacity: 1;
@@ -117,7 +129,11 @@ export class MvxRadioGroup extends MvxElement {
         }
         button:focus-visible {
           outline: none;
-          box-shadow: var(--mvx-focus);
+          box-shadow: var(--mvx-focus), var(--mvx-control-shadow);
+        }
+        button:hover:not(:disabled) {
+          border-color: color-mix(in srgb, var(--mvx-accent) 42%, var(--mvx-border-strong));
+          transform: translateY(var(--mvx-hover-lift));
         }
         button:disabled {
           cursor: not-allowed;
