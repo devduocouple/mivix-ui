@@ -993,56 +993,126 @@ export class MvxFab extends MvxPeerElement {
 }
 
 export class MvxSpeedDial extends MvxPeerElement {
+  static observedAttributes = [
+    ...MvxPeerElement.observedAttributes,
+    'placement', 'direction', 'persistent', 'persistent-labels', 'open-on-focus',
+    'icon', 'open-icon', 'icon-size', 'main-icon-size', 'action-icon-size', 'action-icon-box-size'
+  ];
+
+  setOpen(open, focusMain = false) {
+    const nextOpen = Boolean(open);
+    if (this.hasAttribute('open') !== nextOpen) {
+      this.toggleAttribute('open', nextOpen);
+      this.emit('mvx-change', { open: nextOpen });
+    }
+    if (focusMain) requestAnimationFrame(() => this.shadowRoot?.querySelector('.main')?.focus());
+  }
+
+  focusAction(index) {
+    const actions = [...this.shadowRoot.querySelectorAll('.action')];
+    if (!actions.length) return;
+    actions[(index + actions.length) % actions.length]?.focus();
+  }
+
+  alignLabels() {
+    const dial = this.shadowRoot?.querySelector('.dial');
+    if (!dial) return;
+    dial.classList.remove('labels-before', 'labels-after', 'labels-start', 'labels-end');
+    if (!this.hasAttribute('open')) return;
+
+    const rect = dial.getBoundingClientRect();
+    const viewportWidth = document.documentElement?.clientWidth || window.innerWidth || 0;
+    const edgePadding = 16;
+    const labelSpace = 220;
+    const parentRect = this.parentElement?.getBoundingClientRect();
+    const hasUsableParentBoundary = parentRect && parentRect.width >= rect.width + labelSpace + edgePadding * 2;
+    const boundaryLeft = hasUsableParentBoundary ? Math.max(0, parentRect.left) : 0;
+    const boundaryRight = hasUsableParentBoundary ? Math.min(viewportWidth, parentRect.right) : viewportWidth;
+    const spaceBefore = rect.left - boundaryLeft - edgePadding;
+    const spaceAfter = boundaryRight - rect.right - edgePadding;
+    const isSide = dial.classList.contains('left') || dial.classList.contains('right');
+
+    if (isSide) {
+      if (spaceBefore < labelSpace / 2) dial.classList.add('labels-start');
+      if (spaceAfter < labelSpace / 2) dial.classList.add('labels-end');
+      return;
+    }
+
+    dial.classList.add(spaceBefore < labelSpace && spaceAfter > spaceBefore ? 'labels-after' : 'labels-before');
+  }
+
   render() {
     const open = this.hasAttribute('open');
-    const placement = this.getAttribute('placement') || 'top';
+    const directionMap = { up: 'top', down: 'bottom', left: 'left', right: 'right' };
+    const rawDirection = this.getAttribute('direction');
+    const placement = directionMap[rawDirection] || this.getAttribute('placement') || 'top';
     const isSide = placement === 'left' || placement === 'right';
     const reverse = placement === 'bottom' || placement === 'right';
-    const actionIconSize = cssLength(this.getAttribute('action-icon-size') || this.getAttribute('icon-size'), '18px');
-    const actionIconBoxSize = cssLength(this.getAttribute('action-icon-box-size'), '34px');
-    const mainIconSize = cssLength(this.getAttribute('main-icon-size') || this.getAttribute('icon-size'), '26px');
+    const verticalOffset = reverse ? '-12px' : '12px';
+    const sideOffset = placement === 'left' ? '12px' : '-12px';
+    const actionIconSize = cssLength(this.getAttribute('action-icon-size') || this.getAttribute('icon-size'), '20px');
+    const actionIconBoxSize = cssLength(this.getAttribute('action-icon-box-size'), '40px');
+    const mainIconSize = cssLength(this.getAttribute('main-icon-size') || this.getAttribute('icon-size'), '28px');
+    const openIcon = this.getAttribute('open-icon');
+    const mainIcon = open && openIcon ? openIcon : this.getAttribute('icon') || '+';
+    const orientation = isSide ? 'horizontal' : 'vertical';
+    const actionsId = 'speed-dial-actions';
     this.shadowRoot.innerHTML = `
       <style>
         ${sharedStyles}
-        :host {
-          display: inline-flex;
-          align-items: ${isSide ? 'center' : 'end'};
-          justify-content: end;
-        }
+        :host { display: inline-flex; }
         .dial {
+          --mvx-speed-stagger: 38ms;
+          position: relative;
           display: flex;
           flex-direction: ${isSide ? 'row' : 'column'};
-          gap: 10px;
-          align-items: end;
+          gap: 12px;
+          align-items: ${isSide ? 'center' : 'end'};
+          max-inline-size: 100%;
+          isolation: isolate;
         }
-        :host([placement="bottom"]) .dial { flex-direction: column-reverse; }
-        :host([placement="left"]) .dial { flex-direction: row-reverse; align-items: center; }
-        :host([placement="right"]) .dial { flex-direction: row; align-items: center; }
+        .dial.bottom { flex-direction: column-reverse; }
+        .dial.left { flex-direction: row-reverse; align-items: center; }
+        .dial.right { flex-direction: row; align-items: center; }
         .actions {
           display: flex;
           flex-direction: ${isSide ? 'row' : 'column'};
-          gap: 8px;
-          align-items: end;
+          gap: 10px;
+          align-items: ${isSide ? 'center' : 'end'};
+          max-inline-size: 100%;
+          min-inline-size: 0;
           pointer-events: ${open ? 'auto' : 'none'};
+          z-index: 1;
         }
-        :host([placement="bottom"]) .actions { flex-direction: column-reverse; }
-        :host([placement="left"]) .actions,
-        :host([placement="right"]) .actions {
+        .actions.bottom { flex-direction: column-reverse; }
+        .actions.left,
+        .actions.right {
           align-items: center;
+          flex-wrap: wrap;
+          max-inline-size: min(100%, calc(100vw - 96px));
         }
+        .actions.left { justify-content: flex-start; }
+        .actions.right { justify-content: flex-end; }
         .action {
-          display: inline-grid;
-          grid-template-columns: auto minmax(0, 1fr);
-          gap: 8px;
-          align-items: center;
-          min-block-size: 38px;
+          position: relative;
+          display: grid;
+          place-items: center;
+          inline-size: calc(${actionIconBoxSize} + 8px);
+          block-size: calc(${actionIconBoxSize} + 8px);
+          overflow: visible;
+          border: 1px solid color-mix(in srgb, var(--mvx-border) 84%, transparent);
           border-radius: 999px;
           background:
-            linear-gradient(180deg, color-mix(in srgb, var(--mvx-fg) 8%, transparent), transparent),
-            color-mix(in srgb, var(--mvx-bg-panel) 92%, var(--mvx-bg-inset));
+            radial-gradient(circle at 34% 22%, color-mix(in srgb, white 18%, transparent), transparent 34%),
+            linear-gradient(180deg, color-mix(in srgb, var(--mvx-fg) 7%, transparent), transparent 58%),
+            color-mix(in srgb, var(--mvx-bg-panel) 96%, var(--mvx-bg-inset));
           color: var(--mvx-fg);
-          padding: 0 12px 0 6px;
-          transform: translateY(${open ? '0' : reverse ? '-8px' : '8px'}) scale(${open ? '1' : '0.92'});
+          padding: 3px;
+          box-shadow:
+            0 10px 22px color-mix(in srgb, #000 18%, transparent),
+            inset 0 1px 0 rgba(255, 255, 255, 0.10);
+          transform: translateY(${open ? '0' : verticalOffset}) scale(${open ? '1' : '0.88'});
+          transform-origin: center ${reverse ? 'top' : 'bottom'};
           opacity: ${open ? '1' : '0'};
           transition:
             opacity var(--mvx-duration),
@@ -1050,90 +1120,177 @@ export class MvxSpeedDial extends MvxPeerElement {
             border-color var(--mvx-duration),
             background var(--mvx-duration),
             box-shadow var(--mvx-duration);
-          transition-delay: calc(var(--index) * ${open ? '34ms' : '0ms'});
+          transition-delay: calc(var(--index) * ${open ? 'var(--mvx-speed-stagger)' : '0ms'});
           white-space: nowrap;
         }
-        :host([placement="left"]) .action,
-        :host([placement="right"]) .action {
-          grid-template-columns: auto;
-          inline-size: 38px;
-          overflow: hidden;
-          padding: 0;
-          transform: translateX(${open ? '0' : placement === 'left' ? '8px' : '-8px'}) scale(${open ? '1' : '0.92'});
+        .dial.left .action,
+        .dial.right .action {
+          display: inline-grid;
+          grid-template-columns: ${actionIconBoxSize} minmax(0, 1fr);
+          gap: 9px;
+          inline-size: max-content;
+          max-inline-size: min(240px, calc(100vw - 96px));
+          block-size: auto;
+          min-block-size: calc(${actionIconBoxSize} + 8px);
+          justify-items: start;
+          padding: 3px 12px 3px 3px;
+          transform: translateX(${open ? '0' : sideOffset}) scale(${open ? '1' : '0.88'});
+          transform-origin: center ${placement === 'left' ? 'right' : 'left'};
         }
-        .action:hover {
+        .dial.right .action {
+          justify-items: end;
+          text-align: end;
+        }
+        .action:hover,
+        .action:focus-visible {
           border-color: color-mix(in srgb, var(--mvx-accent) 54%, var(--mvx-border));
           background:
-            linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 12%, transparent), transparent),
-            color-mix(in srgb, var(--mvx-accent) 14%, var(--mvx-bg-inset));
+            radial-gradient(circle at 24% 18%, color-mix(in srgb, var(--mvx-accent-2) 20%, transparent), transparent 38%),
+            linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 12%, transparent), transparent 56%),
+            color-mix(in srgb, var(--mvx-accent) 13%, var(--mvx-bg-inset));
+          box-shadow:
+            var(--mvx-control-shadow),
+            0 14px 30px color-mix(in srgb, var(--mvx-accent) 18%, transparent);
         }
         .action:focus-visible {
           outline: none;
-          box-shadow: var(--mvx-focus), var(--mvx-control-shadow);
+          box-shadow: var(--mvx-focus), 0 14px 30px color-mix(in srgb, var(--mvx-accent) 18%, transparent);
         }
         .action-icon {
           display: grid;
           place-items: center;
-          inline-size: ${actionIconBoxSize};
-          block-size: ${actionIconBoxSize};
+          inline-size: 100%;
+          block-size: 100%;
           border-radius: 999px;
-          background: color-mix(in srgb, var(--mvx-accent) 18%, var(--mvx-bg-inset));
-          color: var(--mvx-accent-2);
+          background:
+            linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 16%, transparent), transparent),
+            color-mix(in srgb, var(--mvx-accent) 14%, var(--mvx-bg-inset));
+          color: var(--mvx-accent);
           font-size: ${actionIconSize};
           font-weight: 850;
           line-height: 1;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
         }
         .action-label {
-          overflow: hidden;
-          text-overflow: ellipsis;
-          font-size: 13px;
-          font-weight: 750;
-        }
-        :host([placement="left"]) .action-label,
-        :host([placement="right"]) .action-label {
           position: absolute;
-          inline-size: 1px;
-          block-size: 1px;
+          inset-block-start: 50%;
+          inset-inline-end: calc(100% + 10px);
+          inline-size: max-content;
+          max-inline-size: 190px;
+          border: 1px solid color-mix(in srgb, var(--mvx-border) 86%, transparent);
+          border-radius: 999px;
+          background:
+            linear-gradient(180deg, color-mix(in srgb, var(--mvx-fg) 7%, transparent), transparent),
+            color-mix(in srgb, var(--mvx-bg-panel) 96%, var(--mvx-bg-inset));
+          box-shadow: 0 12px 24px color-mix(in srgb, #000 18%, transparent);
+          color: var(--mvx-fg);
+          opacity: ${this.hasAttribute('persistent-labels') ? '1' : '0'};
           overflow: hidden;
-          clip: rect(0 0 0 0);
+          padding: 8px 11px;
+          pointer-events: none;
+          text-overflow: ellipsis;
+          font-size: 13.5px;
+          font-weight: 780;
+          line-height: 1.1;
+          letter-spacing: 0;
+          transform: translateY(-50%) scale(${this.hasAttribute('persistent-labels') ? '1' : '0.94'});
+          transition: opacity var(--mvx-duration-fast), transform var(--mvx-duration-fast);
           white-space: nowrap;
+          z-index: 2;
+        }
+        .dial.bottom .action-label {
+          inset-inline-end: auto;
+          inset-inline-start: calc(100% + 10px);
+        }
+        .dial.left .action-label {
+          position: static;
+          inline-size: auto;
+          min-inline-size: 0;
+          max-inline-size: 100%;
+          border: 0;
+          border-radius: 0;
+          background: transparent;
+          box-shadow: none;
+          opacity: 1;
+          padding: 0;
+          pointer-events: auto;
+          text-align: start;
+          transform: none;
+        }
+        .dial.right .action-label {
+          position: static;
+          inline-size: auto;
+          min-inline-size: 0;
+          max-inline-size: 100%;
+          border: 0;
+          border-radius: 0;
+          background: transparent;
+          box-shadow: none;
+          opacity: 1;
+          padding: 0;
+          pointer-events: auto;
+          text-align: end;
+          transform: none;
+        }
+        .action:hover .action-label,
+        .action:focus-visible .action-label {
+          opacity: 1;
+          transform: translateY(-50%) scale(1);
+        }
+        .dial.left .action:hover .action-label,
+        .dial.left .action:focus-visible .action-label {
+          opacity: 1;
+          transform: none;
+        }
+        .dial.right .action:hover .action-label,
+        .dial.right .action:focus-visible .action-label {
+          opacity: 1;
+          transform: none;
         }
         .main {
           position: relative;
           display: grid;
           place-items: center;
-          inline-size: 52px;
-          block-size: 52px;
-          border: 1px solid color-mix(in srgb, var(--mvx-accent) 68%, var(--mvx-border));
+          inline-size: 58px;
+          block-size: 58px;
+          border: 1px solid color-mix(in srgb, var(--mvx-accent) 72%, var(--mvx-border));
           border-radius: 999px;
           background:
-            radial-gradient(circle at 35% 24%, color-mix(in srgb, var(--mvx-accent-2) 46%, transparent), transparent 34%),
-            linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 22%, transparent), transparent),
+            radial-gradient(circle at 32% 22%, color-mix(in srgb, white 36%, transparent), transparent 27%),
+            linear-gradient(145deg, color-mix(in srgb, var(--mvx-accent-2) 26%, transparent), transparent 46%),
             var(--mvx-accent);
           color: white;
           box-shadow:
-            0 14px 28px color-mix(in srgb, var(--mvx-accent) 28%, transparent),
-            inset 0 1px 0 rgba(255, 255, 255, 0.28);
+            0 18px 34px color-mix(in srgb, var(--mvx-accent) 32%, transparent),
+            0 4px 9px color-mix(in srgb, #000 18%, transparent),
+            inset 0 1px 0 rgba(255, 255, 255, 0.32);
           font-size: 24px;
           font-weight: 800;
-          transition: transform var(--mvx-duration), box-shadow var(--mvx-duration), background var(--mvx-duration);
+          z-index: 2;
+          transition:
+            transform var(--mvx-duration),
+            box-shadow var(--mvx-duration),
+            background var(--mvx-duration),
+            border-color var(--mvx-duration);
         }
         .main::after {
           content: "";
           position: absolute;
-          inset: -7px;
+          inset: -8px;
           border-radius: inherit;
-          background: color-mix(in srgb, var(--mvx-accent) 16%, transparent);
+          background:
+            radial-gradient(circle, color-mix(in srgb, var(--mvx-accent) 18%, transparent), transparent 68%);
           opacity: ${open ? '1' : '0'};
           transform: scale(${open ? '1' : '0.72'});
           transition: opacity var(--mvx-duration), transform var(--mvx-duration);
           z-index: -1;
         }
         .main:hover {
-          transform: translateY(-1px) scale(1.02);
+          transform: translateY(-2px) scale(1.03);
           box-shadow:
-            0 18px 34px color-mix(in srgb, var(--mvx-accent) 34%, transparent),
-            inset 0 1px 0 rgba(255, 255, 255, 0.34);
+            0 22px 40px color-mix(in srgb, var(--mvx-accent) 38%, transparent),
+            0 5px 12px color-mix(in srgb, #000 20%, transparent),
+            inset 0 1px 0 rgba(255, 255, 255, 0.36);
         }
         .main:focus-visible {
           outline: none;
@@ -1143,7 +1300,7 @@ export class MvxSpeedDial extends MvxPeerElement {
           display: inline-block;
           font-size: ${mainIconSize};
           line-height: 1;
-          transform: rotate(${open ? '45deg' : '0deg'});
+          transform: rotate(${open && !openIcon ? '45deg' : '0deg'}) scale(${open ? '1.04' : '1'});
           transition: transform var(--mvx-duration);
         }
         @media (prefers-reduced-motion: reduce) {
@@ -1154,35 +1311,267 @@ export class MvxSpeedDial extends MvxPeerElement {
             transition: none;
           }
         }
+        .dial {
+          gap: 16px;
+          align-items: center;
+          max-inline-size: none;
+        }
+        .actions {
+          gap: 16px;
+          align-items: center;
+          max-inline-size: none;
+          min-inline-size: auto;
+        }
+        .actions.left,
+        .actions.right {
+          flex-wrap: nowrap;
+          max-inline-size: none;
+          justify-content: center;
+        }
+        .action,
+        .dial.left .action,
+        .dial.right .action {
+          display: grid;
+          grid-template-columns: none;
+          place-items: center;
+          inline-size: ${actionIconBoxSize};
+          max-inline-size: ${actionIconBoxSize};
+          block-size: ${actionIconBoxSize};
+          min-block-size: ${actionIconBoxSize};
+          overflow: visible;
+          border: 1px solid var(--mvx-border);
+          border-radius: 999px;
+          background: var(--mvx-control-glaze), var(--mvx-bg-inset);
+          color: var(--mvx-fg);
+          padding: 0;
+          box-shadow:
+            0 3px 5px color-mix(in srgb, #000 22%, transparent),
+            0 1px 18px color-mix(in srgb, #000 12%, transparent);
+          text-align: center;
+        }
+        .action {
+          transform: translateY(${open ? '0' : verticalOffset}) scale(${open ? '1' : '0.2'});
+          transition:
+            opacity 195ms cubic-bezier(0.4, 0, 0.2, 1),
+            transform 195ms cubic-bezier(0.4, 0, 0.2, 1),
+            background 150ms cubic-bezier(0.4, 0, 0.2, 1),
+            box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .dial.left .action,
+        .dial.right .action {
+          transform: translateX(${open ? '0' : sideOffset}) scale(${open ? '1' : '0.2'});
+        }
+        .action:hover,
+        .action:focus-visible {
+          border-color: color-mix(in srgb, var(--mvx-accent) 72%, var(--mvx-border-strong));
+          background:
+            linear-gradient(180deg, color-mix(in srgb, white 8%, transparent), transparent),
+            color-mix(in srgb, var(--mvx-accent) 18%, var(--mvx-bg-panel));
+          color: var(--mvx-fg);
+          box-shadow:
+            var(--mvx-control-shadow),
+            0 5px 8px color-mix(in srgb, #000 24%, transparent),
+            0 3px 14px color-mix(in srgb, #000 16%, transparent);
+        }
+        .action:hover .action-icon,
+        .action:focus-visible .action-icon {
+          background: var(--mvx-accent);
+          color: white;
+        }
+        .action-icon {
+          inline-size: 100%;
+          block-size: 100%;
+          background: transparent;
+          color: currentColor;
+          font-weight: 700;
+          box-shadow: none;
+          transition: background 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .action-label,
+        .dial.left .action-label,
+        .dial.right .action-label {
+          position: absolute;
+          inset-block-start: 50%;
+          inset-inline-start: auto;
+          inset-inline-end: calc(100% + 10px);
+          inline-size: max-content;
+          max-inline-size: min(220px, calc(100vw - 32px));
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          border-radius: 4px;
+          background: rgba(17, 19, 21, 0.96);
+          box-shadow: 0 6px 18px color-mix(in srgb, #000 30%, transparent);
+          color: white;
+          opacity: ${this.hasAttribute('persistent-labels') ? '1' : '0'};
+          overflow: hidden;
+          padding: 4px 8px;
+          pointer-events: none;
+          text-align: start;
+          text-overflow: ellipsis;
+          font-size: 12px;
+          font-weight: 500;
+          line-height: 1.4;
+          transform: translateY(-50%) scale(${this.hasAttribute('persistent-labels') ? '1' : '0.94'});
+          transition:
+            opacity 150ms cubic-bezier(0.4, 0, 0.2, 1),
+            transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+          white-space: nowrap;
+        }
+        .dial.bottom .action-label {
+          inset-inline-start: calc(100% + 10px);
+          inset-inline-end: auto;
+        }
+        .dial.labels-before .action-label {
+          inset-inline-start: auto;
+          inset-inline-end: calc(100% + 10px);
+          text-align: end;
+          transform: translateY(-50%) scale(${this.hasAttribute('persistent-labels') ? '1' : '0.94'});
+        }
+        .dial.labels-after .action-label {
+          inset-inline-start: calc(100% + 10px);
+          inset-inline-end: auto;
+          text-align: start;
+          transform: translateY(-50%) scale(${this.hasAttribute('persistent-labels') ? '1' : '0.94'});
+        }
+        .dial.left .action-label,
+        .dial.right .action-label {
+          inset-block-start: calc(100% + 10px);
+          inset-inline-start: 50%;
+          inset-inline-end: auto;
+          transform: translateX(-50%) scale(${this.hasAttribute('persistent-labels') ? '1' : '0.94'});
+        }
+        .dial.left.labels-start .action-label,
+        .dial.right.labels-start .action-label {
+          inset-inline-start: 0;
+          inset-inline-end: auto;
+          transform: scale(${this.hasAttribute('persistent-labels') ? '1' : '0.94'});
+        }
+        .dial.left.labels-end .action-label,
+        .dial.right.labels-end .action-label {
+          inset-inline-start: auto;
+          inset-inline-end: 0;
+          transform: scale(${this.hasAttribute('persistent-labels') ? '1' : '0.94'});
+        }
+        .action:hover .action-label,
+        .action:focus-visible .action-label {
+          opacity: 1;
+          transform: translateY(-50%) scale(1);
+        }
+        .dial.labels-after .action:hover .action-label,
+        .dial.labels-after .action:focus-visible .action-label,
+        .dial.labels-before .action:hover .action-label,
+        .dial.labels-before .action:focus-visible .action-label {
+          transform: translateY(-50%) scale(1);
+        }
+        .dial.left .action:hover .action-label,
+        .dial.left .action:focus-visible .action-label,
+        .dial.right .action:hover .action-label,
+        .dial.right .action:focus-visible .action-label {
+          transform: translateX(-50%) scale(1);
+        }
+        .dial.left.labels-start .action:hover .action-label,
+        .dial.left.labels-start .action:focus-visible .action-label,
+        .dial.right.labels-start .action:hover .action-label,
+        .dial.right.labels-start .action:focus-visible .action-label,
+        .dial.left.labels-end .action:hover .action-label,
+        .dial.left.labels-end .action:focus-visible .action-label,
+        .dial.right.labels-end .action:hover .action-label,
+        .dial.right.labels-end .action:focus-visible .action-label {
+          transform: scale(1);
+        }
+        .main {
+          inline-size: 56px;
+          block-size: 56px;
+          border: 0;
+          background: var(--mvx-accent);
+          box-shadow:
+            0 3px 5px color-mix(in srgb, #000 26%, transparent),
+            0 6px 10px color-mix(in srgb, #000 18%, transparent);
+          font-weight: 600;
+          transform: none;
+        }
+        .main::after {
+          display: none;
+        }
+        .main:hover {
+          background:
+            linear-gradient(180deg, color-mix(in srgb, white 10%, transparent), transparent),
+            color-mix(in srgb, var(--mvx-accent) 92%, black);
+          transform: none;
+          box-shadow:
+            0 5px 8px color-mix(in srgb, #000 28%, transparent),
+            0 8px 12px color-mix(in srgb, #000 20%, transparent);
+        }
+        .main-icon {
+          transform: rotate(${open && !openIcon ? '45deg' : '0deg'});
+          transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
       </style>
-      <div class="dial" part="dial">
-        <div class="actions" part="actions" aria-hidden="${!open}">
+      <div class="dial ${placement}" part="dial">
+        <div id="${actionsId}" class="actions ${placement}" part="actions" role="menu" aria-orientation="${orientation}" aria-hidden="${!open}">
           ${this.items.map((item, index) => {
             const label = optionLabel(item, `Action ${index + 1}`);
             const icon = item.icon || item.shortcut || label.trim().charAt(0).toUpperCase();
             const iconSize = item.iconSize || item['icon-size'] || '';
+            const labelId = `${actionsId}-label-${index}`;
             return `
-              <button type="button" class="action" part="action" data-index="${index}" style="--index:${index}" tabindex="${open ? '0' : '-1'}" aria-label="${escapeAttr(label)}">
+              <button type="button" class="action" part="action" role="menuitem" data-index="${index}" style="--index:${index}" tabindex="${open ? '0' : '-1'}" aria-label="${escapeAttr(label)}" aria-describedby="${labelId}">
                 <span class="action-icon" aria-hidden="true" ${iconSize ? `style="font-size:${escapeAttr(cssLength(iconSize, actionIconSize))}"` : ''}>${htmlEscape(icon)}</span>
-                <span class="action-label">${htmlEscape(label)}</span>
+                <span id="${labelId}" class="action-label">${htmlEscape(label)}</span>
               </button>
             `;
           }).join('')}
         </div>
-        <button type="button" class="main" part="button" aria-label="${htmlEscape(this.titleText(open ? 'Close actions' : 'Open actions'))}" aria-haspopup="menu" aria-expanded="${open}">
-          <span class="main-icon" aria-hidden="true">${htmlEscape(this.getAttribute('icon') || '+')}</span>
+        <button type="button" class="main" part="button" aria-label="${htmlEscape(this.titleText(open ? 'Close actions' : 'Open actions'))}" aria-haspopup="menu" aria-controls="${actionsId}" aria-expanded="${open}">
+          <span class="main-icon" aria-hidden="true">${htmlEscape(mainIcon)}</span>
         </button>
       </div>
     `;
     this.shadowRoot.querySelector('.main').addEventListener('click', () => {
-      this.toggleAttribute('open');
-      this.emit('mvx-change', { open: this.hasAttribute('open') });
+      this.setOpen(!this.hasAttribute('open'));
+    });
+    this.shadowRoot.querySelector('.main').addEventListener('focus', () => {
+      if (this.hasAttribute('open-on-focus') && !this.hasAttribute('open')) this.setOpen(true);
+    });
+    this.shadowRoot.querySelector('.main').addEventListener('keydown', event => {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+        event.preventDefault();
+        if (!this.hasAttribute('open')) this.setOpen(true);
+        requestAnimationFrame(() => this.focusAction(reverse ? this.items.length - 1 : 0));
+      }
+      if (event.key === 'Escape' && this.hasAttribute('open')) {
+        event.preventDefault();
+        this.setOpen(false, true);
+      }
     });
     this.shadowRoot.querySelectorAll('[data-index]').forEach(button => button.addEventListener('click', () => {
       const item = this.items[Number(button.dataset.index)];
       this.emit('mvx-select', { item });
-      if (!this.hasAttribute('persistent')) this.removeAttribute('open');
+      if (!this.hasAttribute('persistent')) this.setOpen(false);
     }));
+    this.shadowRoot.querySelectorAll('[data-index]').forEach((button, index) => button.addEventListener('keydown', event => {
+      const actions = [...this.shadowRoot.querySelectorAll('.action')];
+      if (['ArrowUp', 'ArrowLeft'].includes(event.key)) {
+        event.preventDefault();
+        this.focusAction(index - 1);
+      }
+      if (['ArrowDown', 'ArrowRight'].includes(event.key)) {
+        event.preventDefault();
+        this.focusAction(index + 1);
+      }
+      if (event.key === 'Home') {
+        event.preventDefault();
+        this.focusAction(0);
+      }
+      if (event.key === 'End') {
+        event.preventDefault();
+        this.focusAction(actions.length - 1);
+      }
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        this.setOpen(false, true);
+      }
+    }));
+    requestAnimationFrame(() => this.alignLabels());
   }
 }
 

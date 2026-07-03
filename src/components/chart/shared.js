@@ -54,7 +54,7 @@ const hierarchySample = [
   { label: 'AI', value: 18, parent: 'Platform' },
   { label: 'Forms', value: 16, parent: 'Components' },
   { label: 'Data', value: 14, parent: 'Components' },
-  { label: 'Copilot', value: 12, parent: 'AI' }
+  { label: 'AI assistant', value: 12, parent: 'AI' }
 ];
 
 const geoSample = [

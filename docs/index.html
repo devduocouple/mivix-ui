@@ -193,7 +193,7 @@
             </div>
           </div>
 
-          <mvx-ai-panel name="Mivix Copilot" status="Listening for component intents">
+          <mvx-ai-panel name="Mivix AI" status="Listening for component intents">
             <mvx-switch slot="actions" checked label="AI ready"></mvx-switch>
             <p slot="message">Use the same `mvx-*` elements in JavaScript, TypeScript, Next.js, React, Angular, Vue, Blazor, or plain HTML.</p>
             <p slot="message">Components emit DOM events like `mvx-change`, `mvx-select`, `mvx-submit`, and `mvx-close`.</p>
@@ -694,7 +694,7 @@
             </div>
           </mvx-card>
 
-          <mvx-card class="component-card" title="mvx-ai-panel" eyebrow="AI" data-category="ai" data-search="ai assistant copilot agent chat prompt">
+          <mvx-card class="component-card" title="mvx-ai-panel" eyebrow="AI" data-category="ai" data-search="ai assistant agent chat prompt">
             <div class="variants" aria-label="Related versions">
               <span>assistant</span><span>chat</span><span>message</span>
             </div>
@@ -1349,7 +1349,7 @@
           { label: 'Forms', value: 17, parent: 'Core' },
           { label: 'Data grid', value: 15, parent: 'Core' },
           { label: 'Telemetry', value: 13, parent: 'Charts' },
-          { label: 'Copilot', value: 11, parent: 'AI tools' }
+          { label: 'AI assistant', value: 11, parent: 'AI tools' }
         ];
       }
 
@@ -2205,7 +2205,7 @@
         'mvx-ai-panel': {
           family: 'AI surfaces',
           description: 'Assistant panel with message slot, action slot, and prompt composer.',
-          usage: 'Use for AI copilots, review agents, task assistants, and workflow prompts.',
+          usage: 'Use for AI assistants, review agents, task assistants, and workflow prompts.',
           features: ['Message slot', 'Action slot', 'Prompt composer', 'mvx-submit event'],
           api: [
             { name: 'name', type: 'string', default: 'Mivix', description: 'Assistant title.' },
@@ -2218,7 +2218,7 @@
         'mvx-chatbot': {
           family: 'AI surfaces',
           description: 'Feature-rich chatbot component with provider/model mapping, app gateway connection, transcript state, suggestions, and automation events.',
-          usage: 'Use for production copilots, support bots, agent consoles, documentation assistants, workflow agents, and any app that needs a branded chat UI connected to its own AI gateway.',
+          usage: 'Use for production AI assistants, support bots, agent consoles, documentation assistants, workflow agents, and any app that needs a branded chat UI connected to its own AI gateway.',
           features: ['Provider and model selectors', 'Endpoint-based app connection API', 'Messages, suggestions, headers, temperature, and max token APIs', 'mvx-submit, mvx-response, mvx-error, mvx-model-change, mvx-export, and mvx-clear events', 'Accessible live transcript, keyboard-friendly controls, i18n, theme, radius, and RTL support'],
           api: [
             { name: 'name', type: 'string', default: 'Mivix Chatbot', description: 'Chatbot title.' },
@@ -2480,7 +2480,7 @@
   <p slot="message">I can inspect this component and suggest safer defaults.</p>
 </mvx-ai-panel>`,
         'mvx-chatbot': `<mvx-chatbot
-  name="Support Copilot"
+  name="Support AI"
   status="Connected to app gateway"
   endpoint="/api/ai/chat"
   provider="OpenAI"
@@ -2674,8 +2674,8 @@ shortcuts.addEventListener('mvx-command', event => {
 });`
         },
         'mvx-chatbot': {
-          markup: '<mvx-chatbot id="support-copilot" name="Support Copilot" endpoint="/api/ai/chat" model="gpt-4.1-mini"></mvx-chatbot>',
-          setup: `const chatbot = document.querySelector('#support-copilot');
+          markup: '<mvx-chatbot id="support-ai" name="Support AI" endpoint="/api/ai/chat" model="gpt-4.1-mini"></mvx-chatbot>',
+          setup: `const chatbot = document.querySelector('#support-ai');
 chatbot.suggestions = [
   'Summarize this page',
   'Find related components',
@@ -3089,11 +3089,16 @@ autocomplete.options = [
           description: 'FAB-style action launcher with expandable secondary actions.',
           usage: 'Use when a primary action has a few closely related quick actions.',
           tags: ['speed dial', 'fab', 'actions'],
-          api: ['items', 'open', 'placement', 'persistent', 'icon', 'icon-size', 'main-icon-size', 'action-icon-size', 'action-icon-box-size', 'eventSelect'],
+          api: ['label', 'items', 'open', 'placement', 'direction', 'persistent', 'persistent-labels', 'open-on-focus', 'icon', 'open-icon', 'icon-size', 'main-icon-size', 'action-icon-size', 'action-icon-box-size', 'eventSelect', 'eventChange'],
           demo: `<mvx-speed-dial
   open
-  icon="×"
-  action-icon-size="19px"
+  label="Project actions"
+  direction="up"
+  icon="+"
+  open-icon="×"
+  persistent-labels
+  action-icon-size="21px"
+  action-icon-box-size="40px"
   items='[
     {"label":"Create issue","icon":"+"},
     {"label":"Invite user","icon":"@"},
@@ -3912,7 +3917,7 @@ table.data = [
           family: 'Agentic AI-ready',
           title: 'Agent-operable UI',
           description: 'Mivix UI is built so humans, apps, and AI agents can read, control, compose, and adapt interface components at runtime.',
-          usage: 'Use this positioning when selling Mivix UI for copilots, automation consoles, AI dashboards, workflow tools, and agentic internal products.',
+          usage: 'Use this positioning when selling Mivix UI for AI assistants, automation consoles, AI dashboards, workflow tools, and agentic internal products.',
           features: ['Machine-readable APIs through attributes and properties', 'DOM event contract for automation loops', 'Workflow-first surfaces for commands, data, decisions, and feedback', 'Runtime theming, localization, direction, and accessibility hooks'],
           proof: [
             ['Agent-readable', 'Every component exposes predictable attributes, JSON props, and CSS parts.'],
@@ -3940,7 +3945,7 @@ table.data = [
           family: 'Agentic AI-ready',
           title: 'Event Automation',
           description: 'Mivix components emit plain DOM events so agents can observe intent, react to selections, and coordinate workflow actions.',
-          usage: 'Use this story for automation platforms, copilots, review flows, approval systems, and task-oriented enterprise apps.',
+          usage: 'Use this story for automation platforms, AI assistants, review flows, approval systems, and task-oriented enterprise apps.',
           features: ['Bubbling CustomEvents for selection, submit, change, and close', 'Keyboard-first command surfaces', 'Progress and feedback components for long-running agent tasks'],
           proof: [
             ['Observe', 'Agents listen for mvx-select, mvx-submit, mvx-change, and mvx-close.'],
@@ -3954,7 +3959,7 @@ table.data = [
           family: 'Agentic AI-ready',
           title: 'Agent Surfaces',
           description: 'Beyond primitives, Mivix includes high-value AI product surfaces for chat, commands, data workflows, decisions, and agent progress.',
-          usage: 'Use this for the paid-component story: these are the components teams would otherwise build repeatedly for AI dashboards and copilots.',
+          usage: 'Use this for the paid-component story: these are the components teams would otherwise build repeatedly for AI dashboards and AI assistants.',
           features: ['AI panel for assistant workflows', 'Data table and kanban for tool output', 'Modal, drawer, timeline, and command palette for decisions and traceability'],
           proof: [
             ['Compose', 'Teams can assemble AI workspaces without custom one-off UI.'],
@@ -4028,7 +4033,7 @@ table.data = [
           family: 'Agent surfaces',
           title: 'AI Panel',
           description: 'A dedicated assistant panel gives products a native place for agent messages, actions, and user prompts.',
-          usage: 'Use it for copilots, review agents, data assistants, and guided workflows.',
+          usage: 'Use it for AI assistants, review agents, data assistants, and guided workflows.',
           features: ['Message slot', 'Action slot', 'Prompt composer', 'mvx-submit event'],
           proof: [['Surface', 'The agent has a persistent workspace instead of being bolted onto a generic chat box.']],
           demo: '<mvx-ai-panel data-playground-target name="Review Agent" status="Analyzing"><mvx-button slot="actions" size="sm">Run</mvx-button><p slot="message">I can inspect the selected component and propose API changes.</p></mvx-ai-panel>',
@@ -4038,10 +4043,10 @@ table.data = [
           family: 'Agent surfaces',
           title: 'Feature-rich Chatbot UI',
           description: 'A production-grade chatbot surface that lets teams map providers and models while keeping AI gateway logic inside their own app.',
-          usage: 'Use it for paid AI templates, copilots, support bots, internal agents, docs assistants, and workflow automation consoles.',
+          usage: 'Use it for paid AI templates, AI assistants, support bots, internal agents, docs assistants, and workflow automation consoles.',
           features: ['Provider and model picker for OpenAI, Anthropic, Google, local, or custom gateways', 'Endpoint API for app-owned model routing', 'Transcript, quick prompts, attachments slot, token controls, and export event', 'Works as event-only UI or connected fetch client'],
           proof: [['Sellable', 'Teams get a polished AI chat experience without rebuilding model selection, messages, prompt chips, and event plumbing.'], ['Secure by design', 'Apps can connect through their own backend gateway instead of exposing provider secrets in markup.']],
-          demo: '<mvx-chatbot data-playground-target name="Sales Copilot" status="Gateway ready" model="gpt-4.1-mini"></mvx-chatbot>',
+          demo: '<mvx-chatbot data-playground-target name="Sales AI" status="Gateway ready" model="gpt-4.1-mini"></mvx-chatbot>',
           code: '<mvx-chatbot endpoint="/api/ai/chat" model="gpt-4.1-mini"></mvx-chatbot>'
         },
         'data-workflows': {
@@ -4122,13 +4127,13 @@ table.data = [
           demo: `<mvx-grid columns="4" gap="12px">
   <mvx-card title="Admin dashboard" eyebrow="Template"><mvx-badge tone="success">Product app</mvx-badge></mvx-card>
   <mvx-card title="Analytics report" eyebrow="Template"><mvx-badge tone="info">Data</mvx-badge></mvx-card>
-  <mvx-card title="AI workspace" eyebrow="Template"><mvx-badge tone="accent">Copilot</mvx-badge></mvx-card>
+  <mvx-card title="AI workspace" eyebrow="Template"><mvx-badge tone="accent">AI</mvx-badge></mvx-card>
   <mvx-card title="Support center" eyebrow="Template"><mvx-badge tone="warning">Operations</mvx-badge></mvx-card>
 </mvx-grid>`,
           code: `<mvx-grid columns="4" gap="12px">
   <mvx-card title="Admin dashboard" eyebrow="Template"><mvx-badge tone="success">Product app</mvx-badge></mvx-card>
   <mvx-card title="Analytics report" eyebrow="Template"><mvx-badge tone="info">Data</mvx-badge></mvx-card>
-  <mvx-card title="AI workspace" eyebrow="Template"><mvx-badge tone="accent">Copilot</mvx-badge></mvx-card>
+  <mvx-card title="AI workspace" eyebrow="Template"><mvx-badge tone="accent">AI</mvx-badge></mvx-card>
   <mvx-card title="Support center" eyebrow="Template"><mvx-badge tone="warning">Operations</mvx-badge></mvx-card>
 </mvx-grid>`
         },
@@ -4298,8 +4303,8 @@ table.data = [
         'ai-workspace': {
           family: 'Templates',
           title: 'AI workspace',
-          description: 'A copilot workbench with model-aware chat, context attachments, generated editor output, and approval controls.',
-          usage: 'Use for agent consoles, document copilots, code review helpers, research tools, and AI-powered internal products.',
+          description: 'An AI workbench with model-aware chat, context attachments, generated editor output, and approval controls.',
+          usage: 'Use for agent consoles, document AI assistants, code review helpers, research tools, and AI-powered internal products.',
           features: ['Chatbot surface', 'Rich text editor', 'Attachment context', 'Approval actions'],
           components: ['mvx-chatbot', 'mvx-rich-text-editor', 'mvx-attachment', 'mvx-ai-panel', 'mvx-button'],
           proof: [
@@ -4308,7 +4313,7 @@ table.data = [
             ['Model binding', 'Editor and chatbot can point at backend LLM gateways for local or cloud models.']
           ],
           demo: `<mvx-grid columns="2" gap="12px">
-  <mvx-chatbot name="Research Copilot" status="Gateway ready" model="llama3.1" endpoint="/api/llm/chat"></mvx-chatbot>
+  <mvx-chatbot name="Research AI" status="Gateway ready" model="llama3.1" endpoint="/api/llm/chat"></mvx-chatbot>
   <mvx-stack gap="12px">
     <mvx-attachment title="brief.md" meta="Context file"></mvx-attachment>
     <mvx-rich-text-editor endpoint="/api/llm/editor" provider="ollama" model="llama3.1" value="&lt;p&gt;Draft a concise product update.&lt;/p&gt;"></mvx-rich-text-editor>
@@ -4335,7 +4340,7 @@ table.data = [
   </mvx-stack>
   <mvx-stack gap="12px">
     <mvx-list selectable items='[{"label":"T-1042 Billing sync","meta":"Open"},{"label":"T-1043 SSO setup","meta":"Waiting"},{"label":"T-1044 API quota","meta":"Escalated"}]'></mvx-list>
-    <mvx-chatbot name="Support Copilot" status="Connected" model="gpt-4.1-mini"></mvx-chatbot>
+    <mvx-chatbot name="Support AI" status="Connected" model="gpt-4.1-mini"></mvx-chatbot>
   </mvx-stack>
 </mvx-grid>`
         }

@@ -108,6 +108,14 @@ npm run dev
 
 Open `http://127.0.0.1:4173/docs/`.
 
+Build the deployable docs artifact:
+
+```bash
+npm run build:docs
+```
+
+This writes a self-contained static site to `dist/docs`. The GitHub Pages workflow deploys that generated artifact, so the published docs do not depend on parent-directory imports like `../src/index.js`.
+
 ## SSR, SEO, And JSON Config
 
 Mivix components are SSR-compatible when rendered as HTML/custom element tags and hydrated in the browser. Do not import the browser registration bundle from a Node server render path; register it in the client entry or a Next.js client component. For SEO-critical copy, render the text in light DOM or server-generated markup because shadow DOM content is produced after hydration.
@@ -309,6 +317,12 @@ mivix-ui/
   docs/
     index.html
     styles.css
+  dist/
+    docs/
+      index.html
+      src/
+        index.js
+        styles/tokens.css
   examples/
     javascript/
     typescript/
@@ -317,6 +331,9 @@ mivix-ui/
     angular/
     vue/
     blazor/
+  scripts/
+    build-docs.js
+    dev-server.js
 ```
 
 ## License
