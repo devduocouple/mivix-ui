@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" role="img" aria-label="Mivix UI logo">
+  <g fill="none" stroke="#70a0ff" stroke-linecap="square" stroke-linejoin="miter">
+    <line x1="10" y1="8" x2="30" y2="8" stroke-width="3" />
+    <line x1="10" y1="8" x2="10" y2="32" stroke-width="3" />
+    <line x1="30" y1="8" x2="30" y2="32" stroke-width="3" />
+  </g>
+  <g opacity="0.94" fill="none" stroke="#70a0ff" stroke-linecap="round" stroke-linejoin="round">
+    <line
+      x1="20"
+      y1="9"
+      x2="20"
+      y2="31"
+      stroke-width="3"
+      transform="translate(20 20) skewX(-16) translate(-20 -20)"
+    />
+  </g>
+</svg>

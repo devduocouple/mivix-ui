@@ -18,12 +18,21 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://devduocouple.github.io/mivix-ui/" />
     <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="mivix-favicon.svg" sizes="any" />
+    <link rel="icon" href="mivix-favicon.svg" />
+    <link rel="shortcut icon" href="mivix-favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="mivix-favicon.svg" />
     <script>
       (() => {
         try {
           const theme = localStorage.getItem('mivix-ui:theme');
           if (theme) document.documentElement.setAttribute('data-mvx-theme', theme);
         } catch {}
+      })();
+    </script>
+    <script>
+      (() => {
+        document.title = 'Mivix UI';
       })();
     </script>
     <link rel="stylesheet" href="../src/styles/tokens.css" />
