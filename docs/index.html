@@ -4,6 +4,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Mivix UI</title>
+    <meta
+      name="description"
+      content="Mivix UI is an open-source, AI-ready Web Components library for dashboards, product tools, assistant surfaces, and framework-neutral apps."
+    />
+    <meta name="theme-color" content="#0b1220" />
+    <link rel="canonical" href="https://devduocouple.github.io/mivix-ui/" />
+    <meta property="og:title" content="Mivix UI" />
+    <meta
+      property="og:description"
+      content="Reactive, AI-ready Web Components for JavaScript, TypeScript, Next.js, React, Angular, Vue, Blazor, and plain HTML."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://devduocouple.github.io/mivix-ui/" />
+    <meta name="twitter:card" content="summary_large_image" />
     <script>
       (() => {
         try {
@@ -14,7 +28,7 @@
     </script>
     <link rel="stylesheet" href="../src/styles/tokens.css" />
     <link rel="stylesheet" href="./styles.css" />
-    <script type="module" src="../src/index.js"></script>
+    <script type="module" src="../src/auto.js"></script>
   </head>
   <body>
     <header class="mobile-shell-bar" aria-label="Mobile navigation">
@@ -37,7 +51,6 @@
           <div class="mark">M</div>
           <div class="brand-copy">
             <strong>Mivix UI</strong>
-            <span>Alpha preview components</span>
           </div>
           <div class="rail-actions">
             <mvx-theme-switcher></mvx-theme-switcher>
@@ -48,14 +61,35 @@
           <span>Search</span>
           <input id="component-search" type="search" placeholder="button, timeline, tabs..." autocomplete="off" />
         </label>
-        <span id="component-count" class="sr-only">135</span>
+        <span id="component-count" class="sr-only">136</span>
         <nav class="tree-nav" aria-label="Component tree">
+          <details class="tree-root guide-root" open>
+            <summary data-guide="install">Get started <small>14</small></summary>
+            <button data-guide="install">Install</button>
+            <button data-guide="javascript">JavaScript</button>
+            <button data-guide="typescript">TypeScript</button>
+            <button data-guide="vite">Vite</button>
+            <button data-guide="nextjs">Next.js</button>
+            <button data-guide="react">React</button>
+            <button data-guide="angular">Angular</button>
+            <button data-guide="vue">Vue</button>
+            <button data-guide="nuxt">Nuxt</button>
+            <button data-guide="svelte">Svelte</button>
+            <button data-guide="astro">Astro</button>
+            <button data-guide="solid">Solid</button>
+            <button data-guide="dotnet">.NET / Blazor</button>
+          </details>
           <details class="tree-root" open>
-            <summary class="active" data-filter="all">All components <small>135</small></summary>
+            <summary class="active" data-filter="all">All components <small>136</small></summary>
             <details open>
               <summary data-filter="actions">Actions <small>9</small></summary>
               <button data-component="mvx-button">mvx-button</button>
               <button data-component="mvx-icon-button">mvx-icon-button</button>
+            </details>
+            <details open>
+              <summary data-filter="icons">Icons <small>2</small></summary>
+              <button data-component="mvx-icon">mvx-icon</button>
+              <button data-component="mvx-icons">mvx-icons</button>
             </details>
             <details open>
               <summary data-filter="forms">Forms <small>26</small></summary>
@@ -109,8 +143,9 @@
               <button data-component="mvx-timeline">mvx-timeline</button>
             </details>
             <details>
-              <summary data-filter="charts">Charts <small>2</small></summary>
+              <summary data-filter="charts">Charts <small>3</small></summary>
               <button data-component="mvx-chart">mvx-chart</button>
+              <button data-component="mvx-chart-group">mvx-chart-group</button>
               <button data-chart-demo="all">Chart demos</button>
             </details>
             <details>
@@ -171,7 +206,7 @@
             <details>
               <summary data-agent-feature="runtime-adaptation">Runtime adaptation <small>3</small></summary>
               <button data-agent-feature="i18n-a11y">i18n and accessibility</button>
-              <button data-agent-feature="theme-radius">Theme and radius APIs</button>
+              <button data-agent-feature="theme-radius">Theme, font, and radius APIs</button>
               <button data-agent-feature="framework-neutral">Framework-neutral npm</button>
             </details>
           </details>
@@ -184,12 +219,24 @@
             <div class="hero-badges">
               <mvx-badge tone="accent">mivix-ui</mvx-badge>
               <mvx-badge tone="warning">Alpha</mvx-badge>
+              <mvx-badge tone="success">MIT core</mvx-badge>
             </div>
-            <h2>Reactive components, ready for agentic interfaces.</h2>
-            <p>Graphite surfaces, cobalt focus states, framework-neutral custom elements, and workflow patterns designed for assistants, dashboards, and product tools. This demo is an alpha preview while components are being hardened.</p>
+            <h1>Build AI-ready apps with framework-neutral Web Components.</h1>
+            <p>Mivix UI gives product teams a component ecosystem for dashboards, admin tools, assistant workspaces, and dense product UI across JavaScript, TypeScript, Next.js, React, Angular, Vue, Blazor, and plain HTML.</p>
             <div class="hero-actions">
               <mvx-button variant="primary" id="hero-search">Browse components</mvx-button>
+              <mvx-button id="copy-install">Copy install</mvx-button>
               <mvx-button id="open-drawer">Theme tokens</mvx-button>
+            </div>
+            <div class="hero-install" id="install">
+              <span>Quickstart</span>
+              <code>npm install mivix-ui@alpha</code>
+            </div>
+            <div class="hero-proof" aria-label="Mivix UI proof points">
+              <span><strong>136</strong> component folders</span>
+              <span><strong>0</strong> runtime dependencies</span>
+              <span><strong>8</strong> supported app stacks</span>
+              <span><strong>SSR</strong> JSON helpers</span>
             </div>
           </div>
 
@@ -197,7 +244,80 @@
             <mvx-switch slot="actions" checked label="AI ready"></mvx-switch>
             <p slot="message">Use the same `mvx-*` elements in JavaScript, TypeScript, Next.js, React, Angular, Vue, Blazor, or plain HTML.</p>
             <p slot="message">Components emit DOM events like `mvx-change`, `mvx-select`, `mvx-submit`, and `mvx-close`.</p>
+            <p slot="message">Install once, compose product screens, and expose predictable attributes for agents and automation runtimes.</p>
           </mvx-ai-panel>
+        </section>
+
+        <section class="ecosystem-grid" aria-label="Mivix UI ecosystem">
+          <article class="ecosystem-card">
+            <span>Quickstart</span>
+            <strong>Install, import, use `mvx-*` tags.</strong>
+              <code>import 'mivix-ui/styles';<br />import 'mivix-ui/auto';</code>
+          </article>
+          <article class="ecosystem-card">
+            <span>Templates</span>
+            <strong>Product screens, not only isolated controls.</strong>
+            <p>Admin dashboard, SaaS marketing, AI workspace, CRM pipeline, analytics, ecommerce, settings, and support.</p>
+          </article>
+          <article class="ecosystem-card">
+            <span>Agent contract</span>
+            <strong>Readable APIs, JSON props, DOM events.</strong>
+            <p>Attributes, properties, CSS parts, and `mvx-*` events make components easier for agents to inspect and operate.</p>
+          </article>
+          <article class="ecosystem-card">
+            <span>Design system</span>
+            <strong>Tokens, themes, fonts, radius, RTL/LTR.</strong>
+            <p>Graphite, light, aurora, terminal, typography presets, per-component overrides, logical CSS, and localized labels.</p>
+          </article>
+        </section>
+
+        <section class="developer-start" id="get-started" aria-label="Get started with Mivix UI">
+          <div class="developer-start-head">
+            <span>Get started</span>
+            <h2>Install only what your app uses.</h2>
+            <p>Use the auto bundle for prototypes and docs, or import individual components for production bundles that stay light.</p>
+          </div>
+          <div class="developer-start-grid">
+            <article class="developer-start-card" id="quickstart">
+              <span>Install</span>
+              <strong>Add the alpha package and tokens.</strong>
+              <code>npm install mivix-ui@alpha</code>
+              <code>import 'mivix-ui/styles';</code>
+            </article>
+            <article class="developer-start-card">
+              <span>Production import</span>
+              <strong>Register only the components you use.</strong>
+              <code>import { define } from 'mivix-ui/core';<br />import { MvxButton } from 'mivix-ui/components/button';<br />define('mvx-button', MvxButton);</code>
+            </article>
+            <article class="developer-start-card">
+              <span>Prototype import</span>
+              <strong>Register every component when convenience matters.</strong>
+              <code>import 'mivix-ui/auto';</code>
+            </article>
+          </div>
+        </section>
+
+        <section class="documentation-links" id="documentation" aria-label="Documentation and API links">
+          <article>
+            <span>Documentation</span>
+            <strong>Browse components, demos, templates, and generated code.</strong>
+            <p>Use the component catalog for live playgrounds, API controls, and copyable source snippets.</p>
+            <div class="documentation-actions">
+              <a href="#catalog">Component docs</a>
+              <button type="button" data-chart-demo="all">Chart docs</button>
+              <button type="button" data-template="admin-dashboard">Templates</button>
+            </div>
+          </article>
+          <article id="api-reference">
+            <span>API reference</span>
+            <strong>Open API tables for the components you need.</strong>
+            <p>Every detail page lists attributes, properties, JSON options, events, slots, and playground controls.</p>
+            <div class="documentation-actions">
+              <button type="button" data-component="mvx-button">Button API</button>
+              <button type="button" data-component="mvx-chart">Chart API</button>
+              <button type="button" data-component="mvx-chart-group">Chart group API</button>
+            </div>
+          </article>
         </section>
 
         <section class="research-grid" aria-label="Research-backed component families">
@@ -274,6 +394,7 @@
                 <span>RTL/LTR</span>
                 <span>AAA-oriented access</span>
                 <span>per-component theme</span>
+                <span>font presets</span>
                 <span>radius API</span>
               </div>
             </div>
@@ -338,6 +459,25 @@
               <mvx-icon-button label="Settings" pressed>⚙</mvx-icon-button>
               <mvx-icon-button label="Close">×</mvx-icon-button>
             </div>
+          </mvx-card>
+
+          <mvx-card class="component-card" title="mvx-icon" eyebrow="Icons" data-category="icons" data-search="icon glyph symbol status action ui check close settings search command">
+            <div class="variants" aria-label="Related versions">
+              <span>status</span><span>action</span><span>label</span>
+            </div>
+            <div class="cluster">
+              <mvx-icon name="check" label="Ready" tone="success" size="26px"></mvx-icon>
+              <mvx-icon name="search" label="Search" tone="info" size="26px"></mvx-icon>
+              <mvx-icon name="sparkles" label="AI" tone="accent" size="26px"></mvx-icon>
+              <mvx-icon name="warning" label="Warning" tone="warning" size="26px"></mvx-icon>
+            </div>
+          </mvx-card>
+
+          <mvx-card class="component-card" title="mvx-icons" eyebrow="Icons" data-category="icons" data-search="icons icon set glyph palette picker toolbar symbols">
+            <div class="variants" aria-label="Related versions">
+              <span>palette</span><span>picker</span><span>set</span>
+            </div>
+            <mvx-icons items='["check","close","plus","search","settings","chart","table","sparkles"]'></mvx-icons>
           </mvx-card>
 
           <mvx-card class="component-card" title="mvx-badge" eyebrow="Feedback" data-category="feedback" data-search="badge status pill tone">
@@ -464,28 +604,28 @@
             <div class="variants" aria-label="Related versions">
               <span>tabs</span><span>segmented</span><span>panels</span>
             </div>
-            <mvx-tabs id="demo-tabs"></mvx-tabs>
+            <mvx-tabs component-style="clean" id="demo-tabs"></mvx-tabs>
           </mvx-card>
 
           <mvx-card class="component-card" title="mvx-breadcrumbs" eyebrow="Navigation" data-category="navigation" data-search="breadcrumbs path navigation hierarchy">
             <div class="variants" aria-label="Related versions">
               <span>breadcrumbs</span><span>path</span><span>hierarchy</span>
             </div>
-            <mvx-breadcrumbs id="demo-breadcrumbs"></mvx-breadcrumbs>
+            <mvx-breadcrumbs component-style="clean" id="demo-breadcrumbs"></mvx-breadcrumbs>
           </mvx-card>
 
           <mvx-card class="component-card" title="mvx-pagination" eyebrow="Navigation" data-category="navigation" data-search="pagination pages navigation table">
             <div class="variants" aria-label="Related versions">
               <span>pagination</span><span>pager</span><span>table nav</span>
             </div>
-            <mvx-pagination page="2" pages="5"></mvx-pagination>
+            <mvx-pagination component-style="clean" page="2" pages="5"></mvx-pagination>
           </mvx-card>
 
           <mvx-card class="component-card wide" title="mvx-navbar" eyebrow="Navigation" data-category="navigation" data-search="navbar navigation menu links app bar responsive header">
             <div class="variants" aria-label="Related versions">
               <span>navbar</span><span>app bar</span><span>links</span>
             </div>
-            <mvx-navbar
+            <mvx-navbar component-style="clean"
               brand="Mivix"
               compact
               items='[
@@ -500,11 +640,11 @@
             <div class="variants" aria-label="Related versions">
               <span>sidebar</span><span>nested</span><span>rail</span>
             </div>
-            <mvx-sidebar
+            <mvx-sidebar component-style="clean"
               label="Workspace"
               items='[
                 {"label":"Overview","icon":"O","active":true},
-                {"label":"Components","icon":"C","badge":"135"},
+                {"label":"Components","icon":"C","badge":"136"},
                 {"label":"Settings","icon":"S"}
               ]'
             ></mvx-sidebar>
@@ -514,7 +654,7 @@
             <div class="variants" aria-label="Related versions">
               <span>stepper</span><span>wizard</span><span>linear</span>
             </div>
-            <mvx-stepper
+            <mvx-stepper component-style="clean"
               active="1"
               steps='[
                 {"label":"Design","description":"Choose component API"},
@@ -582,7 +722,7 @@
             <div class="variants" aria-label="Related versions">
               <span>tooltip</span><span>hover card</span><span>popover</span>
             </div>
-            <mvx-tooltip text="Tooltips appear on hover and keyboard focus.">
+            <mvx-tooltip content="Tooltips <strong>appear</strong> on <em>hover</em> and keyboard focus.">
               <mvx-button>Hover or focus</mvx-button>
             </mvx-tooltip>
           </mvx-card>
@@ -672,6 +812,16 @@
               <span>line</span><span>bar</span><span>pie</span><span>heatmap</span><span>financial</span>
             </div>
             <mvx-chart id="demo-chart" type="combo" title="Component adoption" legend grid></mvx-chart>
+          </mvx-card>
+
+          <mvx-card class="component-card wide" title="mvx-chart-group" eyebrow="Charts" data-category="charts" data-search="chart group dashboard analytics panel grouped cards kpi reporting">
+            <div class="variants" aria-label="Related versions">
+              <span>dashboard</span><span>report pack</span><span>chart cards</span>
+            </div>
+            <mvx-chart-group title="Revenue analytics" subtitle="Grouped chart cards for one reporting context" columns="2" chart-height="180" density="compact">
+              <mvx-chart type="line" title="MRR trend" legend grid></mvx-chart>
+              <mvx-chart type="variance-budget-actual" title="Budget vs actual" legend grid></mvx-chart>
+            </mvx-chart-group>
           </mvx-card>
 
           <mvx-card class="component-card" title="mvx-command-palette" eyebrow="Overlays" data-category="overlays" data-search="command palette search keyboard actions">
@@ -791,6 +941,7 @@
         { component: 'mvx-progress', status: 'Stable', category: 'Feedback', a11y: 'Progressbar' },
         { component: 'mvx-data-table', status: 'Beta', category: 'Data', a11y: 'Sortable' },
         { component: 'mvx-chart', status: 'Beta', category: 'Charts', a11y: 'SVG role img' },
+        { component: 'mvx-chart-group', status: 'Beta', category: 'Charts', a11y: 'Region label' },
         { component: 'mvx-command-palette', status: 'Beta', category: 'Overlay', a11y: 'Roving' },
         { component: 'mvx-shortcuts', status: 'Alpha', category: 'Navigation', a11y: 'Keyboard' },
         { component: 'mvx-ai-panel', status: 'Alpha', category: 'AI', a11y: 'Form' },
@@ -869,6 +1020,7 @@
 
       const cards = [...document.querySelectorAll('.component-card')];
       const groupLinks = [...document.querySelectorAll('[data-filter]')];
+      const guideLinks = [...document.querySelectorAll('[data-guide]')];
       const componentLinks = [...document.querySelectorAll('[data-component]')];
       const agentFeatureLinks = [...document.querySelectorAll('[data-agent-feature]')];
       const chartDemoLinks = [...document.querySelectorAll('[data-chart-demo]')];
@@ -1004,6 +1156,7 @@
         'Timeline & calendar charts',
         'Geo charts',
         'Scientific & 3D charts',
+        'Business intelligence charts',
         'Product & process charts',
         'Specialty charts'
       ];
@@ -1081,8 +1234,12 @@
         density: 'Scatter & statistical charts',
         hexbin: 'Scatter & statistical charts',
         'control-chart': 'Scatter & statistical charts',
+        'boxen-plot': 'Scatter & statistical charts',
+        'correlation-matrix': 'Matrix & heatmap charts',
         heatmap: 'Matrix & heatmap charts',
         'calendar-heatmap': 'Matrix & heatmap charts',
+        'cohort-retention': 'Matrix & heatmap charts',
+        'risk-matrix': 'Matrix & heatmap charts',
         treemap: 'Hierarchy charts',
         sunburst: 'Hierarchy charts',
         'org-chart': 'Hierarchy charts',
@@ -1090,7 +1247,9 @@
         'tree-diagram': 'Hierarchy charts',
         icicle: 'Hierarchy charts',
         'word-tree': 'Hierarchy charts',
+        'decomposition-tree': 'Hierarchy charts',
         funnel: 'Flow & network charts',
+        'cohort-funnel': 'Flow & network charts',
         pyramid: 'Flow & network charts',
         sankey: 'Flow & network charts',
         alluvial: 'Flow & network charts',
@@ -1126,6 +1285,16 @@
         spectrogram: 'Scientific & 3D charts',
         'process-flow': 'Product & process charts',
         'journey-map': 'Product & process charts',
+        'cumulative-flow': 'Product & process charts',
+        burndown: 'Product & process charts',
+        burnup: 'Product & process charts',
+        'resource-utilization': 'Product & process charts',
+        'slo-error-budget-burn': 'Business intelligence charts',
+        'forecast-fan': 'Business intelligence charts',
+        tornado: 'Business intelligence charts',
+        'aging-bucket': 'Business intelligence charts',
+        'variance-budget-actual': 'Business intelligence charts',
+        'small-multiples': 'Business intelligence charts',
         'word-cloud': 'Specialty charts',
         pictogram: 'Specialty charts',
         'barcode-chart': 'Specialty charts',
@@ -1240,6 +1409,10 @@
         ['hexbin', 'Aggregated dense scatter values.'],
         ['parallel-coordinates', 'Multivariate row comparison.'],
         ['control-chart', 'Process stability with control limits.'],
+        ['boxen-plot', 'Large-sample distribution summary with extra quantile detail.'],
+        ['correlation-matrix', 'Compare relationships between enterprise metrics.'],
+        ['cohort-retention', 'Track retention by signup cohort across periods.'],
+        ['risk-matrix', 'Plot likelihood versus impact for enterprise risk.'],
         ['ternary', 'Compare three-part composition in a triangular space.'],
         ['vector-field', 'Show direction and magnitude across a field.'],
         ['3d-surface', 'Show a 3D-like surface or terrain metric.'],
@@ -1248,6 +1421,18 @@
         ['spectrogram', 'Show frequency or signal intensity over time.'],
         ['process-flow', 'Visualize business process stages and movement.'],
         ['journey-map', 'Map user journey phases and touchpoints over time.'],
+        ['cumulative-flow', 'Show work-in-progress flow across delivery states.'],
+        ['burndown', 'Track remaining work against sprint or project time.'],
+        ['burnup', 'Track completed work and scope growth over time.'],
+        ['resource-utilization', 'Plan team or resource allocation across time.'],
+        ['cohort-funnel', 'Compare conversion flow for a specific cohort.'],
+        ['decomposition-tree', 'Break down a business metric by drivers.'],
+        ['forecast-fan', 'Show forecast uncertainty with widening probability bands.'],
+        ['slo-error-budget-burn', 'Track SLO error budget consumption over time.'],
+        ['tornado', 'Rank sensitivity drivers by positive or negative impact.'],
+        ['aging-bucket', 'Group invoices, tickets, or inventory by age.'],
+        ['variance-budget-actual', 'Compare budget, actual, and variance by category.'],
+        ['small-multiples', 'Compare the same metric across regions or teams.'],
         ['word-cloud', 'Show text frequency through weighted words.'],
         ['pictogram', 'Represent quantities with repeated icons or units.'],
         ['barcode-chart', 'Show dense event marks as barcode-like stripes.'],
@@ -1322,6 +1507,71 @@
         }));
       }
 
+      function chartDemoAreaVariantData(type) {
+        if (type === 'range-area') {
+          const labels = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'];
+          const lows = [18, 17, 21, 28, 31, 24];
+          const highs = [26, 25, 34, 42, 46, 35];
+          return [{ name: 'Daily temperature range', data: labels.map((label, index) => ({
+            label,
+            low: lows[index],
+            high: highs[index],
+            value: Math.round((lows[index] + highs[index]) / 2),
+            y: Math.round((lows[index] + highs[index]) / 2)
+          })) }];
+        }
+        if (type === 'confidence-band') {
+          const labels = ['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6'];
+          const forecast = [42, 48, 57, 63, 71, 78];
+          const margin = [5, 7, 9, 12, 15, 18];
+          return [{ name: 'Forecast with 95% confidence', data: labels.map((label, index) => ({
+            label,
+            value: forecast[index],
+            y: forecast[index],
+            low: forecast[index] - margin[index],
+            high: forecast[index] + margin[index]
+          })) }];
+        }
+        if (type === 'error-band') {
+          const labels = ['Run A', 'Run B', 'Run C', 'Run D', 'Run E', 'Run F'];
+          const mean = [31, 36, 34, 43, 47, 45];
+          const error = [4, 6, 3, 7, 5, 8];
+          return [{ name: 'Experiment mean +/- error', data: labels.map((label, index) => ({
+            label,
+            value: mean[index],
+            y: mean[index],
+            low: mean[index] - error[index],
+            high: mean[index] + error[index]
+          })) }];
+        }
+        return chartDemoSeries(type, chartDemoFamilies.line, ['Actual']);
+      }
+
+      function chartDemoStackedAreaData(type) {
+        const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+        const data = {
+          Organic: [18, 22, 27, 31, 38, 44],
+          Product: [12, 18, 21, 29, 33, 41],
+          Partner: [8, 12, 19, 20, 27, 34]
+        };
+        const names = type === 'stacked-100-area' ? ['Core', 'Growth', 'Experimental'] : Object.keys(data);
+        const values = type === 'stacked-100-area'
+          ? {
+            Core: [58, 52, 47, 43, 39, 34],
+            Growth: [29, 32, 35, 37, 40, 42],
+            Experimental: [13, 16, 18, 20, 21, 24]
+          }
+          : data;
+        return names.map(name => ({
+          name,
+          data: labels.map((label, index) => ({
+            label,
+            value: values[name][index],
+            y: values[name][index]
+          }))
+        }));
+      }
+
       function chartDemoFinancialData(type) {
         const base = 74 + chartTypeSeed(type) % 18;
         return chartDemoFamilies.finance.map((label, index) => {
@@ -1389,6 +1639,283 @@
         ];
       }
 
+      function chartPointSeries(name, labels, values, extra = {}) {
+        return [{
+          name,
+          data: labels.map((label, index) => ({
+            label,
+            value: values[index],
+            y: values[index],
+            x: index + 1,
+            size: 10 + Math.max(0, values[index]) / 3,
+            ...extra
+          }))
+        }];
+      }
+
+      function chartMatrixSeries(labels, seriesMap) {
+        return Object.entries(seriesMap).map(([name, values]) => ({
+          name,
+          data: labels.map((label, index) => ({
+            label,
+            value: values[index],
+            y: values[index],
+            x: index + 1
+          }))
+        }));
+      }
+
+      function chartRangeSeries(name, labels, mids, lows, highs) {
+        return [{
+          name,
+          data: labels.map((label, index) => ({
+            label,
+            value: mids[index],
+            y: mids[index],
+            low: lows[index],
+            high: highs[index],
+            start: lows[index],
+            end: highs[index]
+          }))
+        }];
+      }
+
+      function chartSemanticDemoConfig(type) {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const compact = (series, extra = {}) => ({
+          series,
+          categories: series[0]?.data?.map(point => point.label).filter(Boolean) || [],
+          ...extra
+        });
+        const noThresholds = { thresholds: [] };
+        const percentageMix = chartMatrixSeries(months, {
+          Core: [58, 52, 47, 43, 39, 34],
+          Growth: [29, 32, 35, 37, 40, 42],
+          Experimental: [13, 16, 18, 20, 21, 24]
+        });
+        const acquisitionMix = chartMatrixSeries(months, {
+          Organic: [18, 22, 27, 31, 38, 44],
+          Product: [12, 18, 21, 29, 33, 41],
+          Partner: [8, 12, 19, 20, 27, 34]
+        });
+        const buildDistribution = [{
+          name: 'Build duration',
+          data: [
+            { label: 'API', low: 8, q1: 12, median: 16, q3: 21, high: 30, value: 16 },
+            { label: 'Docs', low: 4, q1: 7, median: 10, q3: 14, high: 18, value: 10 },
+            { label: 'Charts', low: 15, q1: 21, median: 29, q3: 37, high: 52, value: 29 },
+            { label: 'AI', low: 12, q1: 18, median: 25, q3: 33, high: 45, value: 25 }
+          ]
+        }];
+        const telemetryPoints = [{
+          name: 'Telemetry samples',
+          data: [
+            { label: 'S1', x: 1.1, y: 18, value: 18, size: 12 },
+            { label: 'S2', x: 1.8, y: 34, value: 34, size: 18 },
+            { label: 'S3', x: 2.6, y: 28, value: 28, size: 16 },
+            { label: 'S4', x: 3.4, y: 58, value: 58, size: 32 },
+            { label: 'S5', x: 4.1, y: 47, value: 47, size: 25 },
+            { label: 'S6', x: 4.9, y: 72, value: 72, size: 38 }
+          ]
+        }];
+        const flowLinks = type === 'process-flow'
+          ? [
+            { from: 'Request', to: 'Triage', value: 54 },
+            { from: 'Triage', to: 'Design', value: 38 },
+            { from: 'Design', to: 'Build', value: 31 },
+            { from: 'Build', to: 'Review', value: 26 },
+            { from: 'Review', to: 'Ship', value: 21 }
+          ]
+          : type === 'alluvial'
+            ? [
+              { from: 'Free', to: 'Docs', value: 42 },
+              { from: 'Free', to: 'Trial', value: 34 },
+              { from: 'Trial', to: 'Team', value: 22 },
+              { from: 'Docs', to: 'Team', value: 14 },
+              { from: 'Team', to: 'Enterprise', value: 12 }
+            ]
+            : [
+              { from: 'Landing', to: 'Docs', value: 48 },
+              { from: 'Landing', to: 'Examples', value: 29 },
+              { from: 'Docs', to: 'Install', value: 31 },
+              { from: 'Examples', to: 'Install', value: 18 },
+              { from: 'Install', to: 'Activated', value: 22 }
+            ];
+        const dependencyNodes = [
+          { id: 'App', label: 'App', value: 34, links: ['Router', 'State'] },
+          { id: 'Router', label: 'Router', value: 21, links: ['Pages'] },
+          { id: 'State', label: 'State', value: 27, links: ['API', 'Charts'] },
+          { id: 'API', label: 'API', value: 25, links: ['Auth'] },
+          { id: 'Charts', label: 'Charts', value: 20, links: [] },
+          { id: 'Pages', label: 'Pages', value: 18, links: [] },
+          { id: 'Auth', label: 'Auth', value: 16, links: [] }
+        ];
+        const socialNodes = [
+          { id: 'Docs', label: 'Docs', value: 31, links: ['GitHub', 'npm'] },
+          { id: 'GitHub', label: 'GitHub', value: 24, links: ['Issues', 'PRs'] },
+          { id: 'npm', label: 'npm', value: 22, links: ['Apps'] },
+          { id: 'Issues', label: 'Issues', value: 18, links: ['PRs'] },
+          { id: 'PRs', label: 'PRs', value: 17, links: ['Release'] },
+          { id: 'Apps', label: 'Apps', value: 21, links: ['Release'] },
+          { id: 'Release', label: 'Release', value: 19, links: [] }
+        ];
+
+        const config = {
+          line: compact(chartPointSeries('Monthly recurring revenue', months, [28, 34, 42, 48, 61, 74]), { thresholds: [{ value: 60, label: 'Target', color: 'var(--mvx-success)' }] }),
+          area: compact(chartPointSeries('Cumulative storage used', months, [12, 21, 33, 47, 64, 86]), { 'line-style': 'area', thresholds: [] }),
+          'multi-line': compact(chartMatrixSeries(days, { Web: [24, 31, 36, 42, 48, 55], iOS: [18, 22, 27, 34, 39, 45], API: [14, 21, 25, 29, 37, 44] }), noThresholds),
+          'step-line': compact(chartPointSeries('Incident state', ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00'], [1, 1, 2, 2, 3, 1]), { 'line-style': 'step', thresholds: [] }),
+          combo: compact(chartMatrixSeries(months, { Pipeline: [18, 24, 33, 42, 49, 61], Revenue: [12, 18, 27, 35, 44, 53] }), { thresholds: [{ value: 50, label: 'Forecast', color: 'var(--mvx-warning)' }] }),
+          streamgraph: compact(chartMatrixSeries(months, { Search: [8, 13, 21, 19, 25, 32], Docs: [14, 19, 16, 26, 30, 28], AI: [4, 8, 14, 22, 35, 48] }), noThresholds),
+          bar: compact(chartPointSeries('Open tickets by severity', ['P0', 'P1', 'P2', 'P3', 'P4'], [4, 13, 28, 46, 21]), noThresholds),
+          column: compact(chartPointSeries('Revenue by region', ['NA', 'EU', 'IN', 'APAC', 'LATAM'], [76, 58, 64, 42, 31]), noThresholds),
+          'grouped-bar': compact(chartMatrixSeries(['Search', 'Forms', 'Tables', 'Charts'], { Current: [42, 33, 29, 51], Previous: [31, 28, 22, 39] }), noThresholds),
+          'grouped-column': compact(chartMatrixSeries(['Starter', 'Team', 'Pro', 'Enterprise'], { Signups: [48, 37, 24, 12], Activations: [35, 29, 21, 10] }), noThresholds),
+          'stacked-bar': compact(acquisitionMix, noThresholds),
+          'stacked-column': compact(chartMatrixSeries(['Critical', 'High', 'Medium', 'Low'], { Backend: [4, 11, 18, 12], Frontend: [3, 8, 15, 18], Docs: [0, 3, 8, 19] }), noThresholds),
+          '100%-stacked-bar': compact(percentageMix, noThresholds),
+          '100%-stacked-column': compact(chartMatrixSeries(['Q1', 'Q2', 'Q3', 'Q4'], { Free: [55, 48, 42, 36], Team: [31, 34, 37, 40], Enterprise: [14, 18, 21, 24] }), noThresholds),
+          'range-bar': compact(chartRangeSeries('SLA response window', ['Auth', 'API', 'Docs', 'Billing'], [18, 26, 12, 34], [8, 16, 6, 20], [31, 42, 21, 49]), noThresholds),
+          'range-column': compact(chartRangeSeries('Daily min/max latency', ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], [38, 44, 41, 53, 47], [22, 28, 24, 34, 31], [58, 66, 63, 78, 71]), noThresholds),
+          'floating-bar': compact(chartRangeSeries('Sprint task window', ['Design', 'Build', 'Review', 'Ship'], [2, 5, 8, 11], [0, 3, 7, 10], [4, 8, 10, 12]), noThresholds),
+          'error-bar': compact(chartRangeSeries('Benchmark mean +/- error', ['A', 'B', 'C', 'D'], [31, 42, 37, 49], [26, 35, 32, 41], [36, 49, 42, 57]), noThresholds),
+          histogram: compact(chartPointSeries('Response-time buckets', ['0-50', '50-100', '100-200', '200-500', '500+'], [8, 24, 41, 19, 6]), noThresholds),
+          waterfall: compact(chartPointSeries('Cash-flow bridge', ['Start', 'New', 'Expansion', 'Churn', 'Cost', 'End'], [42, 18, 12, -9, -14, 49]), noThresholds),
+          pareto: compact(chartPointSeries('Incident causes', ['Config', 'API', 'Cache', 'Auth', 'Docs'], [42, 27, 16, 9, 6]), noThresholds),
+          lollipop: compact(chartPointSeries('Feature requests', ['Grid', 'Charts', 'AI', 'Theme', 'Forms'], [64, 58, 47, 36, 28]), { 'bar-style': 'lollipop', thresholds: [] }),
+          slope: compact(chartRangeSeries('Before and after adoption', ['Search', 'Forms', 'Charts', 'AI'], [0, 0, 0, 0], [22, 28, 18, 9], [42, 44, 39, 31]), noThresholds),
+          dumbbell: compact(chartRangeSeries('Plan comparison', ['Starter', 'Team', 'Pro', 'Ent'], [0, 0, 0, 0], [18, 31, 44, 52], [29, 46, 61, 78]), noThresholds),
+          bump: compact(chartRangeSeries('Rank movement', ['Docs', 'Charts', 'AI', 'Forms'], [0, 0, 0, 0], [4, 3, 5, 2], [2, 1, 3, 4]), noThresholds),
+          pie: compact(chartPointSeries('Support ticket share', ['Bug', 'Billing', 'How-to', 'Feature'], [38, 22, 27, 13]), { grid: false, thresholds: [] }),
+          donut: compact(chartPointSeries('Plan mix', ['Free', 'Team', 'Pro', 'Enterprise'], [46, 28, 18, 8]), { grid: false, thresholds: [] }),
+          'nested-donut': compact(chartPointSeries('Spend by function', ['Product', 'Engineering', 'Support', 'Sales'], [34, 31, 19, 16]), { grid: false, thresholds: [] }),
+          'semi-donut': compact(chartPointSeries('Budget used', ['Used', 'Remaining'], [68, 32]), { grid: false, thresholds: [] }),
+          rose: compact(chartPointSeries('Incidents by hour', ['00', '04', '08', '12', '16', '20'], [12, 18, 43, 51, 36, 20]), { grid: false, thresholds: [] }),
+          'polar-area': compact(chartPointSeries('Capability weighting', ['A11y', 'DX', 'AI', 'Theme', 'Data'], [34, 42, 38, 29, 31]), { grid: false, thresholds: [] }),
+          'radial-bar': compact(chartPointSeries('Completion by track', ['Core', 'Charts', 'Docs'], [82, 64, 73]), { grid: false, thresholds: [] }),
+          'progress-ring': compact(chartPointSeries('Release readiness', ['Ready', 'Remaining'], [76, 24]), { grid: false, value: 76, min: 0, max: 100, thresholds: [] }),
+          scatter: compact(telemetryPoints, { grid: true, thresholds: [] }),
+          bubble: compact([{ name: 'Accounts', data: telemetryPoints[0].data.map((point, index) => ({ ...point, label: ['Acme', 'Orbit', 'River', 'North', 'Pulse', 'Nova'][index], size: [14, 22, 18, 39, 31, 46][index] })) }], { grid: true, thresholds: [] }),
+          'qq-plot': compact([{ name: 'Observed quantiles', data: [8, 18, 27, 39, 51, 66].map((value, index) => ({ label: `Q${index + 1}`, x: index + 1, y: value, value })) }], { grid: false, thresholds: [] }),
+          'probability-plot': compact([{ name: 'Failure probability', data: [4, 9, 17, 31, 52, 78].map((value, index) => ({ label: `${(index + 1) * 10}%`, x: index + 1, y: value, value })) }], { grid: false, thresholds: [] }),
+          beeswarm: compact([{ name: 'Raw session durations', data: [12, 14, 15, 21, 22, 23, 31, 33].map((value, index) => ({ label: `S${index + 1}`, x: 1 + index % 4, y: value, value, size: 10 })) }], { grid: false, thresholds: [] }),
+          'dot-plot': compact(chartPointSeries('Quality score by team', ['A', 'B', 'C', 'D', 'E'], [72, 64, 81, 58, 69]), { grid: false, thresholds: [] }),
+          'strip-plot': compact([{ name: 'Deploy durations', data: [9, 11, 12, 18, 19, 24, 26, 31].map((value, index) => ({ label: `Deploy ${index + 1}`, x: 1 + index % 4, y: value, value, size: 11 })) }], { grid: false, thresholds: [] }),
+          ternary: compact([{ name: 'Portfolio mix', data: [{ label: 'Core-heavy', x: 62, y: 24, value: 14 }, { label: 'Growth-heavy', x: 28, y: 54, value: 18 }, { label: 'Balanced', x: 38, y: 34, value: 28 }] }], { grid: false, thresholds: [] }),
+          'vector-field': compact([{ name: 'Wind field', data: Array.from({ length: 9 }, (_item, index) => ({ label: `V${index + 1}`, x: 1 + index % 3, y: 16 + Math.floor(index / 3) * 18, value: 12 + index * 5, size: 12 + index })) }], { grid: false, thresholds: [] }),
+          radar: compact(chartPointSeries('Capability profile', ['A11y', 'i18n', 'Theme', 'SSR', 'DX', 'AI'], [92, 84, 88, 76, 81, 90]), noThresholds),
+          spider: compact(chartPointSeries('Risk profile', ['Security', 'Perf', 'API', 'UX', 'Docs'], [72, 64, 58, 43, 39]), noThresholds),
+          boxplot: compact(buildDistribution, { thresholds: [] }),
+          violin: compact(buildDistribution, { thresholds: [] }),
+          ridgeline: compact(chartPointSeries('Latency density ridges', ['API', 'DB', 'Cache', 'Queue', 'Edge'], [31, 54, 22, 46, 18]), { thresholds: [] }),
+          contour: compact(chartPointSeries('CPU heat surface', ['A', 'B', 'C', 'D', 'E', 'F'], [22, 38, 64, 51, 33, 18]), { thresholds: [] }),
+          density: compact(chartPointSeries('Click density', ['Zone 1', 'Zone 2', 'Zone 3', 'Zone 4', 'Zone 5'], [18, 42, 71, 49, 24]), { thresholds: [] }),
+          hexbin: compact(chartPointSeries('Dense event bins', ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7', 'H8', 'H9'], [8, 18, 34, 52, 71, 44, 25, 17, 12]), { thresholds: [] }),
+          'parallel-coordinates': { series: [{ name: 'Model candidates', data: [{ label: 'A', a: 72, b: 61, c: 84, value: 78 }, { label: 'B', a: 54, b: 79, c: 62, value: 68 }, { label: 'C', a: 81, b: 66, c: 58, value: 74 }] }], categories: ['Accuracy', 'Cost', 'Latency'], thresholds: [] },
+          'control-chart': compact(chartPointSeries('Build time stability', ['1', '2', '3', '4', '5', '6', '7', '8'], [31, 34, 29, 36, 44, 33, 35, 30]), { min: 24, max: 46, thresholds: [] }),
+          'cohort-retention': { series: [{ name: 'Retention cohort', data: [
+            { xLabel: 'W1', yLabel: 'Jan', value: 82 }, { xLabel: 'W2', yLabel: 'Jan', value: 64 }, { xLabel: 'W3', yLabel: 'Jan', value: 51 }, { xLabel: 'W4', yLabel: 'Jan', value: 44 },
+            { xLabel: 'W1', yLabel: 'Feb', value: 78 }, { xLabel: 'W2', yLabel: 'Feb', value: 59 }, { xLabel: 'W3', yLabel: 'Feb', value: 48 }, { xLabel: 'W4', yLabel: 'Feb', value: 39 },
+            { xLabel: 'W1', yLabel: 'Mar', value: 86 }, { xLabel: 'W2', yLabel: 'Mar', value: 68 }, { xLabel: 'W3', yLabel: 'Mar', value: 57 }, { xLabel: 'W4', yLabel: 'Mar', value: 49 }
+          ] }], categories: [], grid: false, thresholds: [] },
+          'correlation-matrix': { series: [{ name: 'Metric correlation', data: [
+            { xLabel: 'MRR', yLabel: 'MRR', value: 1 }, { xLabel: 'MRR', yLabel: 'Churn', value: -0.7 }, { xLabel: 'MRR', yLabel: 'NPS', value: 0.6 },
+            { xLabel: 'Churn', yLabel: 'MRR', value: -0.7 }, { xLabel: 'Churn', yLabel: 'Churn', value: 1 }, { xLabel: 'Churn', yLabel: 'NPS', value: -0.5 },
+            { xLabel: 'NPS', yLabel: 'MRR', value: 0.6 }, { xLabel: 'NPS', yLabel: 'Churn', value: -0.5 }, { xLabel: 'NPS', yLabel: 'NPS', value: 1 }
+          ] }], categories: [], grid: false, thresholds: [] },
+          'risk-matrix': { series: [{ name: 'Impact x likelihood', data: [
+            { xLabel: 'Low', yLabel: 'Low', value: 2 }, { xLabel: 'Med', yLabel: 'Low', value: 5 }, { xLabel: 'High', yLabel: 'Low', value: 8 },
+            { xLabel: 'Low', yLabel: 'Med', value: 6 }, { xLabel: 'Med', yLabel: 'Med', value: 12 }, { xLabel: 'High', yLabel: 'Med', value: 18 },
+            { xLabel: 'Low', yLabel: 'High', value: 9 }, { xLabel: 'Med', yLabel: 'High', value: 18 }, { xLabel: 'High', yLabel: 'High', value: 25 }
+          ] }], categories: [], grid: false, thresholds: [] },
+          tornado: compact(chartPointSeries('Sensitivity drivers', ['Price', 'Churn', 'CAC', 'Expansion', 'Support'], [42, -31, -24, 21, -13]), { thresholds: [] }),
+          'forecast-fan': { series: [{ name: 'Revenue forecast', data: [
+            { label: 'Q1', value: 42, p50Low: 38, p50High: 46, p80Low: 34, p80High: 51, p95Low: 29, p95High: 57 },
+            { label: 'Q2', value: 49, p50Low: 44, p50High: 55, p80Low: 39, p80High: 62, p95Low: 32, p95High: 69 },
+            { label: 'Q3', value: 58, p50Low: 51, p50High: 66, p80Low: 44, p80High: 75, p95Low: 36, p95High: 86 },
+            { label: 'Q4', value: 68, p50Low: 59, p50High: 78, p80Low: 49, p80High: 91, p95Low: 38, p95High: 105 }
+          ] }], categories: ['Q1', 'Q2', 'Q3', 'Q4'], grid: false, thresholds: [] },
+          'cumulative-flow': compact(chartMatrixSeries(['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], { Backlog: [42, 38, 31, 24, 18], Active: [12, 18, 24, 29, 22], Review: [4, 7, 11, 14, 16], Done: [2, 8, 18, 31, 46] }), { thresholds: [] }),
+          burndown: compact(chartPointSeries('Work remaining', ['D1', 'D2', 'D3', 'D4', 'D5', 'D6'], [80, 68, 55, 42, 25, 8]), { thresholds: [] }),
+          burnup: compact(chartPointSeries('Work completed', ['D1', 'D2', 'D3', 'D4', 'D5', 'D6'], [8, 22, 36, 53, 68, 80]), { thresholds: [] }),
+          'slo-error-budget-burn': compact(chartPointSeries('Error budget remaining', ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], [100, 86, 72, 49, 31, 18]), { thresholds: [{ value: 25, label: 'Alert', color: 'var(--mvx-danger)' }] }),
+          'resource-utilization': { series: [{ name: 'Team capacity', data: [{ label: 'Design', start: 0, end: 4, value: 4 }, { label: 'Frontend', start: 2, end: 8, value: 8 }, { label: 'Backend', start: 1, end: 7, value: 7 }, { label: 'QA', start: 6, end: 10, value: 10 }] }], categories: ['Design', 'Frontend', 'Backend', 'QA'], grid: false, thresholds: [] },
+          'aging-bucket': compact(chartPointSeries('Invoice aging', ['0-30', '31-60', '61-90', '90+'], [58, 31, 17, 9]), { thresholds: [] }),
+          'boxen-plot': compact(buildDistribution, { thresholds: [] }),
+          'cohort-funnel': { series: [{ name: 'January cohort funnel', data: [{ from: 'Signup', to: 'Activated', value: 860 }, { from: 'Activated', to: 'Week 2 retained', value: 520 }, { from: 'Week 2 retained', to: 'Paid', value: 214 }, { from: 'Paid', to: 'Expansion', value: 74 }] }], categories: [], grid: false, thresholds: [] },
+          'variance-budget-actual': compact(chartMatrixSeries(['Sales', 'R&D', 'Ops'], { Budget: [42, 36, 24], Actual: [47, 31, 29] }), { thresholds: [] }),
+          'small-multiples': { series: [
+            { name: 'NA', data: [{ label: 'Jan', value: 18 }, { label: 'Feb', value: 23 }, { label: 'Mar', value: 31 }, { label: 'Apr', value: 36 }] },
+            { name: 'EU', data: [{ label: 'Jan', value: 14 }, { label: 'Feb', value: 21 }, { label: 'Mar', value: 24 }, { label: 'Apr', value: 33 }] },
+            { name: 'IN', data: [{ label: 'Jan', value: 9 }, { label: 'Feb', value: 16 }, { label: 'Mar', value: 29 }, { label: 'Apr', value: 41 }] },
+            { name: 'APAC', data: [{ label: 'Jan', value: 12 }, { label: 'Feb', value: 19 }, { label: 'Mar', value: 22 }, { label: 'Apr', value: 28 }] }
+          ], categories: ['Jan', 'Feb', 'Mar', 'Apr'], grid: false, thresholds: [] },
+          'decomposition-tree': { series: [{ name: 'Revenue breakdown', data: chartDemoHierarchyData('tree-diagram') }], categories: [], grid: false, thresholds: [] },
+          gantt: { series: [{ name: 'Release plan', data: [{ label: 'Research', start: 0, end: 3, value: 3 }, { label: 'Design', start: 2, end: 6, value: 6 }, { label: 'Build', start: 5, end: 10, value: 10 }, { label: 'Launch', start: 9, end: 12, value: 12 }] }], categories: ['Research', 'Design', 'Build', 'Launch'], grid: false, thresholds: [] },
+          'timeline-range': { series: [{ name: 'Program phases', data: [{ label: 'Alpha', start: 0, end: 4, value: 4 }, { label: 'Beta', start: 3, end: 7, value: 7 }, { label: 'RC', start: 7, end: 10, value: 10 }, { label: 'GA', start: 10, end: 12, value: 12 }] }], categories: ['Alpha', 'Beta', 'RC', 'GA'], grid: false, thresholds: [] },
+          'journey-map': { series: [{ name: 'User journey', data: [{ label: 'Discover', start: 0, end: 2, value: 2 }, { label: 'Evaluate', start: 2, end: 5, value: 5 }, { label: 'Integrate', start: 5, end: 9, value: 9 }, { label: 'Launch', start: 9, end: 12, value: 12 }] }], categories: ['Discover', 'Evaluate', 'Integrate', 'Launch'], grid: false, thresholds: [] },
+          'timeline-event': compact(chartPointSeries('Release events', ['Kickoff', 'Alpha', 'Beta', 'Audit', 'GA'], [1, 2, 3, 4, 5]), { grid: false, thresholds: [] }),
+          'status-timeline': compact(chartPointSeries('Incident states', ['Detected', 'Triaged', 'Mitigated', 'Resolved'], [1, 2, 3, 4]), { grid: false, thresholds: [] }),
+          milestone: compact(chartPointSeries('Product milestones', ['Prototype', 'Docs', 'Beta', 'Launch'], [1, 2, 3, 4]), { grid: false, thresholds: [] }),
+          'calendar-event': compact(chartPointSeries('Daily activity', Array.from({ length: 14 }, (_item, index) => `D${index + 1}`), [3, 8, 13, 5, 21, 18, 7, 4, 16, 22, 11, 9, 26, 14]), { grid: false, thresholds: [] }),
+          sankey: { series: [{ name: 'Activation flow', data: flowLinks }], categories: [], grid: false, thresholds: [] },
+          alluvial: { series: [{ name: 'Plan migration', data: flowLinks }], categories: [], grid: false, thresholds: [] },
+          'process-flow': { series: [{ name: 'Approval process', data: flowLinks }], categories: [], grid: false, thresholds: [] },
+          network: { series: [{ name: 'Community graph', data: socialNodes }], categories: [], grid: false, thresholds: [] },
+          'network-graph': { series: [{ name: 'Account graph', data: socialNodes }], categories: [], grid: false, thresholds: [] },
+          'force-directed': { series: [{ name: 'Weighted relationships', data: socialNodes }], categories: [], grid: false, thresholds: [] },
+          'dependency-graph': { series: [{ name: 'Architecture dependencies', data: dependencyNodes }], categories: [], grid: false, thresholds: [] },
+          'arc-diagram': { series: [{ name: 'Ordered links', data: dependencyNodes }], categories: [], grid: false, thresholds: [] },
+          'matrix-network': { series: [{ name: 'Relationship matrix', data: dependencyNodes }], categories: [], grid: false, thresholds: [] },
+          'edge-bundling': { series: [{ name: 'Dense links', data: dependencyNodes }], categories: [], grid: false, thresholds: [] },
+          chord: { series: [{ name: 'Team handoffs', data: socialNodes }], categories: [], grid: false, thresholds: [] },
+          'org-chart': { series: [{ name: 'Org', data: chartDemoHierarchyData('org-chart') }], categories: [], grid: false, thresholds: [] },
+          'mind-map': { series: [{ name: 'Idea map', data: chartDemoHierarchyData('mind-map') }], categories: [], grid: false, thresholds: [] },
+          'tree-diagram': { series: [{ name: 'Decision tree', data: chartDemoHierarchyData('tree-diagram') }], categories: [], grid: false, thresholds: [] },
+          icicle: { series: [{ name: 'Hierarchy partition', data: chartDemoHierarchyData('icicle') }], categories: [], grid: false, thresholds: [] },
+          'word-tree': { series: [{ name: 'Phrase branches', data: chartDemoHierarchyData('word-tree') }], categories: [], grid: false, thresholds: [] },
+          treemap: compact(chartPointSeries('Roadmap allocation', ['Core', 'Charts', 'AI', 'Docs', 'Themes'], [38, 31, 24, 18, 12]), { grid: false, thresholds: [] }),
+          sunburst: compact(chartPointSeries('Product hierarchy share', ['Core', 'Data', 'AI', 'Themes', 'Docs'], [42, 28, 18, 16, 12]), { grid: false, thresholds: [] }),
+          'word-cloud': compact(chartPointSeries('Docs term frequency', ['components', 'theme', 'chart', 'agent', 'events', 'tokens'], [46, 38, 31, 29, 22, 18]), { grid: false, thresholds: [] }),
+          marimekko: compact(chartPointSeries('Market by segment and size', ['SMB', 'Mid', 'Enterprise', 'Public'], [31, 26, 34, 9]), { grid: false, thresholds: [] }),
+          mosaic: compact(chartPointSeries('Plan x region mix', ['Free NA', 'Free EU', 'Team NA', 'Team EU', 'Ent'], [24, 19, 21, 17, 19]), { grid: false, thresholds: [] }),
+          waffle: compact(chartPointSeries('100 users by plan', ['Free', 'Team', 'Pro', 'Ent'], [46, 28, 18, 8]), { grid: false, thresholds: [] }),
+          pictogram: compact(chartPointSeries('Seats sold', ['Used', 'Open'], [74, 26]), { grid: false, thresholds: [] }),
+          'unit-chart': compact(chartPointSeries('Completed checks', ['Passed', 'Remaining'], [82, 18]), { grid: false, thresholds: [] }),
+          bullet: compact(chartPointSeries('SLO attainment', ['API latency'], [72], { target: 86 }), { min: 0, max: 100, grid: false, thresholds: [] }),
+          sparkline: compact(chartPointSeries('Inline table trend', ['1', '2', '3', '4', '5', '6'], [12, 15, 14, 22, 19, 28]), { grid: false, thresholds: [] }),
+          gauge: { value: 76, min: 0, max: 100, series: [{ name: 'Readiness', data: [{ label: 'Readiness', value: 76 }] }], categories: ['Readiness'], grid: false, thresholds: [] },
+          meter: { value: 62, min: 0, max: 100, series: [{ name: 'Budget used', data: [{ label: 'Budget used', value: 62 }] }], categories: ['Budget used'], grid: false, thresholds: [] },
+          kpi: { value: 91, min: 0, max: 100, series: [{ name: 'Quality score', data: [{ label: 'Quality score', value: 91 }] }], categories: ['Quality score'], grid: false, thresholds: [] },
+          'liquid-fill': { value: 68, min: 0, max: 100, series: [{ name: 'Capacity', data: [{ label: 'Capacity', value: 68 }] }], categories: ['Capacity'], grid: false, thresholds: [] },
+          candlestick: { series: [{ name: 'MIVX OHLC', data: chartDemoFinancialData('candlestick') }], categories: chartDemoFamilies.finance, thresholds: [] },
+          ohlc: { series: [{ name: 'Intraday OHLC', data: chartDemoFinancialData('ohlc') }], categories: chartDemoFamilies.finance, thresholds: [] },
+          'volume-candlestick': { series: [{ name: 'Price and volume', data: chartDemoFinancialData('volume-candlestick') }], categories: chartDemoFamilies.finance, thresholds: [] },
+          'heikin-ashi': { series: [{ name: 'Smoothed trend', data: chartDemoFinancialData('heikin-ashi') }], categories: chartDemoFamilies.finance, thresholds: [] },
+          renko: { series: [{ name: 'Brick movement', data: chartDemoFinancialData('renko') }], categories: chartDemoFamilies.finance, thresholds: [] },
+          kagi: { series: [{ name: 'Reversal trend', data: chartDemoFinancialData('kagi') }], categories: chartDemoFamilies.finance, thresholds: [] },
+          'point-and-figure': { series: [{ name: 'Directional columns', data: chartDemoFinancialData('point-and-figure') }], categories: chartDemoFamilies.finance, thresholds: [] },
+          'market-depth': compact(chartRangeSeries('Bid/ask depth', ['-3%', '-2%', '-1%', 'Mid', '+1%', '+2%', '+3%'], [22, 34, 46, 58, 45, 32, 21], [12, 20, 32, 44, 31, 20, 13], [31, 48, 62, 72, 59, 45, 29]), { thresholds: [] }),
+          choropleth: { series: [{ name: 'Regional adoption', data: chartDemoGeoData('choropleth') }], categories: [], grid: false, thresholds: [] },
+          'symbol-map': { series: [{ name: 'Office headcount', data: chartDemoGeoData('symbol-map') }], categories: [], grid: false, thresholds: [] },
+          'flow-map': { series: [{ name: 'Migration routes', data: chartDemoGeoData('flow-map') }], categories: [], grid: false, thresholds: [] },
+          'geo-heatmap': { series: [{ name: 'Incident hotspots', data: chartDemoGeoData('geo-heatmap') }], categories: [], grid: false, thresholds: [] },
+          'bubble-map': { series: [{ name: 'Regional accounts', data: chartDemoGeoData('bubble-map') }], categories: [], grid: false, thresholds: [] },
+          'tile-map': { series: [{ name: 'Territory score', data: chartDemoGeoData('tile-map') }], categories: [], grid: false, thresholds: [] },
+          cartogram: { series: [{ name: 'Scaled market size', data: chartDemoGeoData('cartogram') }], categories: [], grid: false, thresholds: [] },
+          'route-map': { series: [{ name: 'Delivery routes', data: chartDemoGeoData('route-map') }], categories: [], grid: false, thresholds: [] },
+          'map-with-markers': { series: [{ name: 'Site markers', data: chartDemoGeoData('map-with-markers') }], categories: [], grid: false, thresholds: [] },
+          'map-with-clusters': { series: [{ name: 'Clustered leads', data: chartDemoGeoData('map-with-clusters') }], categories: [], grid: false, thresholds: [] },
+          '3d-surface': compact(chartPointSeries('Terrain height samples', ['A', 'B', 'C', 'D', 'E'], [18, 42, 67, 49, 24]), { grid: false, thresholds: [] }),
+          surface: compact(chartPointSeries('Response surface', ['A', 'B', 'C', 'D', 'E'], [24, 51, 74, 58, 31]), { grid: false, thresholds: [] }),
+          mesh: compact(chartPointSeries('Topology mesh nodes', ['N1', 'N2', 'N3', 'N4', 'N5'], [12, 38, 54, 33, 19]), { grid: false, thresholds: [] }),
+          spectrogram: compact(chartPointSeries('Signal frequency bands', ['20Hz', '80Hz', '200Hz', '1kHz', '4kHz'], [8, 31, 72, 48, 18]), { grid: false, thresholds: [] }),
+          'barcode-chart': compact(chartPointSeries('Request event marks', Array.from({ length: 14 }, (_item, index) => `E${index + 1}`), [4, 16, 31, 8, 42, 11, 52, 24, 18, 61, 14, 29, 47, 9]), { grid: false, thresholds: [] })
+        };
+        return config[type] || null;
+      }
+
       function chartDemoConfig(item) {
         const type = item.type;
         const seed = chartTypeSeed(type);
@@ -1410,8 +1937,22 @@
           attrs.series = series;
           attrs.categories = series[0]?.data?.map(point => point.label).filter(Boolean) || [];
         };
+        const semantic = chartSemanticDemoConfig(type);
+        if (semantic) return { ...attrs, ...semantic };
 
-        if (['line', 'area', 'multi-line', 'step-line', 'range-area', 'stacked-area', 'stacked-100-area', 'confidence-band', 'error-band', 'combo', 'streamgraph'].includes(type)) {
+        if (['range-area', 'confidence-band', 'error-band'].includes(type)) {
+          setSeries(chartDemoAreaVariantData(type));
+          attrs['line-style'] = 'smooth';
+          attrs.thresholds = [];
+          return attrs;
+        }
+        if (['stacked-area', 'stacked-100-area'].includes(type)) {
+          setSeries(chartDemoStackedAreaData(type));
+          attrs['line-style'] = 'smooth';
+          attrs.thresholds = [];
+          return attrs;
+        }
+        if (['line', 'area', 'multi-line', 'step-line', 'combo', 'streamgraph'].includes(type)) {
           setSeries(chartDemoSeries(type, chartDemoFamilies.line, type === 'multi-line' || type.includes('stacked') || type === 'streamgraph' ? ['Website', 'Product', 'API'] : ['Activation', type === 'combo' ? 'Revenue' : 'Retention']));
           attrs['line-style'] = type === 'step-line' ? 'step' : type === 'area' || type.includes('band') || type.includes('area') ? 'smooth' : attrs['line-style'];
           return attrs;
@@ -1548,6 +2089,7 @@
       function setComponentPage(enabled) {
         document.body.classList.toggle('component-page', enabled);
         detail.section.hidden = !enabled;
+        if (!enabled) detail.section.classList.remove('chart-page', 'template-page');
         emptyState.hidden = true;
         landingSections.forEach(section => {
           section.hidden = enabled;
@@ -1562,6 +2104,10 @@
         if (detail.secondary) detail.secondary.hidden = enabled;
       }
 
+      function setChartPageMode(enabled) {
+        detail.section.classList.toggle('chart-page', enabled);
+      }
+
       const commonApi = {
         events: [
           { name: 'mvx-change', type: 'CustomEvent', default: '-', description: 'Emitted when value or state changes.' },
@@ -1572,7 +2118,8 @@
 
       const globalApi = [
         { name: 'theme', type: 'dark | light | graphite | aurora | terminal', default: 'inherit', description: 'Color scheme only. Use dark/light for plain schemes or named themes for richer palettes.' },
-        { name: 'component-style', type: 'console | minimal | glass | dashboard', default: 'console', description: 'Structural style: changes component layout, surface treatment, density, and animation without changing color tokens.', options: ['console', 'minimal', 'glass', 'dashboard'] },
+        { name: 'component-style', type: 'console | clean | minimal | glass | dashboard', default: 'console', description: 'Structural style: changes component layout, surface treatment, density, and animation without changing color tokens.', options: ['console', 'clean', 'minimal', 'glass', 'dashboard'] },
+        { name: 'font', type: 'system | mono | serif | rounded | humanist | geometric | devanagari | CSS font stack', default: 'inherit', description: 'Typography family preset or custom font stack. External web fonts should be loaded by the app first.', options: ['system', 'mono', 'serif', 'rounded', 'humanist', 'geometric', 'devanagari'] },
         { name: 'radius', type: 'number | CSS length | square | rounded', default: 'inherit', description: 'Controls corners from square edges to a specific rounding amount.' },
         { name: 'dir', type: 'ltr | rtl | auto', default: 'inherit', description: 'Direction-aware layout for bidirectional interfaces.' },
         { name: 'lang', type: 'BCP 47 tag', default: 'document lang', description: 'Language metadata for assistive technology and globalization. The playground lists standard ISO 639 language tags.' },
@@ -1809,7 +2356,7 @@
             { name: 'label', type: 'string', default: 'Tabs', description: 'Accessible tablist label.' },
             commonApi.events[0]
           ],
-          demo: '<mvx-tabs data-playground-target id="play-tabs"></mvx-tabs>'
+          demo: '<mvx-tabs component-style="clean" data-playground-target id="play-tabs"></mvx-tabs>'
         },
         'mvx-breadcrumbs': {
           family: 'Navigation',
@@ -1819,7 +2366,7 @@
           api: [
             { name: 'items', type: 'array | JSON', default: '[]', description: 'Items with label and optional href.' }
           ],
-          demo: '<mvx-breadcrumbs data-playground-target id="play-breadcrumbs"></mvx-breadcrumbs>'
+          demo: '<mvx-breadcrumbs component-style="clean" data-playground-target id="play-breadcrumbs"></mvx-breadcrumbs>'
         },
         'mvx-pagination': {
           family: 'Navigation',
@@ -1831,7 +2378,7 @@
             { name: 'pages', type: 'number', default: '1', description: 'Total page count.' },
             commonApi.events[0]
           ],
-          demo: '<mvx-pagination data-playground-target page="2" pages="5"></mvx-pagination>'
+          demo: '<mvx-pagination component-style="clean" data-playground-target page="2" pages="5"></mvx-pagination>'
         },
         'mvx-navbar': {
           family: 'Navigation',
@@ -1846,7 +2393,7 @@
             { name: 'slot="actions"', type: 'slot', default: '-', description: 'Trailing action controls.' },
             { name: 'mvx-select', type: 'CustomEvent', default: '-', description: 'Emitted when a link is selected.' }
           ],
-          demo: `<mvx-navbar
+          demo: `<mvx-navbar component-style="clean"
   data-playground-target
   brand="Mivix"
   compact
@@ -1871,12 +2418,12 @@
             { name: 'slot="footer"', type: 'slot', default: '-', description: 'Custom footer content.' },
             { name: 'mvx-select', type: 'CustomEvent', default: '-', description: 'Emitted when a navigation item is selected.' }
           ],
-          demo: `<mvx-sidebar
+          demo: `<mvx-sidebar component-style="clean"
   data-playground-target
   label="Workspace"
   items='[
     {"label":"Overview","icon":"O","active":true},
-    {"label":"Components","icon":"C","badge":"135"},
+    {"label":"Components","icon":"C","badge":"136"},
     {"label":"Settings","icon":"S"}
   ]'
 ></mvx-sidebar>`
@@ -1893,7 +2440,7 @@
             { name: 'linear', type: 'boolean attribute', default: 'false', description: 'Prevents jumping more than one step ahead.' },
             commonApi.events[0]
           ],
-          demo: `<mvx-stepper
+          demo: `<mvx-stepper component-style="clean"
   data-playground-target
   active="1"
   steps='[
@@ -1929,13 +2476,19 @@
         },
         'mvx-tooltip': {
           family: 'Overlays',
-          description: 'Small contextual help surface shown on hover and keyboard focus.',
-          usage: 'Use to clarify icon buttons, compact controls, or unfamiliar labels.',
-          features: ['role=tooltip', 'Hover and focus trigger', 'Max-width text', 'No JavaScript required by consumers'],
+          description: 'Speech-bubble contextual help surface shown near the hovered or focused trigger.',
+          usage: 'Use to clarify icon buttons, compact controls, unfamiliar labels, or dense dashboard actions without moving users away from the workflow.',
+          features: ['role=tooltip', 'Hover and focus trigger', 'Top/right/bottom/left placement', 'Auto placement based on viewport space', 'Speech-bubble arrow with shared distance', 'HTML tooltip body support'],
           api: [
-            { name: 'text', type: 'string', default: "''", description: 'Tooltip content.' }
+            { name: 'text', type: 'string', default: "''", description: 'Tooltip content.' },
+            { name: 'content', type: 'HTML', default: '-', description: 'Raw HTML content to render inside the bubble.' },
+            { name: 'placement', type: 'top | right | bottom | left | auto', default: 'top', description: 'Preferred speech-bubble side. Auto chooses the best available viewport space.', options: ['top', 'right', 'bottom', 'left', 'auto'] },
+            { name: 'default-placement', type: 'top | right | bottom | left', default: 'top', description: 'Fallback placement when `placement` is omitted or invalid.' },
+            { name: 'offset', type: 'number', default: '10', description: 'Pixel distance between trigger and tooltip bubble.' },
+            { name: 'max-width', type: 'CSS length', default: '260px', description: 'Maximum tooltip bubble width before text wraps.' },
+            { name: 'open', type: 'boolean attribute', default: 'false', description: 'Forces the tooltip bubble visible.' }
           ],
-          demo: '<mvx-tooltip data-playground-target text="Tooltips explain compact controls."><mvx-button>Hover or focus</mvx-button></mvx-tooltip>'
+          demo: '<mvx-tooltip default-placement="top" data-playground-target placement="auto" content="Tooltips explain <strong>compact controls</strong> and choose a visible side automatically."><mvx-button>Hover or focus</mvx-button></mvx-tooltip>'
         },
         'mvx-dropdown-menu': {
           family: 'Overlays',
@@ -2154,6 +2707,27 @@
           ],
           demo: '<mvx-chart data-playground-target id="play-chart" type="combo" title="Component adoption" theme="dark" component-style="console" legend grid labels height="340" line-style="smooth" point-style="circle" bar-style="rounded" hover-animation="scale" thresholds="[{&quot;value&quot;:50,&quot;label&quot;:&quot;Target&quot;,&quot;color&quot;:&quot;var(--mvx-warning)&quot;}]"></mvx-chart>'
         },
+        'mvx-chart-group': {
+          family: 'Charts',
+          description: 'Dashboard-ready grouping component for multiple related chart cards, with shared title, actions, responsive grid layout, and optional JSON chart definitions.',
+          usage: 'Use for analytics sections, executive dashboards, metric packs, report pages, cohort reviews, finance workbooks, and AI-generated insight groups.',
+          features: ['Groups multiple mvx-chart cards under one reporting context', 'Supports slotted charts for full control or a charts JSON array for generated dashboards', 'Responsive columns, auto-fit mode, compact density, chart-height defaults, and actions slot', 'Keeps charts individually interactive while presenting them as one dashboard section'],
+          api: [
+            { name: 'title', type: 'string', default: '-', description: 'Group heading.' },
+            { name: 'subtitle', type: 'string', default: '-', description: 'Supporting context shown under the title.' },
+            { name: 'eyebrow', type: 'string', default: '-', description: 'Small uppercase context label above the title.' },
+            { name: 'charts', type: 'array | JSON', default: '[]', description: 'Optional list of chart attribute objects rendered as mvx-chart children.' },
+            { name: 'columns', type: 'number', default: '2', description: 'Preferred number of chart columns.' },
+            { name: 'min-column-width', type: 'CSS length', default: '260px', description: 'Minimum chart column width when responsive auto-fit is enabled.' },
+            { name: 'responsive', type: 'auto-fit | false', default: 'breakpoints', description: 'Use auto-fit to flow charts by available width.', options: ['auto-fit', 'false'] },
+            { name: 'gap', type: 'CSS length', default: '14px', description: 'Spacing between chart cards.' },
+            { name: 'density', type: 'comfortable | compact', default: 'comfortable', description: 'Adjusts internal group padding and spacing.', options: ['comfortable', 'compact'] },
+            { name: 'variant', type: 'default | plain', default: 'default', description: 'Plain removes the group surface while keeping the chart grid.', options: ['default', 'plain'] },
+            { name: 'chart-height', type: 'number', default: '-', description: 'Default height applied to slotted charts that do not set their own height.' },
+            { name: 'slot="actions"', type: 'slot', default: '-', description: 'Toolbar actions, filters, badges, or export buttons.' }
+          ],
+          demo: '<mvx-chart-group data-playground-target title="Revenue analytics" subtitle="Grouped chart cards for one reporting context" eyebrow="Q3 review" columns="2" responsive="auto-fit" min-column-width="260px" chart-height="260"><mvx-button slot="actions" size="sm">Export</mvx-button><mvx-chart type="line" title="MRR trend" legend grid labels></mvx-chart><mvx-chart type="forecast-fan" title="Forecast range" legend grid labels></mvx-chart><mvx-chart type="variance-budget-actual" title="Budget vs actual" legend grid labels></mvx-chart><mvx-chart type="cohort-retention" title="Retention cohort" legend></mvx-chart></mvx-chart-group>'
+        },
         'mvx-command-palette': {
           family: 'Overlays',
           description: 'Keyboard-first command search for product actions and AI workflows.',
@@ -2300,7 +2874,7 @@
         'mvx-date-picker': '<mvx-date-picker label="Release window" range value="2026-07-02,2026-07-09"></mvx-date-picker>',
         'mvx-alert': '<mvx-alert tone="success" title="Deployment complete" closable>Your production build is live.</mvx-alert>',
         'mvx-badge': '<mvx-badge tone="success">Production</mvx-badge>',
-        'mvx-card': '<mvx-card title="Release health" eyebrow="Dashboard" interactive>All checks passed across 135 components.</mvx-card>',
+        'mvx-card': '<mvx-card title="Release health" eyebrow="Dashboard" interactive>All checks passed across 136 components.</mvx-card>',
         'mvx-accordion': `<mvx-accordion
   multiple
   items='[
@@ -2318,7 +2892,7 @@
     }
   ]'
 ></mvx-accordion>`,
-        'mvx-tabs': `<mvx-tabs
+        'mvx-tabs': `<mvx-tabs component-style="clean"
   label="Framework examples"
   tabs='[
     {
@@ -2335,7 +2909,7 @@
     }
   ]'
 ></mvx-tabs>`,
-        'mvx-breadcrumbs': `<mvx-breadcrumbs
+        'mvx-breadcrumbs': `<mvx-breadcrumbs component-style="clean"
   items='[
     {
       "label": "Docs",
@@ -2350,10 +2924,10 @@
     }
   ]'
 ></mvx-breadcrumbs>`,
-        'mvx-pagination': '<mvx-pagination page="2" pages="8"></mvx-pagination>',
-        'mvx-navbar': '<mvx-navbar id="product-navbar" brand="Mivix" compact></mvx-navbar>',
-        'mvx-sidebar': '<mvx-sidebar id="workspace-sidebar" label="Workspace"></mvx-sidebar>',
-        'mvx-stepper': '<mvx-stepper id="release-stepper" active="1"></mvx-stepper>',
+        'mvx-pagination': '<mvx-pagination component-style="clean" page="2" pages="8"></mvx-pagination>',
+        'mvx-navbar': '<mvx-navbar component-style="clean" id="product-navbar" brand="Mivix" compact></mvx-navbar>',
+        'mvx-sidebar': '<mvx-sidebar component-style="clean" id="workspace-sidebar" label="Workspace"></mvx-sidebar>',
+        'mvx-stepper': '<mvx-stepper component-style="clean" id="release-stepper" active="1"></mvx-stepper>',
         'mvx-modal': `<mvx-modal open label="Delete project">
   <p>This action cannot be undone.</p>
   <mvx-button variant="danger">Delete project</mvx-button>
@@ -2362,7 +2936,7 @@
   <mvx-switch checked label="Only show active workflows"></mvx-switch>
   <mvx-button variant="primary">Apply filters</mvx-button>
 </mvx-drawer>`,
-        'mvx-tooltip': '<mvx-tooltip text="Saves the current workspace"><mvx-button>Save</mvx-button></mvx-tooltip>',
+        'mvx-tooltip': '<mvx-tooltip placement="auto" content="Saves the <strong>current workspace</strong>"><mvx-button>Save</mvx-button></mvx-tooltip>',
         'mvx-dropdown-menu': '<mvx-dropdown-menu id="actions-menu" label="Actions" placement="end"></mvx-dropdown-menu>',
         'mvx-popover': `<mvx-popover label="Why Mivix?">
   <p>Agent-readable attributes, events, and copyable snippets.</p>
@@ -2573,7 +3147,7 @@ accordion.items = [
 ];`
         },
         'mvx-tabs': {
-          markup: '<mvx-tabs id="framework-tabs" label="Framework examples"></mvx-tabs>',
+          markup: '<mvx-tabs component-style="clean" id="framework-tabs" label="Framework examples"></mvx-tabs>',
           setup: `const tabs = document.querySelector('#framework-tabs');
 tabs.tabs = [
   { label: 'HTML', content: 'Use the custom element directly.' },
@@ -2582,7 +3156,7 @@ tabs.tabs = [
 ];`
         },
         'mvx-breadcrumbs': {
-          markup: '<mvx-breadcrumbs id="docs-path"></mvx-breadcrumbs>',
+          markup: '<mvx-breadcrumbs component-style="clean" id="docs-path"></mvx-breadcrumbs>',
           setup: `const breadcrumbs = document.querySelector('#docs-path');
 breadcrumbs.items = [
   { label: 'Docs', href: '/docs/' },
@@ -2591,7 +3165,7 @@ breadcrumbs.items = [
 ];`
         },
         'mvx-navbar': {
-          markup: '<mvx-navbar id="product-navbar" brand="Mivix" compact></mvx-navbar>',
+          markup: '<mvx-navbar component-style="clean" id="product-navbar" brand="Mivix" compact></mvx-navbar>',
           setup: `const navbar = document.querySelector('#product-navbar');
 navbar.items = [
   { label: 'Docs', href: '#docs', active: true },
@@ -2600,16 +3174,16 @@ navbar.items = [
 ];`
         },
         'mvx-sidebar': {
-          markup: '<mvx-sidebar id="workspace-sidebar" label="Workspace"></mvx-sidebar>',
+          markup: '<mvx-sidebar component-style="clean" id="workspace-sidebar" label="Workspace"></mvx-sidebar>',
           setup: `const sidebar = document.querySelector('#workspace-sidebar');
 sidebar.items = [
   { label: 'Overview', icon: 'O', active: true },
-  { label: 'Components', icon: 'C', badge: '135' },
+  { label: 'Components', icon: 'C', badge: '136' },
   { label: 'Settings', icon: 'S' }
 ];`
         },
         'mvx-stepper': {
-          markup: '<mvx-stepper id="release-stepper" active="1"></mvx-stepper>',
+          markup: '<mvx-stepper component-style="clean" id="release-stepper" active="1"></mvx-stepper>',
           setup: `const stepper = document.querySelector('#release-stepper');
 stepper.steps = [
   { label: 'Design', description: 'Choose component API' },
@@ -2946,7 +3520,7 @@ autocomplete.options = [
           usage: 'Use for file explorers, docs trees, settings navigation, and nested object browsing.',
           tags: ['tree view', 'nested', 'explorer'],
           api: ['items', 'value', 'eventSelect'],
-          demo: `<mvx-tree-view
+          demo: `<mvx-tree-view component-style="clean"
   value="button"
   items='[
     {"label":"Actions","open":true,"children":[{"label":"Button","value":"button"},{"label":"Toggle","value":"toggle"}]},
@@ -2980,7 +3554,7 @@ autocomplete.options = [
           usage: 'Use for editor, admin, and desktop-style command menus.',
           tags: ['menubar', 'menu', 'submenu'],
           api: ['items', 'eventSelect'],
-          demo: `<mvx-menubar
+          demo: `<mvx-menubar component-style="clean"
   items='[
     {"label":"File","children":[{"label":"New"},{"label":"Export"}]},
     {"label":"View","children":[{"label":"Preview"},{"label":"Logs"}]}
@@ -2995,7 +3569,7 @@ autocomplete.options = [
           usage: 'Use for product navigation, docs menus, and marketing-to-product transitions.',
           tags: ['navigation menu', 'site nav', 'submenu'],
           api: ['items', 'eventSelect'],
-          demo: `<mvx-navigation-menu
+          demo: `<mvx-navigation-menu component-style="clean"
   items='[
     {"label":"Products","children":[{"label":"Components"},{"label":"Charts"}]},
     {"label":"Resources","children":[{"label":"Docs"},{"label":"Examples"}]}
@@ -3010,7 +3584,7 @@ autocomplete.options = [
           usage: 'Use for top-level site navigation with grouped destinations.',
           tags: ['mega menu', 'large menu', 'navigation'],
           api: ['items', 'eventSelect'],
-          demo: `<mvx-mega-menu
+          demo: `<mvx-mega-menu component-style="clean"
   items='[
     {"label":"Platform","children":[{"label":"AI surfaces"},{"label":"Data workflows"}]},
     {"label":"Developers","children":[{"label":"API"},{"label":"Snippets"}]}
@@ -3025,7 +3599,7 @@ autocomplete.options = [
           usage: 'Use for side menus, command submenus, popover menus, and compact navigation.',
           tags: ['menu', 'links', 'actions'],
           api: ['items', 'eventSelect'],
-          demo: `<mvx-menu
+          demo: `<mvx-menu component-style="clean"
   items='[
     {"label":"Overview","href":"#"},
     {"label":"Components","href":"#catalog"},
@@ -3051,7 +3625,7 @@ autocomplete.options = [
           usage: 'Use for mobile apps, compact dashboards, and bottom app bars.',
           tags: ['bottom navigation', 'mobile nav', 'dock'],
           api: ['items', 'value', 'eventChange'],
-          demo: `<mvx-bottom-navigation
+          demo: `<mvx-bottom-navigation component-style="clean"
   value="home"
   items='[
     {"label":"Home","value":"home"},
@@ -3068,7 +3642,7 @@ autocomplete.options = [
           usage: 'Use when matching daisyUI dock/bottom-bar naming.',
           tags: ['dock', 'bottom bar', 'navigation'],
           api: ['items', 'value', 'eventChange'],
-          demo: `<mvx-dock
+          demo: `<mvx-dock component-style="clean"
   value="components"
   items='["Docs","Components","Themes"]'
 ></mvx-dock>`
@@ -3235,7 +3809,7 @@ autocomplete.options = [
           usage: 'Use for KPI panels, dashboard metrics, and compact summaries.',
           tags: ['stat', 'metric', 'kpi'],
           api: ['value', 'label'],
-          demo: '<mvx-stat label="Coverage" value="135" delta="+94"></mvx-stat>'
+          demo: '<mvx-stat label="Coverage" value="136" delta="+94"></mvx-stat>'
         },
         {
           name: 'mvx-status',
@@ -3325,7 +3899,7 @@ autocomplete.options = [
           usage: 'Use to inspect mobile flows, bottom navigation, and compact layouts.',
           tags: ['phone mockup', 'mobile', 'preview'],
           api: ['label'],
-          demo: '<mvx-phone-mockup><mvx-bottom-navigation items="[&quot;Home&quot;,&quot;Search&quot;,&quot;Settings&quot;]"></mvx-bottom-navigation></mvx-phone-mockup>'
+          demo: '<mvx-phone-mockup><mvx-bottom-navigation component-style="clean" items="[&quot;Home&quot;,&quot;Search&quot;,&quot;Settings&quot;]"></mvx-bottom-navigation></mvx-phone-mockup>'
         },
         {
           name: 'mvx-window-mockup',
@@ -3521,7 +4095,7 @@ autocomplete.options = [
           usage: 'Use for docs pages, long articles, and dashboard sections.',
           tags: ['scrollspy', 'anchors', 'section nav'],
           api: ['items'],
-          demo: '<mvx-scrollspy items="[{&quot;label&quot;:&quot;Intro&quot;,&quot;href&quot;:&quot;#intro&quot;},{&quot;label&quot;:&quot;API&quot;,&quot;href&quot;:&quot;#api&quot;}]"></mvx-scrollspy>'
+          demo: '<mvx-scrollspy component-style="clean" items="[{&quot;label&quot;:&quot;Intro&quot;,&quot;href&quot;:&quot;#intro&quot;},{&quot;label&quot;:&quot;API&quot;,&quot;href&quot;:&quot;#api&quot;}]"></mvx-scrollspy>'
         },
         {
           name: 'mvx-filter',
@@ -3581,27 +4155,27 @@ autocomplete.options = [
           usage: 'Use for list rows, menu-like content, cards inside panels, and object summaries.',
           tags: ['item', 'row', 'list item'],
           api: ['label'],
-          demo: '<mvx-item title="Component audit" description="135 components covered"><mvx-badge slot="actions" tone="success">Done</mvx-badge></mvx-item>'
+          demo: '<mvx-item title="Component audit" description="136 components covered"><mvx-badge slot="actions" tone="success">Done</mvx-badge></mvx-item>'
         },
         {
           name: 'mvx-icon',
-          family: 'Content',
-          category: 'data',
-          description: 'Inline icon primitive for compact status, action, and label glyphs.',
-          usage: 'Use when a peer library expects an icon component or when compact symbolic UI is needed.',
-          tags: ['icon', 'glyph', 'symbol'],
-          api: ['label', 'tone'],
-          demo: '<mvx-icon name="check" label="Ready" size="32px" tone="success"></mvx-icon>'
+          family: 'Icons',
+          category: 'icons',
+          description: 'Inline icon primitive for compact status, action, navigation, data, and AI/workflow glyphs.',
+          usage: 'Use when a peer library expects an icon component or when compact symbolic UI is needed inside buttons, rows, alerts, menus, and labels.',
+          tags: ['icon', 'glyph', 'symbol', 'status icon', 'action icon'],
+          api: ['name', 'label', 'size', 'tone'],
+          demo: '<mvx-icon name="sparkles" label="AI ready" size="32px" tone="accent"></mvx-icon>'
         },
         {
           name: 'mvx-icons',
-          family: 'Content',
-          category: 'data',
-          description: 'Small icon set preview/grid for icon pickers and docs parity.',
-          usage: 'Use for icon palettes, editor toolbars, and visual symbol selection.',
-          tags: ['icons', 'icon set', 'glyphs'],
+          family: 'Icons',
+          category: 'icons',
+          description: 'Small icon set preview/grid for icon pickers, docs parity, toolbar palettes, and design-system previews.',
+          usage: 'Use for icon palettes, editor toolbars, visual symbol selection, and showing the supported icon names in docs.',
+          tags: ['icons', 'icon set', 'glyphs', 'icon palette', 'icon picker'],
           api: ['items'],
-          demo: '<mvx-icons items="[&quot;check&quot;,&quot;close&quot;,&quot;plus&quot;,&quot;search&quot;,&quot;settings&quot;]"></mvx-icons>'
+          demo: '<mvx-icons items="[&quot;check&quot;,&quot;close&quot;,&quot;plus&quot;,&quot;search&quot;,&quot;settings&quot;,&quot;chart&quot;,&quot;table&quot;,&quot;sparkles&quot;]"></mvx-icons>'
         },
         {
           name: 'mvx-masonry',
@@ -3913,6 +4487,467 @@ table.data = [
         return template.innerHTML;
       }
 
+      const guideDocs = {
+        install: {
+          family: 'Get started',
+          title: 'Install Mivix UI',
+          nav: 'Install',
+          description: 'Install the alpha package, load the design tokens, and choose between production-friendly component imports or full auto registration.',
+          usage: 'Start here for any app. Use subpath imports for light production bundles and the auto entry for prototypes, docs, and demos.',
+          tag: 'npm install',
+          features: ['npm, pnpm, yarn, and bun commands', 'Load one CSS token file near the app root', 'Tree-shakable component imports for production', 'Optional auto-registration bundle for fast starts'],
+          rows: [
+            ['1. Install package', 'Run npm install mivix-ui@alpha, pnpm add mivix-ui@alpha, yarn add mivix-ui@alpha, or bun add mivix-ui@alpha.'],
+            ['2. Load styles', 'Import mivix-ui/styles once near the app root so every component receives the token system.'],
+            ['3. Fast registration', 'Use import "mivix-ui/auto" when building prototypes, docs, demos, or internal tools where convenience matters.'],
+            ['4. Production registration', 'Import define from mivix-ui/core and only the component classes your app uses, such as MvxButton from mivix-ui/components/button.'],
+            ['5. Render components', 'Use mvx-* tags in HTML, JSX, Vue templates, Angular templates, Razor, Svelte, Astro, or any Web Component-capable view.'],
+            ['6. Listen to events', 'Handle DOM events such as mvx-change, mvx-select, mvx-submit, mvx-click, and mvx-close from your framework.'],
+            ['7. Keep bundles light', 'Move from auto registration to per-component imports before shipping performance-sensitive production apps.']
+          ],
+          demo: '<mvx-card data-playground-target title="Install once" eyebrow="Get started">Use styles plus either per-component imports or the auto bundle.</mvx-card>',
+          code: `npm install mivix-ui@alpha
+pnpm add mivix-ui@alpha
+yarn add mivix-ui@alpha
+bun add mivix-ui@alpha
+
+// Fast setup
+import 'mivix-ui/styles';
+import 'mivix-ui/auto';
+
+// Production setup
+import 'mivix-ui/styles';
+import { define } from 'mivix-ui/core';
+import { MvxButton } from 'mivix-ui/components/button';
+
+define('mvx-button', MvxButton);`
+        },
+        javascript: {
+          family: 'Get started',
+          title: 'Use With JavaScript',
+          nav: 'JavaScript',
+          description: 'Use Mivix UI directly from plain JavaScript or static HTML with standards-based custom elements.',
+          usage: 'Use this path for no-framework apps, static pages, browser modules, and lightweight prototypes.',
+          tag: 'plain JS',
+          features: ['Works with native custom elements', 'No framework adapter required', 'Use DOM events like mvx-change and mvx-select', 'Can start with auto registration and later switch to per-component imports'],
+          rows: [
+            ['1. Install package', 'Run npm install mivix-ui@alpha if the page is built with a local toolchain.'],
+            ['2. Serve assets', 'Make node_modules or copied package assets available to the browser through your dev server or static asset pipeline.'],
+            ['3. Add CSS', 'Link the token CSS from the served package path, or import mivix-ui/styles when using a bundler.'],
+            ['4. Register elements', 'Add a type="module" script and import mivix-ui/auto for the quickest setup.'],
+            ['5. Write markup', 'Place mvx-* elements directly in HTML after the script loads.'],
+            ['6. Pass data', 'Set simple values as attributes and assign arrays or objects through JavaScript properties.'],
+            ['7. Handle events', 'Use addEventListener for custom events such as mvx-click, mvx-change, and mvx-select.']
+          ],
+          demo: '<mvx-button data-playground-target variant="primary">Deploy</mvx-button>',
+          code: `<link rel="stylesheet" href="/node_modules/mivix-ui/src/styles/tokens.css" />
+<script type="module">
+  import 'mivix-ui/auto';
+
+  document.querySelector('mvx-button')
+    ?.addEventListener('mvx-click', event => console.log(event.detail));
+<\/script>
+
+<mvx-button variant="primary">Deploy</mvx-button>`
+        },
+        typescript: {
+          family: 'Get started',
+          title: 'Use With TypeScript',
+          nav: 'TypeScript',
+          description: 'Use typed component classes and JSX/TSX intrinsic element declarations while keeping DOM-native elements.',
+          usage: 'Use this path when you want typed refs, typed component properties, and editor help.',
+          tag: 'TypeScript',
+          features: ['Typed component classes', 'Subpath imports', 'DOM-native refs and events', 'Production-friendly bundle control'],
+          rows: [
+            ['1. Install package', 'Run npm install mivix-ui@alpha in the TypeScript project.'],
+            ['2. Import styles', 'Import mivix-ui/styles once in main.ts, app.ts, or your framework root.'],
+            ['3. Add element types', 'Import type {} from mivix-ui when TSX or JSX should recognize mvx-* tags.'],
+            ['4. Register components', 'Use define plus subpath imports for the exact component classes you need.'],
+            ['5. Type refs', 'Query or hold refs as typed HTMLElement subclasses such as MvxChart.'],
+            ['6. Set rich data', 'Assign arrays, objects, chart series, table columns, and JSON config through typed element properties.'],
+            ['7. Listen to events', 'Type custom event handlers at the DOM boundary and read event.detail where components emit payloads.']
+          ],
+          demo: '<mvx-chart data-playground-target type="combo" title="Typed chart" legend grid></mvx-chart>',
+          code: `import 'mivix-ui/styles';
+import { define } from 'mivix-ui/core';
+import { MvxChart } from 'mivix-ui/components/chart';
+import type {} from 'mivix-ui';
+
+define('mvx-chart', MvxChart);
+
+const chart = document.querySelector<MvxChart>('mvx-chart');
+if (chart) {
+  chart.series = [{ name: 'Usage', data: [12, 22, 31, 48, 58] }];
+}`
+        },
+        vite: {
+          family: 'Get started',
+          title: 'Use With Vite',
+          nav: 'Vite',
+          description: 'Register Mivix UI once in a Vite entry file, then use mvx-* elements anywhere your app renders HTML.',
+          usage: 'Use this path for vanilla, React, Vue, Solid, Svelte, and other Vite-powered applications.',
+          tag: 'Vite',
+          features: ['Works from src/main.ts or src/main.js', 'Fast auto-registration for development', 'Per-component registration for smaller production bundles', 'Same setup across Vite frameworks'],
+          rows: [
+            ['1. Create/open Vite app', 'Use your normal Vite template, then open the project folder.'],
+            ['2. Install package', 'Run npm install mivix-ui@alpha.'],
+            ['3. Import styles', 'Add import "mivix-ui/styles" in src/main.ts or src/main.js.'],
+            ['4. Register elements', 'Import mivix-ui/auto for development, or define only selected components for production.'],
+            ['5. Use in markup', 'Render mvx-* tags in plain HTML or inside the Vite framework component.'],
+            ['6. Handle events', 'Attach DOM listeners from the framework or plain JavaScript.'],
+            ['7. Optimize bundle', 'Replace auto registration with subpath component imports when the app is ready to ship.']
+          ],
+          demo: '<mvx-alert data-playground-target tone="info" title="Vite ready">Register once in main.ts and render anywhere.</mvx-alert>',
+          code: `// src/main.ts
+import 'mivix-ui/styles';
+import 'mivix-ui/auto';
+
+document.querySelector('#app')!.innerHTML = \`
+  <mvx-card title="Vite setup" eyebrow="Mivix UI">
+    <mvx-button variant="primary">Create release</mvx-button>
+  </mvx-card>
+\`;`
+        },
+        nextjs: {
+          family: 'Get started',
+          title: 'Use With Next.js',
+          nav: 'Next.js',
+          description: 'Load styles in the app layout, then register custom elements from a client component.',
+          usage: 'Use this path for app router projects where server components should not register browser custom elements.',
+          tag: 'Next.js',
+          features: ['Styles in app/layout.tsx', 'Client-side custom element registration', 'Works with typed refs', 'SSR-safe registration boundary'],
+          rows: [
+            ['1. Install package', 'Run npm install mivix-ui@alpha in the Next.js project.'],
+            ['2. Load global CSS', 'Import mivix-ui/styles once from app/layout.tsx.'],
+            ['3. Create client boundary', 'Register custom elements from a "use client" component because registration needs the browser.'],
+            ['4. Add registry', 'For larger apps, create a small client registry component that imports mivix-ui/auto or selected components.'],
+            ['5. Render components', 'Use mvx-* tags from client components that include or sit below the registry.'],
+            ['6. Add JSX types', 'Import type {} from mivix-ui when TypeScript should recognize custom JSX tags.'],
+            ['7. Handle events', 'Use refs and useEffect for custom DOM events such as mvx-click and mvx-change.']
+          ],
+          demo: '<mvx-card data-playground-target title="Next.js setup" eyebrow="Client registration">Load styles in layout and register components in a client component.</mvx-card>',
+          code: `// app/layout.tsx
+import 'mivix-ui/styles';
+import type { ReactNode } from 'react';
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return <html lang="en"><body>{children}</body></html>;
+}
+
+// app/page.tsx
+'use client';
+
+import { useEffect } from 'react';
+import type {} from 'mivix-ui';
+
+export default function Page() {
+  useEffect(() => {
+    void import('mivix-ui/auto');
+  }, []);
+
+  return <mvx-button variant="primary">Deploy</mvx-button>;
+}`
+        },
+        react: {
+          family: 'Get started',
+          title: 'Use With React',
+          nav: 'React',
+          description: 'Render mvx-* custom elements directly in React and listen to DOM events with refs when needed.',
+          usage: 'Use this path for Vite, CRA, Remix, or React apps that can import browser modules at app startup.',
+          tag: 'React',
+          features: ['Direct JSX usage', 'Works with refs', 'Custom events through addEventListener', 'Use mivix-ui/auto or per-component registration'],
+          rows: [
+            ['1. Install package', 'Run npm install mivix-ui@alpha in the React app.'],
+            ['2. Import styles', 'Import mivix-ui/styles once in main.tsx, main.jsx, or App.tsx.'],
+            ['3. Register elements', 'Import mivix-ui/auto for fast setup or define specific components in a setup file.'],
+            ['4. Add JSX types', 'Import type {} from mivix-ui in TypeScript React projects.'],
+            ['5. Render JSX', 'Use mvx-* elements directly in JSX with attributes such as variant, label, title, tone, and component-style.'],
+            ['6. Use refs', 'Use React refs when setting complex properties or reading element APIs.'],
+            ['7. Handle events', 'Attach custom DOM event listeners inside useEffect and remove them during cleanup.']
+          ],
+          demo: '<mvx-alert data-playground-target tone="success" title="React ready">Render mvx-* elements directly in JSX.</mvx-alert>',
+          code: `// src/main.tsx
+import 'mivix-ui/styles';
+import 'mivix-ui/auto';
+import type {} from 'mivix-ui';
+
+// src/App.tsx
+import { useEffect, useRef } from 'react';
+
+export function Toolbar() {
+  const buttonRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const button = buttonRef.current;
+    const onClick = (event: Event) => console.log('mvx-click', event);
+    button?.addEventListener('mvx-click', onClick);
+    return () => button?.removeEventListener('mvx-click', onClick);
+  }, []);
+
+  return (
+    <main>
+      <mvx-button ref={buttonRef} variant="primary">Deploy</mvx-button>
+      <mvx-input label="Project" placeholder="mivix-ui" />
+    </main>
+  );
+}`
+        },
+        angular: {
+          family: 'Get started',
+          title: 'Use With Angular',
+          nav: 'Angular',
+          description: 'Enable custom elements with CUSTOM_ELEMENTS_SCHEMA and import Mivix UI from your app entry or standalone component.',
+          usage: 'Use this path for Angular standalone components or NgModule-based apps.',
+          tag: 'Angular',
+          features: ['CUSTOM_ELEMENTS_SCHEMA', 'Template-native mvx-* tags', 'Angular event binding for DOM events', 'Standalone and NgModule compatible'],
+          rows: [
+            ['1. Install package', 'Run npm install mivix-ui@alpha in the Angular workspace.'],
+            ['2. Import styles', 'Import mivix-ui/styles once from main.ts, styles.ts, or the app-level setup file.'],
+            ['3. Register elements', 'Import mivix-ui/auto once in main.ts, or define selected components from subpath imports.'],
+            ['4. Allow custom tags', 'Add CUSTOM_ELEMENTS_SCHEMA to standalone components or NgModules that render mvx-* tags.'],
+            ['5. Use templates', 'Place mvx-* elements directly inside Angular templates.'],
+            ['6. Bind events', 'Use Angular event binding such as (mvx-click)="deploy()" or (mvx-change)="onChange($event)".'],
+            ['7. Pass rich data', 'Set complex arrays or objects through ElementRef, ViewChild, or a small wrapper directive when needed.']
+          ],
+          demo: '<mvx-input data-playground-target label="Repository" placeholder="owner/project"></mvx-input>',
+          code: `// src/main.ts
+import 'mivix-ui/styles';
+import 'mivix-ui/auto';
+
+// app.component.ts
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: \`
+    <mvx-button variant="primary" (mvx-click)="deploy()">Deploy</mvx-button>
+    <mvx-input label="Project" placeholder="mivix-ui"></mvx-input>
+  \`
+})
+export class AppComponent {
+  deploy() {
+    console.log('Deploy');
+  }
+}`
+        },
+        vue: {
+          family: 'Get started',
+          title: 'Use With Vue',
+          nav: 'Vue',
+          description: 'Configure Vue to treat mvx-* tags as custom elements, then import styles and registration once.',
+          usage: 'Use this path for Vue apps where templates should pass mvx-* tags through as Web Components.',
+          tag: 'Vue',
+          features: ['compilerOptions.isCustomElement', 'Template-native usage', 'DOM event compatibility', 'Works in Vite Vue and Vue CLI-style apps'],
+          rows: [
+            ['1. Install package', 'Run npm install mivix-ui@alpha in the Vue app.'],
+            ['2. Configure compiler', 'Tell Vue that tags starting with mvx- are custom elements.'],
+            ['3. Import styles', 'Import mivix-ui/styles once from main.ts or a setup module.'],
+            ['4. Register elements', 'Import mivix-ui/auto once, or define selected components for production.'],
+            ['5. Use templates', 'Render mvx-* tags directly inside Vue templates.'],
+            ['6. Bind events', 'Use @mvx-click, @mvx-change, or native addEventListener for custom DOM events.'],
+            ['7. Pass rich data', 'Use template refs when you need to assign arrays, objects, table rows, chart series, or JSON config.']
+          ],
+          demo: '<mvx-switch data-playground-target checked label="Vue ready"></mvx-switch>',
+          code: `// vite.config.ts
+import vue from '@vitejs/plugin-vue';
+
+export default {
+  plugins: [
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: tag => tag.startsWith('mvx-')
+        }
+      }
+    })
+  ]
+};
+
+// src/main.ts
+import 'mivix-ui/styles';
+import 'mivix-ui/auto';
+
+// App.vue
+<template>
+  <mvx-button variant="primary" @mvx-click="deploy">Deploy</mvx-button>
+  <mvx-input label="Project" placeholder="mivix-ui" />
+</template>`
+        },
+        nuxt: {
+          family: 'Get started',
+          title: 'Use With Nuxt',
+          nav: 'Nuxt',
+          description: 'Register Mivix UI from a client-only plugin and configure Vue to pass mvx-* tags through.',
+          usage: 'Use this path for Nuxt apps where custom elements should register only in the browser.',
+          tag: 'Nuxt',
+          features: ['Client-only plugin', 'Global CSS entry', 'Vue custom-element compiler config', 'SSR-friendly registration'],
+          rows: [
+            ['1. Install package', 'Run npm install mivix-ui@alpha in the Nuxt app.'],
+            ['2. Add CSS entry', 'Add mivix-ui/styles to the css array in nuxt.config.ts.'],
+            ['3. Configure compiler', 'Set Vue compilerOptions.isCustomElement so mvx-* tags pass through.'],
+            ['4. Create client plugin', 'Create plugins/mivix-ui.client.ts so registration only runs in the browser.'],
+            ['5. Register elements', 'Import mivix-ui/auto in the client plugin, or define selected components there.'],
+            ['6. Use in pages', 'Render mvx-* tags in app.vue, pages, layouts, or components.'],
+            ['7. Handle events', 'Use Vue listeners or refs for custom DOM events and rich component properties.']
+          ],
+          demo: '<mvx-card data-playground-target title="Nuxt ready" eyebrow="Client plugin">Load Mivix UI only in the browser.</mvx-card>',
+          code: `// nuxt.config.ts
+export default defineNuxtConfig({
+  css: ['mivix-ui/styles'],
+  vue: {
+    compilerOptions: {
+      isCustomElement: tag => tag.startsWith('mvx-')
+    }
+  }
+});
+
+// plugins/mivix-ui.client.ts
+import 'mivix-ui/auto';
+
+// app.vue
+<template>
+  <mvx-button variant="primary">Deploy</mvx-button>
+</template>`
+        },
+        svelte: {
+          family: 'Get started',
+          title: 'Use With Svelte',
+          nav: 'Svelte',
+          description: 'Import Mivix UI in the browser entry or root layout, then render mvx-* custom elements from Svelte components.',
+          usage: 'Use this path for SvelteKit or Svelte apps that can load browser modules globally.',
+          tag: 'Svelte',
+          features: ['Root layout imports', 'Template-native custom elements', 'DOM event binding', 'No wrapper components required'],
+          rows: [
+            ['1. Install package', 'Run npm install mivix-ui@alpha in the Svelte or SvelteKit app.'],
+            ['2. Import styles', 'Import mivix-ui/styles from +layout.svelte, main.ts, or the browser entry.'],
+            ['3. Register elements', 'Import mivix-ui/auto in the same browser-loaded file.'],
+            ['4. Use markup', 'Place mvx-* tags directly in .svelte files.'],
+            ['5. Bind events', 'Use Svelte event binding for simple custom event handling.'],
+            ['6. Use refs', 'Use bind:this plus addEventListener when you need richer DOM event payloads.'],
+            ['7. Pass data', 'Assign complex properties such as chart series or table rows through the element reference.']
+          ],
+          demo: '<mvx-alert data-playground-target tone="warning" title="Svelte ready">Use custom elements directly in .svelte files.</mvx-alert>',
+          code: `<!-- src/routes/+layout.svelte -->
+<script>
+  import 'mivix-ui/styles';
+  import 'mivix-ui/auto';
+<\/script>
+
+<slot />
+
+<!-- src/routes/+page.svelte -->
+<mvx-button variant="primary" on:mvx-click={() => console.log('Deploy')}>
+  Deploy
+</mvx-button>
+<mvx-input label="Project" placeholder="mivix-ui" />`
+        },
+        astro: {
+          family: 'Get started',
+          title: 'Use With Astro',
+          nav: 'Astro',
+          description: 'Load styles in an Astro layout and register Mivix UI from a bundled client script.',
+          usage: 'Use this path for content sites, docs, dashboards, and island architectures that still need reusable UI primitives.',
+          tag: 'Astro',
+          features: ['Layout-level CSS import', 'Bundled browser script', 'Static HTML-friendly custom elements', 'Works beside framework islands'],
+          rows: [
+            ['1. Install package', 'Run npm install mivix-ui@alpha in the Astro project.'],
+            ['2. Import styles', 'Import mivix-ui/styles in a base layout or shared stylesheet entry.'],
+            ['3. Register elements', 'Import mivix-ui/auto from a client script that runs in the browser.'],
+            ['4. Use .astro markup', 'Place mvx-* elements directly in .astro pages, layouts, and components.'],
+            ['5. Use with islands', 'Use the same custom elements beside React, Vue, Svelte, or other islands.'],
+            ['6. Handle events', 'Attach listeners from a browser script or from the framework island that owns the interaction.'],
+            ['7. Optimize bundle', 'Switch the client script from auto registration to selected component imports when needed.']
+          ],
+          demo: '<mvx-card data-playground-target title="Astro ready" eyebrow="Static + interactive">Use Web Components inside Astro pages.</mvx-card>',
+          code: `--- 
+// src/layouts/Base.astro
+import 'mivix-ui/styles';
+---
+
+<html lang="en">
+  <body>
+    <slot />
+    <script>
+      import 'mivix-ui/auto';
+    <\/script>
+  </body>
+</html>
+
+<!-- src/pages/index.astro -->
+<mvx-button variant="primary">Deploy</mvx-button>`
+        },
+        solid: {
+          family: 'Get started',
+          title: 'Use With Solid',
+          nav: 'Solid',
+          description: 'Register Mivix UI in the Solid entry file and use mvx-* custom elements in JSX.',
+          usage: 'Use this path for SolidStart or Vite Solid apps where Web Components can be rendered directly from JSX.',
+          tag: 'Solid',
+          features: ['JSX custom element rendering', 'Entry-file registration', 'DOM event listeners with refs', 'Works with Solid signals and effects'],
+          rows: [
+            ['1. Install package', 'Run npm install mivix-ui@alpha in the Solid app.'],
+            ['2. Import styles', 'Import mivix-ui/styles once from src/main.tsx or a setup module.'],
+            ['3. Register elements', 'Import mivix-ui/auto for fast setup, or define selected components.'],
+            ['4. Render JSX', 'Use mvx-* tags directly from Solid JSX.'],
+            ['5. Store refs', 'Capture element refs when you need imperative APIs or rich property assignment.'],
+            ['6. Handle events', 'Attach native DOM listeners through refs, queueMicrotask, onMount, or Solid effects.'],
+            ['7. Pass data', 'Feed Solid signals into attributes for simple values and element properties for arrays or objects.']
+          ],
+          demo: '<mvx-button data-playground-target variant="primary">Solid deploy</mvx-button>',
+          code: `// src/main.tsx
+import 'mivix-ui/styles';
+import 'mivix-ui/auto';
+import { render } from 'solid-js/web';
+
+function App() {
+  let button!: HTMLElement;
+
+  queueMicrotask(() => {
+    button.addEventListener('mvx-click', () => console.log('Deploy'));
+  });
+
+  return (
+    <main>
+      <mvx-button ref={button} variant="primary">Deploy</mvx-button>
+      <mvx-input label="Project" placeholder="mivix-ui" />
+    </main>
+  );
+}
+
+render(() => <App />, document.getElementById('root')!);`
+        },
+        dotnet: {
+          family: 'Get started',
+          title: 'Use With .NET / Blazor',
+          nav: '.NET',
+          description: 'Reference the CSS and ESM auto-registration module from your host page, then use mvx-* tags in Razor components.',
+          usage: 'Use this path for Blazor Server, Blazor WebAssembly, or ASP.NET pages that host browser custom elements.',
+          tag: '.NET',
+          features: ['Host-page script module', 'Razor markup support', 'DOM custom elements without wrappers', 'Works in Blazor Server and WebAssembly host pages'],
+          rows: [
+            ['1. Add package assets', 'Serve the Mivix UI CSS and ESM files from wwwroot, a static asset pipeline, or copied package assets.'],
+            ['2. Load styles', 'Reference the token CSS from wwwroot/index.html for WebAssembly or Pages/_Host.cshtml for Blazor Server.'],
+            ['3. Register elements', 'Load the auto-registration module from the same host page with type="module".'],
+            ['4. Use Razor markup', 'Place mvx-* tags directly inside .razor components.'],
+            ['5. Pass attributes', 'Use normal Razor attribute rendering for strings, booleans, and simple values.'],
+            ['6. Pass rich data', 'Use JavaScript interop when assigning arrays, objects, table data, chart series, or JSON config.'],
+            ['7. Handle events', 'Use JS interop to subscribe to custom DOM events such as mvx-change, mvx-click, and mvx-select.']
+          ],
+          demo: '<mvx-card data-playground-target title="Blazor ready" eyebrow=".NET">Use the same Web Components from Razor markup.</mvx-card>',
+          code: `<!-- wwwroot/index.html or Pages/_Host.cshtml -->
+<link rel="stylesheet" href="/lib/mivix-ui/styles/tokens.css" />
+<script type="module">
+  import '/lib/mivix-ui/auto.js';
+<\/script>
+
+<!-- Any Razor component -->
+<mvx-button variant="primary">Deploy</mvx-button>
+<mvx-alert tone="success" title="Ready">Mivix UI is loaded.</mvx-alert>`
+        }
+      };
+
       const agentFeatureDocs = {
         overview: {
           family: 'Agentic AI-ready',
@@ -4087,18 +5122,18 @@ table.data = [
           usage: 'Use this for AI-generated interfaces that must serve multilingual, RTL, and accessibility-sensitive audiences.',
           features: ['lang, dir, locale, and i18n APIs', 'ARIA semantics', 'Keyboard and focus states', 'Reduced motion support'],
           proof: [['Universal', 'Agents can generate UI for different locales without rewriting components.']],
-          demo: '<mvx-pagination data-playground-target dir="rtl" page="2" pages="5"></mvx-pagination>',
-          code: '<mvx-pagination dir="rtl" i18n="{...labels}"></mvx-pagination>'
+          demo: '<mvx-pagination component-style="clean" data-playground-target dir="rtl" page="2" pages="5"></mvx-pagination>',
+          code: '<mvx-pagination component-style="clean" dir="rtl" i18n="{...labels}"></mvx-pagination>'
         },
         'theme-radius': {
           family: 'Runtime adaptation',
-          title: 'Theme And Radius APIs',
-          description: 'Theme and radius controls let agents adapt visual tone and geometry while keeping component behavior stable.',
+          title: 'Theme, Font, And Radius APIs',
+          description: 'Theme, font, and radius controls let agents adapt visual tone, typography, and geometry while keeping component behavior stable.',
           usage: 'Use this for white-label apps, enterprise theming, dense dashboards, and personalized AI workspaces.',
-          features: ['Per-component theme override', 'Square-to-rounded radius API', 'CSS token foundation', 'No rebuild required'],
-          proof: [['Runtime', 'An agent can switch a single component to terminal theme or square edges based on context.']],
-          demo: '<mvx-button data-playground-target theme="terminal" radius="0" variant="primary">Apply change</mvx-button>',
-          code: '<mvx-button theme="terminal" radius="0">Apply change</mvx-button>'
+          features: ['Per-component theme override', 'Named font presets and custom font stacks', 'Square-to-rounded radius API', 'CSS token foundation', 'No rebuild required'],
+          proof: [['Runtime', 'An agent can switch a single component to terminal theme, humanist typography, or square edges based on context.']],
+          demo: '<mvx-button data-playground-target theme="terminal" font="humanist" radius="0" variant="primary">Apply change</mvx-button>',
+          code: '<mvx-button theme="terminal" font="humanist" radius="0">Apply change</mvx-button>'
         },
         'framework-neutral': {
           family: 'Runtime adaptation',
@@ -4206,7 +5241,7 @@ table.data = [
           ],
           demo: `<mvx-stack gap="12px">
   <mvx-alert tone="info" title="Workspace settings">Changes apply to everyone in the workspace.</mvx-alert>
-  <mvx-tabs tabs='[{"label":"General","content":"Profile and workspace defaults"},{"label":"Security","content":"Access controls and approvals"},{"label":"Billing","content":"Plan and invoice settings"}]'></mvx-tabs>
+  <mvx-tabs component-style="clean" tabs='[{"label":"General","content":"Profile and workspace defaults"},{"label":"Security","content":"Access controls and approvals"},{"label":"Billing","content":"Plan and invoice settings"}]'></mvx-tabs>
   <mvx-fieldset label="General" helper="Core workspace preferences">
     <mvx-grid columns="2">
       <mvx-input label="Workspace name" value="Mivix Labs"></mvx-input>
@@ -4610,6 +5645,23 @@ table.data = [
         return completeSnippetExample(source, setup, componentName);
       }
 
+      function setGuideCode(value, title = 'Guide') {
+        const formatted = String(value || '').trim();
+        const language = exampleLanguageFromCode(formatted);
+        if (detail.codeTitle) detail.codeTitle.textContent = `${title} snippet`;
+        detail.code.dataset.rawCode = formatted;
+        detail.code.innerHTML = syntaxHighlightText(formatted, language);
+        if (detail.codeLines) {
+          const lineCount = Math.max(1, formatted.split('\n').length);
+          detail.codeLines.textContent = Array.from({ length: lineCount }, (_item, index) => String(index + 1)).join('\n');
+        }
+        const shell = detail.code.closest('.docs-code-editor-shell');
+        if (shell) {
+          shell.scrollTop = 0;
+          shell.scrollLeft = 0;
+        }
+      }
+
       function syntaxHighlightText(text, language) {
         const normalized = String(text || '').replace(/\r\n/g, '\n');
         const lines = normalized.split('\n');
@@ -4898,7 +5950,7 @@ table.data = [
 
       function chartApiGroupForRow(row) {
         const name = normalizeControlName(row.name);
-        if (['theme', 'component-style', 'radius', 'dir', 'lang', 'locale', 'i18n', 'type', 'title', 'subtitle', 'series', 'data', 'height', 'empty', 'watermark', 'no-watermark', 'chart-only'].includes(name)) return 'common';
+        if (['theme', 'component-style', 'font', 'font-family', 'radius', 'dir', 'lang', 'locale', 'i18n', 'type', 'title', 'subtitle', 'series', 'data', 'height', 'empty', 'watermark', 'no-watermark', 'chart-only'].includes(name)) return 'common';
         if (['legend', 'labels', 'hover-animation'].includes(name)) return 'presentation';
         if (['categories', 'grid', 'thresholds'].includes(name)) return 'cartesian';
         if (['axes', 'no-axes'].includes(name)) return 'axes';
@@ -5034,7 +6086,8 @@ table.data = [
 
       const playgroundOptionSets = {
         theme: ['dark', 'light', 'graphite', 'aurora', 'terminal'],
-        'component-style': ['console', 'minimal', 'glass', 'dashboard'],
+        'component-style': ['console', 'clean', 'minimal', 'glass', 'dashboard'],
+        font: ['system', 'mono', 'serif', 'rounded', 'humanist', 'geometric', 'devanagari'],
         radius: ['0', '2px', '4px', '6px', '8px', '12px', '16px', '24px', '999px', 'square', 'rounded'],
         dir: ['ltr', 'rtl', 'auto'],
         lang: supportedLanguageOptions,
@@ -5043,6 +6096,7 @@ table.data = [
         density: ['compact', 'comfortable', 'spacious'],
         size: ['sm', 'md', 'lg'],
         side: ['left', 'right'],
+        placement: ['auto', 'top', 'right', 'bottom', 'left'],
         type: ['text', 'email', 'password', 'search', 'url', 'tel', 'number']
       };
 
@@ -5305,6 +6359,17 @@ table.data = [
         return `${item.name} ${item.type} ${item.category} ${item.usecase}`.toLowerCase().includes(normalized);
       }
 
+      function chartVisualLabel(type) {
+        const labels = {
+          'range-area': 'Min / max band',
+          'confidence-band': 'Uncertainty band',
+          'error-band': 'Error whiskers',
+          'stacked-area': 'Cumulative layers',
+          'stacked-100-area': '100% share layers'
+        };
+        return labels[type] || '';
+      }
+
       function renderChartGallery() {
         const filtered = chartGalleryItems.filter(chartGalleryMatches);
         const filteredGroups = chartCategoryOrder
@@ -5333,8 +6398,10 @@ table.data = [
                   grid: false,
                   labels: false
                 });
+                const visualLabel = chartVisualLabel(item.type);
                 return `
                 <button class="chart-demo-card" type="button" data-chart-type="${escapeHtml(item.type)}" aria-label="Open ${escapeHtml(item.name)} chart demo">
+                  ${visualLabel ? `<span class="chart-visual-badge">${escapeHtml(visualLabel)}</span>` : ''}
                   <mvx-chart ${previewAttrs}></mvx-chart>
                   <span class="chart-card-label">
                     <strong>${escapeHtml(item.name)}</strong>
@@ -5422,6 +6489,7 @@ table.data = [
       function renderAgentFeature(key) {
         setComponentPage(true);
         setTemplatePageMode(false);
+        setChartPageMode(false);
         setChartGalleryVisible(false);
         activeApiRows = [];
         const doc = agentFeatureDocs[key] || agentFeatureDocs.overview;
@@ -5450,8 +6518,44 @@ table.data = [
         setExampleCode(doc.code);
       }
 
+      function renderGuidePage(key) {
+        setComponentPage(true);
+        setTemplatePageMode(false);
+        setChartPageMode(false);
+        setChartGalleryVisible(false);
+        activeApiRows = [];
+        const doc = guideDocs[key] || guideDocs.install;
+        const guidePills = Object.entries(guideDocs)
+          .filter(([guideKey]) => key === 'install' || guideKey === 'install' || guideKey === key)
+          .map(([, item]) => `<span>${escapeHtml(item.nav || item.tag || item.title)}</span>`)
+          .join('');
+        const installGuidePills = Object.values(guideDocs)
+          .map(item => `<span>${escapeHtml(item.nav || item.tag || item.title)}</span>`)
+          .join('');
+        activeSnippetName = doc.title;
+        detail.family.textContent = doc.family;
+        detail.title.textContent = doc.title;
+        detail.description.textContent = doc.description;
+        detail.usage.textContent = doc.usage;
+        detail.tag.textContent = doc.tag;
+        detail.features.innerHTML = doc.features.map(feature => `<li>${escapeHtml(feature)}</li>`).join('');
+        detail.controls.innerHTML = `
+          <div class="controls-heading">
+            <h3>${key === 'install' ? 'Setup map' : 'Page scope'}</h3>
+            <span>${key === 'install' ? 'install + integrations' : 'library setup'}</span>
+          </div>
+          <div class="support-pills">
+            ${key === 'install' ? installGuidePills : `${guidePills}<span>framework config</span><span>starter snippet</span>`}
+          </div>
+        `;
+        detail.playground.innerHTML = doc.demo;
+        detail.api.innerHTML = renderRows(doc.rows);
+        setGuideCode(doc.code, doc.title);
+      }
+
       function renderTemplatePage(key) {
         setComponentPage(true);
+        setChartPageMode(false);
         setTemplatePageMode(true);
         setChartGalleryVisible(false);
         activeApiRows = [];
@@ -5466,7 +6570,7 @@ table.data = [
         const siteLabel = key === 'saas-marketing' ? 'Mivix Cloud' : `${doc.title} workspace`;
         detail.playground.innerHTML = `
           <article class="template-demo-page" data-template-page="${escapeHtml(key)}">
-            <mvx-navbar compact brand="${escapeHtml(siteLabel)}">
+            <mvx-navbar component-style="clean" compact brand="${escapeHtml(siteLabel)}">
               <span slot="brand" class="template-site-brand">
                 <span class="template-site-mark">M</span>
                 <span>
@@ -5474,7 +6578,7 @@ table.data = [
                   <small>${escapeHtml(doc.family)}</small>
                 </span>
               </span>
-              <mvx-navigation-menu slot="actions" items='${escapeHtml(JSON.stringify(navItems))}'></mvx-navigation-menu>
+              <mvx-navigation-menu component-style="clean" slot="actions" items='${escapeHtml(JSON.stringify(navItems))}'></mvx-navigation-menu>
               <mvx-badge slot="actions" tone="${key.includes('ai') ? 'accent' : key.includes('ecommerce') ? 'warning' : 'success'}">Live template</mvx-badge>
               <mvx-button slot="actions" variant="primary">${key === 'saas-marketing' ? 'Start trial' : 'Create'}</mvx-button>
             </mvx-navbar>
@@ -5493,6 +6597,7 @@ table.data = [
       function renderChartDemoPage() {
         setComponentPage(true);
         setTemplatePageMode(false);
+        setChartPageMode(true);
         activeApiRows = [];
         activeSnippetName = 'Chart gallery';
         detail.family.textContent = 'Charts';
@@ -5545,6 +6650,7 @@ table.data = [
       function renderComponentDoc(name) {
         setComponentPage(true);
         setTemplatePageMode(false);
+        setChartPageMode(name === 'mvx-chart' || name === 'mvx-chart-group');
         const doc = docs[name] || fallbackDocs[name] || docs['mvx-button'];
         const displayName = componentDisplayName(name);
         activeSnippetName = displayName;
@@ -5570,14 +6676,14 @@ table.data = [
         if (doc.code) setExampleCode(doc.code, name);
       }
 
-      async function copyCurrentConfig() {
-        const text = (detail.code.dataset.rawCode || detail.code.textContent).trim();
-        if (!text) return;
+      async function copyTextToClipboard(text, message = 'Copied.') {
+        const value = String(text || '').trim();
+        if (!value) return;
         try {
-          await navigator.clipboard.writeText(text);
+          await navigator.clipboard.writeText(value);
         } catch {
           const textarea = document.createElement('textarea');
-          textarea.value = text;
+          textarea.value = value;
           textarea.setAttribute('readonly', '');
           textarea.style.position = 'fixed';
           textarea.style.insetBlockStart = '-1000px';
@@ -5587,10 +6693,14 @@ table.data = [
           textarea.remove();
         }
         const toast = document.querySelector('#toast');
-        toast.textContent = 'Code copied.';
+        toast.textContent = message;
         toast.setAttribute('tone', 'success');
         toast.setAttribute('open', '');
         toast.setAttribute('duration', '2200');
+      }
+
+      async function copyCurrentConfig() {
+        await copyTextToClipboard(detail.code.dataset.rawCode || detail.code.textContent, 'Code copied.');
       }
 
       function hydratePlayground() {
@@ -5705,6 +6815,7 @@ table.data = [
       }
 
       function clearActiveNavigation() {
+        guideLinks.forEach(item => item.classList.remove('active'));
         componentLinks.forEach(item => item.classList.remove('active'));
         templateLinks.forEach(item => item.classList.remove('active'));
         agentFeatureLinks.forEach(item => item.classList.remove('active'));
@@ -5732,6 +6843,7 @@ table.data = [
         query = componentDisplayName(name);
         search.value = query;
         groupLinks.forEach(item => item.classList.remove('active'));
+        guideLinks.forEach(item => item.classList.remove('active'));
         componentLinks.forEach(item => item.classList.toggle('active', item === link));
         templateLinks.forEach(item => item.classList.remove('active'));
         agentFeatureLinks.forEach(item => item.classList.remove('active'));
@@ -5744,6 +6856,27 @@ table.data = [
         closeMobileNav();
       }
 
+      function selectGuide(key, options = {}) {
+        const { updateRoute = true, scroll = true } = options;
+        const link = guideLinks.find(item => item.dataset.guide === key && item.tagName !== 'SUMMARY') || guideLinks.find(item => item.dataset.guide === key);
+        setComponentPage(true);
+        activeFilter = 'all';
+        query = '';
+        search.value = '';
+        groupLinks.forEach(item => item.classList.remove('active'));
+        guideLinks.forEach(item => item.classList.toggle('active', item === link));
+        componentLinks.forEach(item => item.classList.remove('active'));
+        templateLinks.forEach(item => item.classList.remove('active'));
+        agentFeatureLinks.forEach(item => item.classList.remove('active'));
+        chartDemoLinks.forEach(item => item.classList.remove('active'));
+        if (link) openAncestorDetails(link);
+        updateCatalog();
+        renderGuidePage(key);
+        if (updateRoute) setRoute('guide', key);
+        if (scroll) document.querySelector('#component-detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        closeMobileNav();
+      }
+
       function selectAgentFeature(key, options = {}) {
         const { updateRoute = true, scroll = true } = options;
         const link = agentFeatureLinks.find(item => item.dataset.agentFeature === key);
@@ -5752,6 +6885,7 @@ table.data = [
         query = '';
         search.value = '';
         groupLinks.forEach(item => item.classList.remove('active'));
+        guideLinks.forEach(item => item.classList.remove('active'));
         componentLinks.forEach(item => item.classList.remove('active'));
         templateLinks.forEach(item => item.classList.remove('active'));
         agentFeatureLinks.forEach(item => item.classList.toggle('active', item === link));
@@ -5773,6 +6907,7 @@ table.data = [
         query = doc.title;
         search.value = query;
         groupLinks.forEach(item => item.classList.remove('active'));
+        guideLinks.forEach(item => item.classList.remove('active'));
         componentLinks.forEach(item => item.classList.remove('active'));
         templateLinks.forEach(item => item.classList.toggle('active', item === link));
         agentFeatureLinks.forEach(item => item.classList.remove('active'));
@@ -5793,6 +6928,7 @@ table.data = [
         query = '';
         search.value = '';
         groupLinks.forEach(item => item.classList.remove('active'));
+        guideLinks.forEach(item => item.classList.remove('active'));
         componentLinks.forEach(item => item.classList.remove('active'));
         templateLinks.forEach(item => item.classList.remove('active'));
         agentFeatureLinks.forEach(item => item.classList.remove('active'));
@@ -5809,9 +6945,14 @@ table.data = [
         const { scroll = false } = options;
         const params = new URLSearchParams(window.location.hash.slice(1));
         const component = params.get('component');
+        const guide = params.get('guide');
         const template = params.get('template');
         const agent = params.get('agent');
         const chartDemo = params.get('chartDemo');
+        if (guide && guideDocs[guide]) {
+          selectGuide(guide, { updateRoute: false, scroll });
+          return true;
+        }
         if (component && (docs[component] || fallbackDocs[component])) {
           selectComponent(component, { updateRoute: false, scroll });
           return true;
@@ -5851,6 +6992,12 @@ table.data = [
           filter.classList.add('active');
           updateCatalog();
           closeMobileNav();
+        });
+      });
+
+      guideLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          selectGuide(link.dataset.guide);
         });
       });
 
@@ -5902,6 +7049,7 @@ table.data = [
       document.querySelector('#open-modal').addEventListener('click', () => document.querySelector('#modal').setAttribute('open', ''));
       document.querySelector('#open-drawer').addEventListener('click', () => document.querySelector('#drawer').setAttribute('open', ''));
       document.querySelector('#open-drawer-card').addEventListener('click', () => document.querySelector('#drawer').setAttribute('open', ''));
+      document.querySelector('#copy-install')?.addEventListener('click', () => copyTextToClipboard('npm install mivix-ui@alpha', 'Install command copied.'));
       detail.copy.addEventListener('click', copyCurrentConfig);
       detail.chartSearch.addEventListener('input', event => {
         chartGalleryState.query = event.target.value;
