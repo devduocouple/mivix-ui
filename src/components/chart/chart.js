@@ -1,8 +1,8 @@
 import { MvxElement, htmlEscape, parseData } from '../../core.js';
-import { chartRenderers } from './chart-types.js';
+import { getChartDispatch } from './chart-types.js';
 import { chartSubtitle, defaultSeriesForType, normalizePoint, palette } from './shared.js';
 import { chartStyles } from './styles.js';
-import { barShape, markWrap as renderMarkWrap, pathForPoints, pointMarker, renderBoxplot, renderBullet, renderCalendarEvents, renderCandlestick, renderCartesian, renderChord, renderContour, renderControlChart, renderFrame, renderFunnel, renderGantt, renderGauge, renderHeatmap, renderHexbin, renderMap, renderMarimekko, renderNetwork, renderParallelCoordinates, renderRadar, renderRadial, renderSankey, renderScatter, renderSlope, renderSparkline, renderStreamgraph, renderTimelineEvents, renderTree, renderTreemap, renderWaffle } from './renderers.js';
+import { barShape, markWrap as renderMarkWrap, pathForPoints, pointMarker, renderBoxplot, renderBullet, renderCalendarEvents, renderCandlestick, renderCartesian, renderChord, renderContour, renderControlChart, renderEnterprise, renderFrame, renderFunnel, renderGantt, renderGauge, renderHeatmap, renderHexbin, renderMap, renderMarimekko, renderNetwork, renderParallelCoordinates, renderRadar, renderRadial, renderSankey, renderScatter, renderSlope, renderSparkline, renderStreamgraph, renderTimelineEvents, renderTree, renderTreemap, renderWaffle } from './renderers.js';
 
 export class MvxChart extends MvxElement {
   static observedAttributes = [
@@ -199,8 +199,9 @@ export class MvxChart extends MvxElement {
     if (!this.series.some(series => (series.data || []).length) && !this.data.length && !['gauge', 'kpi'].includes(type)) {
       return `<div style="padding:32px;color:var(--mvx-muted)">${htmlEscape(this.getAttribute('empty') || 'No chart data.')}</div>`;
     }
-    const render = chartRenderers[type] || chartRenderers.line;
-    return render(this, width, height);
+    const [method, variant] = getChartDispatch(type);
+    if (method === 'renderEnterprise') return this.renderEnterprise(type, width, height);
+    return variant ? this[method](variant, width, height) : this[method](width, height);
   }
 
   renderFrame(width, height, body, extra = '') {
@@ -247,4 +248,5 @@ export class MvxChart extends MvxElement {
   renderControlChart(width, height) { return renderControlChart(this, width, height); }
   renderTimelineEvents(width, height) { return renderTimelineEvents(this, width, height); }
   renderCalendarEvents(width, height) { return renderCalendarEvents(this, width, height); }
+  renderEnterprise(type, width, height) { return renderEnterprise(this, width, height); }
 }

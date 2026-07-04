@@ -34,3 +34,4 @@ Core features should be broadly reusable, dependency-light, and important to ado
 6. Add the custom element to `JSX.IntrinsicElements` in `src/index.d.ts`.
 7. Add a docs demo and playground API rows in `docs/index.html`.
 8. Verify JavaScript import, TypeScript import, and Next.js client usage.
+9. Run `npm run check:docs-sync` before finalizing the component.

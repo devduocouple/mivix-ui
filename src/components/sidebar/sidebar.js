@@ -53,6 +53,13 @@ export class MvxSidebar extends MvxElement {
           background: var(--mvx-bg-panel);
           padding: ${this.hasAttribute('compact') ? '8px' : '12px'};
         }
+        :host([component-style="clean"]) aside {
+          border: 0;
+          border-radius: 0;
+          background: transparent;
+          box-shadow: none;
+          padding: ${this.hasAttribute('compact') ? '4px' : '6px'};
+        }
         .title {
           color: var(--mvx-subtle);
           font-size: 11px;
@@ -78,12 +85,29 @@ export class MvxSidebar extends MvxElement {
           padding: 0 9px;
           text-decoration: none;
         }
+        :host([component-style="clean"]) a,
+        :host([component-style="clean"]) summary {
+          border-inline-start: 2px solid transparent;
+          border-radius: 0 var(--mvx-radius-xs) var(--mvx-radius-xs) 0;
+          background: transparent;
+          padding-inline-start: 10px;
+        }
         summary { grid-template-columns: minmax(0, 1fr); }
         a:hover,
         summary:hover,
         a[aria-current="page"] {
           background: color-mix(in srgb, var(--mvx-accent) 12%, var(--mvx-bg-inset));
           color: var(--mvx-fg);
+        }
+        :host([component-style="clean"]) a:hover,
+        :host([component-style="clean"]) summary:hover {
+          background: color-mix(in srgb, var(--mvx-accent) 7%, transparent);
+          color: var(--mvx-fg);
+        }
+        :host([component-style="clean"]) a[aria-current="page"] {
+          border-inline-start-color: var(--mvx-accent);
+          background: transparent;
+          color: var(--mvx-accent-2);
         }
         a:focus-visible,
         summary:focus-visible {
@@ -96,6 +120,9 @@ export class MvxSidebar extends MvxElement {
           margin-inline-start: 14px;
           border-inline-start: 1px solid var(--mvx-border);
           padding-inline-start: 8px;
+        }
+        :host([component-style="clean"]) .children {
+          border-inline-start-color: color-mix(in srgb, var(--mvx-border) 62%, transparent);
         }
         small {
           border: 1px solid var(--mvx-border);

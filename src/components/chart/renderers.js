@@ -79,12 +79,47 @@ export function renderCartesian(chart, type, width, height) {
     const chartW = width - pad.l - pad.r;
     const chartH = height - pad.t - pad.b;
     const categories = chart.categories;
-    const values = chart.series.flatMap(series => (series.data || []).map((point, index) => normalizePoint(point, index).y));
-    const zeroBaseline = type.includes('bar') || type === 'column' || type === 'histogram' || type === 'waterfall' || type === 'area' || type === 'stacked-area' || type === 'combo';
+    const bandTypes = new Set(['range-area', 'confidence-band', 'error-band']);
+    const stackedAreaTypes = new Set(['stacked-area', 'stacked-100-area']);
+    const stackedBarTypes = new Set(['stacked-bar', 'stacked-column', '100%-stacked-bar', '100%-stacked-column']);
+    const rangeBarTypes = new Set(['range-bar', 'range-column', 'floating-bar', 'error-bar']);
+    const rangeForPoint = (point, index) => {
+      const item = normalizePoint(point, index);
+      const spread = 8 + index % 3 * 4;
+      const low = Number(point?.low ?? point?.start ?? point?.min ?? item.y - spread);
+      const high = Number(point?.high ?? point?.end ?? point?.max ?? item.y + spread);
+      return { ...item, low: Math.min(low, high), high: Math.max(low, high) };
+    };
+    const stackedBarTotals = stackedBarTypes.has(type)
+      ? categories.map((_, index) => chart.series.reduce((sum, series) => sum + Math.max(0, normalizePoint((series.data || [])[index] ?? 0, index).y), 0))
+      : [];
+    const stackedTotals = stackedAreaTypes.has(type)
+      ? categories.map((_, index) => chart.series.reduce((sum, series) => sum + Math.max(0, normalizePoint((series.data || [])[index] ?? 0, index).y), 0))
+      : [];
+    const values = bandTypes.has(type)
+      ? chart.series.flatMap(series => (series.data || []).flatMap((point, index) => {
+        const item = rangeForPoint(point, index);
+        return [item.low, item.y, item.high];
+      }))
+      : rangeBarTypes.has(type)
+        ? chart.series.flatMap(series => (series.data || []).flatMap((point, index) => {
+          const item = rangeForPoint(point, index);
+          return [item.low, item.y, item.high];
+        }))
+        : type === '100%-stacked-bar' || type === '100%-stacked-column'
+          ? [0, 100]
+          : stackedBarTypes.has(type)
+            ? [0, ...stackedBarTotals]
+      : type === 'stacked-100-area'
+        ? [0, 100]
+        : stackedAreaTypes.has(type)
+          ? [0, ...stackedTotals]
+          : chart.series.flatMap(series => (series.data || []).map((point, index) => normalizePoint(point, index).y));
+    const zeroBaseline = type.includes('bar') || type === 'column' || stackedBarTypes.has(type) || type === 'histogram' || type === 'waterfall' || type === 'area' || stackedAreaTypes.has(type) || type === 'combo';
     const rawMin = values.length ? Math.min(...values) : 0;
     const rawMax = values.length ? Math.max(...values) : 1;
     const min = zeroBaseline || chart.hasAxes ? Math.min(0, rawMin) : rawMin;
-    const max = chart.hasAxes ? niceMax(Math.max(rawMax, 1)) : (rawMax === min ? rawMax + 1 : rawMax);
+    const max = type === 'stacked-100-area' ? 100 : chart.hasAxes ? niceMax(Math.max(rawMax, 1)) : (rawMax === min ? rawMax + 1 : rawMax);
     const scaleY = value => pad.t + chartH - ((value - min) / (max - min || 1)) * chartH;
     const step = chartW / Math.max(categories.length - 1, 1);
     const barStep = chartW / Math.max(categories.length, 1);
@@ -104,6 +139,70 @@ export function renderCartesian(chart, type, width, height) {
       return `<g style="--threshold-color:${htmlEscape(color)}"><line class="threshold-line" x1="${pad.l}" x2="${width - pad.r}" y1="${y}" y2="${y}" /><text class="threshold-label" x="${pad.l + 8}" y="${y - 6}">${htmlEscape(threshold.label || threshold.name || `Threshold ${index + 1}`)}</text></g>`;
     }).join('') : '';
     const labels = showAxes ? categories.map((label, index) => `<text class="tick" x="${pad.l + (type.includes('bar') || type === 'column' || type === 'histogram' ? index * barStep + barStep / 2 : index * step)}" y="${height - 18}" text-anchor="middle">${htmlEscape(String(label).slice(0, 10))}</text>`).join('') : '';
+    if (bandTypes.has(type)) {
+      const series = chart.series[0] || { name: 'Range', data: [] };
+      const color = series.color || palette[0];
+      const points = (series.data || []).map((point, index) => {
+        const item = rangeForPoint(point, index);
+        return {
+          label: item.label || categories[index],
+          value: item.y,
+          low: item.low,
+          high: item.high,
+          x: pad.l + index * step,
+          y: scaleY(item.y)
+        };
+      });
+      const highPoints = points.map(point => [point.x, scaleY(point.high), point.high]);
+      const lowPoints = points.map(point => [point.x, scaleY(point.low), point.low]);
+      const centerPoints = points.map(point => [point.x, point.y, point.value]);
+      const bandPath = `${chart.pathForPoints(highPoints, 'smooth')} ${lowPoints.slice().reverse().map(point => `L ${point[0]} ${point[1]}`).join(' ')} Z`;
+      const centerPath = chart.pathForPoints(centerPoints, 'smooth');
+      const bandOpacity = type === 'range-area' ? 0.34 : type === 'confidence-band' ? 0.18 : 0.1;
+      const boundaryOpacity = type === 'range-area' ? 0.72 : 0.42;
+      const rangeFill = type === 'range-area'
+        ? `<defs><linearGradient id="rangeAreaFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.56" /><stop offset="100%" stop-color="${color}" stop-opacity="0.08" /></linearGradient></defs>`
+        : '';
+      const boundaries = type === 'range-area'
+        ? `<path d="${chart.pathForPoints(highPoints, 'smooth')}" fill="none" stroke="${color}" stroke-width="1.1" opacity="${boundaryOpacity}" /><path d="${chart.pathForPoints(lowPoints, 'smooth')}" fill="none" stroke="${color}" stroke-width="1.1" opacity="${boundaryOpacity}" />`
+        : '';
+      const confidenceBands = type === 'confidence-band'
+        ? `<path d="${bandPath}" fill="${color}" opacity="0.08" transform="translate(0 7)" /><path d="${bandPath}" fill="${color}" opacity="0.1" transform="translate(0 -7)" />`
+        : '';
+      const whiskers = type === 'error-band'
+        ? points.map((point, index) => chart.markWrap(`<line x1="${point.x}" x2="${point.x}" y1="${scaleY(point.low)}" y2="${scaleY(point.high)}" stroke="${color}" stroke-width="1" opacity="0.68" /><line x1="${point.x - 5}" x2="${point.x + 5}" y1="${scaleY(point.low)}" y2="${scaleY(point.low)}" stroke="${color}" stroke-width="1" opacity="0.68" /><line x1="${point.x - 5}" x2="${point.x + 5}" y1="${scaleY(point.high)}" y2="${scaleY(point.high)}" stroke="${color}" stroke-width="1" opacity="0.68" />`, { label: point.label, value: `${point.low}-${point.high}`, series: series.name || 'Error', seriesIndex: 0, index })).join('')
+        : '';
+      const markers = type === 'range-area' ? '' : centerPoints.map((point, index) => chart.pointMarker(point, color, index, { label: categories[index], value: point[2], series: series.name || 'Estimate', seriesIndex: 0, index })).join('');
+      const body = `${rangeFill}${confidenceBands}<path d="${bandPath}" fill="${type === 'range-area' ? 'url(#rangeAreaFill)' : color}" opacity="${bandOpacity}" />${boundaries}${whiskers}<path d="${centerPath}" fill="none" stroke="${color}" stroke-width="${type === 'error-band' ? 1.35 : 1.9}" stroke-linecap="round" stroke-linejoin="round" ${type === 'confidence-band' ? 'stroke-dasharray="6 5"' : ''} />${markers}`;
+      const axis = showAxes ? `<line class="axis" x1="${pad.l}" x2="${width - pad.r}" y1="${pad.t + chartH}" y2="${pad.t + chartH}" />` : '';
+      return chart.renderFrame(width, height, `${grid}${thresholds}${axis}${labels}${body}`);
+    }
+    if (stackedAreaTypes.has(type)) {
+      const totals = categories.map((_, index) => chart.series.reduce((sum, series) => sum + Math.max(0, normalizePoint((series.data || [])[index] ?? 0, index).y), 0) || 1);
+      const cumulative = new Array(categories.length).fill(0);
+      const body = chart.series.map((series, seriesIndex) => {
+        const color = series.color || palette[seriesIndex % palette.length];
+        const bottom = cumulative.slice();
+        const values = categories.map((_, index) => {
+          const raw = Math.max(0, normalizePoint((series.data || [])[index] ?? 0, index).y);
+          return type === 'stacked-100-area' ? raw / totals[index] * 100 : raw;
+        });
+        values.forEach((value, index) => {
+          cumulative[index] += value;
+        });
+        const topPoints = values.map((value, index) => [pad.l + index * step, scaleY(cumulative[index]), value]);
+        const bottomPoints = bottom.map((value, index) => [pad.l + index * step, scaleY(value), value]);
+        const areaPath = `${chart.pathForPoints(topPoints, 'smooth')} ${bottomPoints.slice().reverse().map(point => `L ${point[0]} ${point[1]}`).join(' ')} Z`;
+        const stroke = chart.pathForPoints(topPoints, 'smooth');
+        const markers = topPoints.map((point, index) => chart.pointMarker(point, color, index, { label: categories[index], value: Math.round(values[index]), series: series.name || `Series ${seriesIndex + 1}`, seriesIndex, index })).join('');
+        return `<path d="${areaPath}" fill="${color}" opacity="${type === 'stacked-100-area' ? 0.34 : 0.3}" />${chart.markWrap(`<path d="${stroke}" fill="none" stroke="${color}" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />`, { label: series.name || `Series ${seriesIndex + 1}`, value: '', series: series.name || `Series ${seriesIndex + 1}`, seriesIndex, index: 0 })}${markers}`;
+      }).join('');
+      const percentGuide = type === 'stacked-100-area'
+        ? `<line class="threshold-line" x1="${pad.l}" x2="${width - pad.r}" y1="${scaleY(100)}" y2="${scaleY(100)}" style="--threshold-color:var(--mvx-accent-2)" opacity="0.72" /><text class="muted-label" x="${width - pad.r - 4}" y="${pad.t + 12}" text-anchor="end">100%</text><text class="muted-label" x="${pad.l + 4}" y="${height - pad.b - 8}">share of total</text>`
+        : '';
+      const axis = showAxes ? `<line class="axis" x1="${pad.l}" x2="${width - pad.r}" y1="${pad.t + chartH}" y2="${pad.t + chartH}" />` : '';
+      return chart.renderFrame(width, height, `${grid}${thresholds}${axis}${labels}${body}${percentGuide}`);
+    }
     const body = chart.series.map((series, seriesIndex) => {
       const color = series.color || palette[seriesIndex % palette.length];
       const points = (series.data || []).map((point, index) => {
@@ -113,6 +212,35 @@ export function renderCartesian(chart, type, width, height) {
       if (type.includes('bar') || type === 'column' || type === 'histogram' || type === 'waterfall') {
         const count = chart.hasAttribute('stacked') || type.includes('stacked') ? 1 : chart.series.length;
         const barW = Math.max(10, barStep * 0.68 / count);
+        if (rangeBarTypes.has(type)) {
+          return (series.data || []).map((point, index) => {
+            const item = rangeForPoint(point, index);
+            const x = pad.l + index * barStep + barStep * 0.16 + (seriesIndex % count) * barW;
+            const center = scaleY(item.y);
+            const lowY = scaleY(item.low);
+            const highY = scaleY(item.high);
+            if (type === 'error-bar') {
+              return chart.markWrap(`<line x1="${x + barW / 2}" x2="${x + barW / 2}" y1="${highY}" y2="${lowY}" stroke="${color}" stroke-width="1.2" /><line x1="${x + barW * 0.24}" x2="${x + barW * 0.76}" y1="${highY}" y2="${highY}" stroke="${color}" stroke-width="1.2" /><line x1="${x + barW * 0.24}" x2="${x + barW * 0.76}" y1="${lowY}" y2="${lowY}" stroke="${color}" stroke-width="1.2" /><circle cx="${x + barW / 2}" cy="${center}" r="4" fill="${color}" />`, { label: item.label || categories[index], value: `${item.low}-${item.high}`, series: series.name || 'Range', seriesIndex, index });
+            }
+            return chart.barShape({ x, y: Math.min(highY, lowY), width: barW, height: Math.abs(lowY - highY), color, value: `${item.low}-${item.high}`, label: item.label || categories[index], series: series.name || 'Range', seriesIndex, index });
+          }).join('');
+        }
+        if (stackedBarTypes.has(type)) {
+          const totals = categories.map((_, index) => chart.series.reduce((sum, item) => sum + Math.max(0, normalizePoint((item.data || [])[index] ?? 0, index).y), 0) || 1);
+          return (series.data || []).map((point, index) => {
+            const raw = Math.max(0, normalizePoint(point, index).y);
+            const value = type.includes('100%-stacked') ? raw / totals[index] * 100 : raw;
+            const base = chart.series.slice(0, seriesIndex).reduce((sum, item) => {
+              const previous = Math.max(0, normalizePoint((item.data || [])[index] ?? 0, index).y);
+              return sum + (type.includes('100%-stacked') ? previous / totals[index] * 100 : previous);
+            }, 0);
+            const top = base + value;
+            const x = pad.l + index * barStep + barStep * 0.16;
+            const y = scaleY(top);
+            const h = Math.abs(scaleY(base) - scaleY(top));
+            return chart.barShape({ x, y, width: Math.max(10, barStep * 0.68), height: h, color, value: Math.round(value), label: point.label || categories[index], series: series.name || `Series ${seriesIndex + 1}`, seriesIndex, index });
+          }).join('');
+        }
         return (series.data || []).map((point, index) => {
           const item = normalizePoint(point, index);
           const x = pad.l + index * barStep + barStep * 0.16 + (seriesIndex % count) * barW;
@@ -587,6 +715,126 @@ export function renderControlChart(chart, width, height) {
     const bands = [upper, mean, lower].map((value, index) => `<line x1="${pad.l}" x2="${width - pad.r}" y1="${scaleY(value)}" y2="${scaleY(value)}" stroke="${index === 1 ? 'var(--mvx-accent)' : 'var(--mvx-warning)'}" stroke-dasharray="${index === 1 ? '0' : '8 7'}" />`).join('');
     const markers = points.map((point, index) => chart.pointMarker(point, palette[index % palette.length], index, { label: point[2].label, value: point[2].value, series: 'Control', seriesIndex: 0, index })).join('');
     return chart.renderFrame(width, height, `${bands}<path d="${chart.pathForPoints(points, 'linear')}" fill="none" stroke="var(--mvx-accent)" stroke-width="1.25" />${markers}`);
+  }
+
+function renderBusinessMatrix(chart, type, width, height) {
+    const data = (chart.series[0]?.data || chart.data);
+    const xs = [...new Set(data.map(item => item.xLabel || item.x || item.label).filter(Boolean))];
+    const ys = [...new Set(data.map(item => item.yLabel || item.y || item.row || item.group).filter(Boolean))];
+    const columns = xs.length ? xs : ['A', 'B', 'C', 'D'];
+    const rows = ys.length ? ys : ['1', '2', '3', '4'];
+    const left = 92;
+    const top = 46;
+    const cellW = (width - left - 34) / Math.max(columns.length, 1);
+    const cellH = (height - top - 54) / Math.max(rows.length, 1);
+    const values = data.map(item => Math.abs(Number(item.value ?? 0)));
+    const max = Math.max(...values, 1);
+    const cellFor = (column, row) => data.find(item => String(item.xLabel || item.x || item.label) === String(column) && String(item.yLabel || item.y || item.row || item.group) === String(row));
+    const cells = rows.flatMap((row, rowIndex) => columns.map((column, columnIndex) => {
+      const item = cellFor(column, row) || { label: `${column} ${row}`, value: 0 };
+      const value = Number(item.value ?? 0);
+      const x = left + columnIndex * cellW;
+      const y = top + rowIndex * cellH;
+      const color = type === 'risk-matrix'
+        ? value >= 18 ? 'var(--mvx-danger)' : value >= 10 ? 'var(--mvx-warning)' : 'var(--mvx-success)'
+        : value < 0 ? 'var(--mvx-danger)' : 'var(--mvx-accent)';
+      const opacity = type === 'correlation-matrix' ? 0.18 + Math.abs(value) / max * 0.72 : 0.22 + Math.abs(value) / max * 0.68;
+      return chart.markWrap(`<rect x="${x + 2}" y="${y + 2}" width="${Math.max(0, cellW - 4)}" height="${Math.max(0, cellH - 4)}" rx="7" fill="${color}" opacity="${opacity}" /><text class="muted-label" x="${x + cellW / 2}" y="${y + cellH / 2 + 4}" text-anchor="middle">${htmlEscape(type === 'cohort-retention' ? `${value}%` : value.toFixed(type === 'correlation-matrix' ? 1 : 0))}</text>`, { label: item.label || `${column} ${row}`, value, series: type, seriesIndex: 0, index: rowIndex * columns.length + columnIndex });
+    })).join('');
+    const columnLabels = columns.map((label, index) => `<text class="muted-label" x="${left + index * cellW + cellW / 2}" y="30" text-anchor="middle">${htmlEscape(String(label))}</text>`).join('');
+    const rowLabels = rows.map((label, index) => `<text class="muted-label" x="${left - 10}" y="${top + index * cellH + cellH / 2 + 4}" text-anchor="end">${htmlEscape(String(label))}</text>`).join('');
+    return chart.renderFrame(width, height, `${columnLabels}${rowLabels}${cells}`);
+  }
+
+function renderTornado(chart, width, height) {
+    const data = (chart.series[0]?.data || chart.data).map(normalizePoint).sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+    const max = Math.max(...data.map(item => Math.abs(item.value)), 1);
+    const mid = width / 2;
+    const rowH = Math.min(38, (height - 60) / Math.max(data.length, 1));
+    const center = `<line class="axis" x1="${mid}" x2="${mid}" y1="28" y2="${height - 24}" />`;
+    const body = data.map((item, index) => {
+      const value = Number(item.value || 0);
+      const barW = Math.abs(value) / max * (width / 2 - 120);
+      const y = 34 + index * rowH;
+      const x = value < 0 ? mid - barW : mid;
+      const color = value < 0 ? 'var(--mvx-danger)' : 'var(--mvx-success)';
+      return `<text class="muted-label" x="${mid - 12}" y="${y + 16}" text-anchor="end">${htmlEscape(item.label || `Driver ${index + 1}`)}</text>${chart.markWrap(`<rect x="${x}" y="${y}" width="${barW}" height="${Math.max(14, rowH - 10)}" rx="7" fill="${color}" opacity="0.82" />`, { label: item.label, value, series: 'Sensitivity', seriesIndex: 0, index })}`;
+    }).join('');
+    return chart.renderFrame(width, height, `${center}${body}`);
+  }
+
+function renderForecastFan(chart, width, height) {
+    const series = chart.series[0] || { name: 'Forecast', data: [] };
+    const data = (series.data || chart.data).map((point, index) => {
+      const item = normalizePoint(point, index);
+      return {
+        ...item,
+        p50Low: Number(point.p50Low ?? item.y - 5),
+        p50High: Number(point.p50High ?? item.y + 5),
+        p80Low: Number(point.p80Low ?? item.y - 12),
+        p80High: Number(point.p80High ?? item.y + 12),
+        p95Low: Number(point.p95Low ?? item.y - 20),
+        p95High: Number(point.p95High ?? item.y + 20)
+      };
+    });
+    const pad = plotPad(chart, { l: 56, r: 26, t: 24, b: 52 }, { l: 16, r: 16, t: 10, b: 14 });
+    const chartW = width - pad.l - pad.r;
+    const chartH = height - pad.t - pad.b;
+    const values = data.flatMap(item => [item.p95Low, item.p80Low, item.p50Low, item.y, item.p50High, item.p80High, item.p95High]);
+    const min = Math.min(0, ...values);
+    const max = niceMax(Math.max(...values, 1));
+    const step = chartW / Math.max(data.length - 1, 1);
+    const scaleY = value => pad.t + chartH - ((value - min) / (max - min || 1)) * chartH;
+    const band = (lowKey, highKey, opacity) => {
+      const high = data.map((item, index) => [pad.l + index * step, scaleY(item[highKey]), item[highKey]]);
+      const low = data.map((item, index) => [pad.l + index * step, scaleY(item[lowKey]), item[lowKey]]);
+      return `<path d="${chart.pathForPoints(high, 'smooth')} ${low.slice().reverse().map(point => `L ${point[0]} ${point[1]}`).join(' ')} Z" fill="var(--mvx-accent)" opacity="${opacity}" />`;
+    };
+    const center = data.map((item, index) => [pad.l + index * step, scaleY(item.y), item.y]);
+    const labels = data.map((item, index) => `<text class="tick" x="${pad.l + index * step}" y="${height - 18}" text-anchor="middle">${htmlEscape(String(item.label || index + 1).slice(0, 8))}</text>`).join('');
+    return chart.renderFrame(width, height, `${band('p95Low', 'p95High', 0.1)}${band('p80Low', 'p80High', 0.18)}${band('p50Low', 'p50High', 0.3)}<path d="${chart.pathForPoints(center, 'smooth')}" fill="none" stroke="var(--mvx-accent-2)" stroke-width="1.6" />${labels}`);
+  }
+
+function renderSmallMultiples(chart, width, height) {
+    const series = chart.series.length ? chart.series : defaultSeriesForType('line');
+    const cols = 2;
+    const gap = 18;
+    const panelW = (width - gap * (cols + 1)) / cols;
+    const rows = Math.ceil(series.length / cols);
+    const panelH = (height - gap * (rows + 1)) / Math.max(rows, 1);
+    const body = series.map((item, index) => {
+      const col = index % cols;
+      const row = Math.floor(index / cols);
+      const x0 = gap + col * (panelW + gap);
+      const y0 = gap + row * (panelH + gap);
+      const points = (item.data || []).map(normalizePoint);
+      const max = Math.max(...points.map(point => point.value), 1);
+      const min = Math.min(...points.map(point => point.value), 0);
+      const plot = points.map((point, pointIndex) => [
+        x0 + 14 + pointIndex * ((panelW - 28) / Math.max(points.length - 1, 1)),
+        y0 + panelH - 20 - (point.value - min) / (max - min || 1) * (panelH - 42),
+        point.value
+      ]);
+      return `<rect x="${x0}" y="${y0}" width="${panelW}" height="${panelH}" rx="9" fill="var(--mvx-bg-inset)" stroke="var(--mvx-border)" /><text class="muted-label" x="${x0 + 12}" y="${y0 + 18}">${htmlEscape(item.name || `Panel ${index + 1}`)}</text><path d="${chart.pathForPoints(plot, 'smooth')}" fill="none" stroke="${palette[index % palette.length]}" stroke-width="1.25" />`;
+    }).join('');
+    return chart.renderFrame(width, height, body);
+  }
+
+export function renderEnterprise(chart, width, height) {
+    const type = chart.getAttribute('type') || '';
+    if (['cohort-retention', 'risk-matrix', 'correlation-matrix'].includes(type)) return renderBusinessMatrix(chart, type, width, height);
+    if (type === 'tornado') return renderTornado(chart, width, height);
+    if (type === 'forecast-fan') return renderForecastFan(chart, width, height);
+    if (type === 'small-multiples') return renderSmallMultiples(chart, width, height);
+    if (type === 'cumulative-flow') return renderCartesian(chart, 'stacked-area', width, height);
+    if (type === 'burndown' || type === 'burnup' || type === 'slo-error-budget-burn') return renderCartesian(chart, 'line', width, height);
+    if (type === 'resource-utilization') return renderGantt(chart, width, height);
+    if (type === 'aging-bucket') return renderCartesian(chart, 'bar', width, height);
+    if (type === 'boxen-plot') return renderBoxplot(chart, 'boxplot', width, height);
+    if (type === 'cohort-funnel') return renderSankey(chart, 'sankey', width, height);
+    if (type === 'variance-budget-actual') return renderCartesian(chart, 'grouped-bar', width, height);
+    if (type === 'decomposition-tree') return renderTree(chart, 'tree-diagram', width, height);
+    return renderCartesian(chart, 'line', width, height);
   }
 
 export function renderTimelineEvents(chart, width, height) {

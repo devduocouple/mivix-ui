@@ -31,6 +31,14 @@ export class MvxNavbar extends MvxElement {
           box-shadow: var(--mvx-shadow-soft);
           padding: ${this.hasAttribute('compact') ? '8px' : '10px 12px'};
         }
+        :host([component-style="clean"]) nav {
+          border-block-start: 0;
+          border-inline: 0;
+          border-radius: 0;
+          background: transparent;
+          box-shadow: none;
+          padding: ${this.hasAttribute('compact') ? '4px 0' : '8px 0'};
+        }
         :host([sticky]) nav {
           position: sticky;
           inset-block-start: 0;
@@ -53,6 +61,11 @@ export class MvxNavbar extends MvxElement {
           background: var(--mvx-accent);
           color: white;
         }
+        :host([component-style="clean"]) .mark {
+          border: 1px solid color-mix(in srgb, var(--mvx-accent) 54%, var(--mvx-border));
+          background: transparent;
+          color: var(--mvx-accent-2);
+        }
         .links,
         .actions {
           display: flex;
@@ -61,6 +74,7 @@ export class MvxNavbar extends MvxElement {
           align-items: center;
         }
         a {
+          position: relative;
           border-radius: var(--mvx-radius-sm);
           color: var(--mvx-muted);
           font-size: 13px;
@@ -68,10 +82,31 @@ export class MvxNavbar extends MvxElement {
           padding: 8px 10px;
           text-decoration: none;
         }
+        :host([component-style="clean"]) .links a {
+          border-radius: 0;
+          padding-inline: 2px;
+        }
+        :host([component-style="clean"]) .links a::after {
+          content: "";
+          position: absolute;
+          inset-inline: 2px;
+          inset-block-end: 2px;
+          block-size: 2px;
+          border-radius: 999px;
+          background: transparent;
+        }
         a:hover,
         a[aria-current="page"] {
           background: color-mix(in srgb, var(--mvx-accent) 12%, var(--mvx-bg-inset));
           color: var(--mvx-fg);
+        }
+        :host([component-style="clean"]) .links a:hover,
+        :host([component-style="clean"]) .links a[aria-current="page"] {
+          background: transparent;
+          color: var(--mvx-accent-2);
+        }
+        :host([component-style="clean"]) .links a[aria-current="page"]::after {
+          background: var(--mvx-accent);
         }
         a:focus-visible {
           outline: none;

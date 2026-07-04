@@ -35,12 +35,22 @@ export class MvxTabs extends MvxElement {
           border-radius: var(--mvx-radius-md);
           overflow: hidden;
         }
+        :host([component-style="clean"]) .tabs {
+          border: 0;
+          border-radius: 0;
+          background: transparent;
+          box-shadow: none;
+        }
         [role="tablist"] {
           display: flex;
           gap: 4px;
           overflow: auto;
           border-block-end: 1px solid var(--mvx-border);
           padding: 6px;
+        }
+        :host([component-style="clean"]) [role="tablist"] {
+          gap: 18px;
+          padding: 0;
         }
         button {
           min-block-size: 34px;
@@ -52,9 +62,31 @@ export class MvxTabs extends MvxElement {
           padding: 0 12px;
           white-space: nowrap;
         }
+        :host([component-style="clean"]) button {
+          position: relative;
+          min-block-size: 38px;
+          border-radius: 0;
+          padding: 0 0 9px;
+        }
+        :host([component-style="clean"]) button::after {
+          content: "";
+          position: absolute;
+          inset-inline: 0;
+          inset-block-end: -1px;
+          block-size: 2px;
+          border-radius: 999px;
+          background: transparent;
+        }
         button[aria-selected="true"] {
           background: color-mix(in srgb, var(--mvx-accent) 18%, var(--mvx-bg-inset));
           color: var(--mvx-fg);
+        }
+        :host([component-style="clean"]) button[aria-selected="true"] {
+          background: transparent;
+          color: var(--mvx-accent-2);
+        }
+        :host([component-style="clean"]) button[aria-selected="true"]::after {
+          background: var(--mvx-accent);
         }
         button:focus-visible {
           outline: none;
@@ -64,6 +96,9 @@ export class MvxTabs extends MvxElement {
           color: var(--mvx-muted);
           line-height: 1.5;
           padding: 14px;
+        }
+        :host([component-style="clean"]) [role="tabpanel"] {
+          padding: 14px 0 0;
         }
       </style>
       <section class="tabs edge" part="tabs">

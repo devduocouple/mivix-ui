@@ -2,6 +2,14 @@
   "name": "mivix-ui",
   "version": "0.1.0-alpha.0",
   "description": "Reactive, AI-ready Web Components for JavaScript, TypeScript, Next.js, React, Angular, Vue, .NET, and plain HTML.",
+  "homepage": "https://devduocouple.github.io/mivix-ui/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devduocouple/mivix-ui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/devduocouple/mivix-ui/issues"
+  },
   "type": "module",
   "main": "./src/index.js",
   "module": "./src/index.js",
@@ -10,6 +18,10 @@
     ".": {
       "types": "./src/index.d.ts",
       "import": "./src/index.js"
+    },
+    "./auto": {
+      "types": "./src/auto.d.ts",
+      "import": "./src/auto.js"
     },
     "./core": {
       "types": "./src/core.d.ts",
@@ -30,15 +42,24 @@
     "docs",
     "examples",
     "scripts",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
     "LICENSE",
+    "PHASE-1-RELEASE-AUDIT.md",
     "PRO.md",
-    "README.md"
+    "README.md",
+    "ROADMAP.md",
+    "SECURITY.md"
   ],
   "scripts": {
     "dev": "node scripts/dev-server.js",
     "build:docs": "node scripts/build-docs.js",
-    "check": "node --check src/index.js && node --check scripts/dev-server.js && node --check scripts/build-docs.js && node --check scripts/validate-doc-previews.js && node scripts/validate-doc-previews.js",
-    "check:previews": "node scripts/validate-doc-previews.js",
+    "check:docs-sync": "node scripts/check-component-doc-sync.js",
+    "audit:phase1": "node scripts/audit-phase1.js",
+    "test:tooltip": "node scripts/test-tooltip.js",
+    "test:tooltip:screenshot": "node scripts/screenshot-tooltip.js",
+    "check": "node --check src/index.js && node --check src/auto.js && node --check scripts/dev-server.js && node --check scripts/build-docs.js && node --check scripts/validate-doc-previews.js && node scripts/validate-doc-previews.js && node scripts/check-component-doc-sync.js",
+    "check:previews": "node scripts/validate-doc-previews.js && node scripts/check-component-doc-sync.js",
     "prepublishOnly": "npm run check"
   },
   "keywords": [
@@ -64,7 +85,7 @@
     "access": "public"
   },
   "sideEffects": [
-    "./src/index.js",
+    "./src/auto.js",
     "./src/styles/tokens.css"
   ]
 }

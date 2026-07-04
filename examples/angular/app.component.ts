@@ -1,5 +1,5 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import 'mivix-ui';
+import 'mivix-ui/auto';
 import 'mivix-ui/styles';
 
 @Component({

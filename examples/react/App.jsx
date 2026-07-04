@@ -1,4 +1,4 @@
-import 'mivix-ui';
+import 'mivix-ui/auto';
 import 'mivix-ui/styles';
 
 export default function App() {

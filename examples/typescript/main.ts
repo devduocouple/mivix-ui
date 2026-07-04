@@ -1,4 +1,4 @@
-import 'mivix-ui';
+import 'mivix-ui/auto';
 import 'mivix-ui/styles';
 import type { MvxChart } from 'mivix-ui/components/chart';
 import type {} from 'mivix-ui';

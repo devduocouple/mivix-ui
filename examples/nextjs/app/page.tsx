@@ -8,7 +8,7 @@ export default function Page() {
   const chartRef = useRef<MvxChart | null>(null);
 
   useEffect(() => {
-    void import('mivix-ui');
+    void import('mivix-ui/auto');
   }, []);
 
   useEffect(() => {

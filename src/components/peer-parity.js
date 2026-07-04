@@ -18,6 +18,14 @@ const sharedStyles = `
     backdrop-filter: var(--mvx-surface-backdrop);
     -webkit-backdrop-filter: var(--mvx-surface-backdrop);
   }
+  :host([component-style="clean"]) .surface {
+    border-color: transparent;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
   .muted { color: var(--mvx-muted); }
   .subtle { color: var(--mvx-subtle); }
   .row { display: flex; gap: 8px; align-items: center; }
@@ -34,9 +42,21 @@ const sharedStyles = `
     cursor: pointer;
     box-shadow: var(--mvx-control-shadow);
   }
+  :host([component-style="clean"]) button {
+    border-color: transparent;
+    border-radius: var(--mvx-radius-xs);
+    background: transparent;
+    box-shadow: none;
+    color: var(--mvx-muted);
+  }
   button:hover:not(:disabled) {
     border-color: var(--mvx-border-strong);
     background: color-mix(in srgb, var(--mvx-accent) 10%, var(--mvx-bg-inset));
+  }
+  :host([component-style="clean"]) button:hover:not(:disabled) {
+    border-color: transparent;
+    background: color-mix(in srgb, var(--mvx-accent) 8%, transparent);
+    color: var(--mvx-fg);
   }
   button:focus-visible,
   input:focus-visible,
@@ -904,6 +924,11 @@ export class MvxMenubar extends MvxPeerElement {
       <style>
         ${sharedStyles}
         .bar { display: flex; flex-wrap: wrap; gap: 4px; padding: 5px; }
+        :host([component-style="clean"]) .bar {
+          gap: 14px;
+          padding: 0;
+          border-block-end: 1px solid var(--mvx-border);
+        }
         .item { position: relative; }
         .submenu {
           position: absolute;
@@ -916,6 +941,24 @@ export class MvxMenubar extends MvxPeerElement {
         }
         .item:focus-within .submenu, .item:hover .submenu { display: grid; gap: 3px; }
         button { min-block-size: 32px; padding: 0 10px; }
+        :host([component-style="clean"]) button {
+          min-block-size: 38px;
+          border-radius: 0;
+          padding-inline: 0;
+        }
+        :host([component-style="clean"]) .submenu {
+          border: 1px solid var(--mvx-border);
+          border-radius: var(--mvx-radius-sm);
+          background: var(--mvx-bg-panel);
+          box-shadow: var(--mvx-shadow-soft);
+          padding: 8px;
+        }
+        :host([component-style="clean"]) .submenu button {
+          min-block-size: 32px;
+          border-radius: var(--mvx-radius-xs);
+          padding-inline: 10px;
+          text-align: start;
+        }
       </style>
       <nav class="bar surface" part="menubar" role="menubar">
         ${this.items.map((item, index) => `
@@ -946,6 +989,32 @@ export class MvxBottomNavigation extends MvxPeerElement {
         .dock { display: grid; grid-template-columns: repeat(${Math.max(this.items.length, 1)}, minmax(0, 1fr)); gap: 4px; padding: 6px; }
         button { display: grid; place-items: center; gap: 3px; min-block-size: 48px; border: 0; background: transparent; }
         button[aria-current="page"] { color: var(--mvx-accent-2); background: color-mix(in srgb, var(--mvx-accent) 10%, transparent); }
+        :host([component-style="clean"]) .dock {
+          gap: 0;
+          border-block-start: 1px solid var(--mvx-border);
+          padding: 0;
+        }
+        :host([component-style="clean"]) button {
+          position: relative;
+          min-block-size: 54px;
+          border-radius: 0;
+        }
+        :host([component-style="clean"]) button::before {
+          content: "";
+          position: absolute;
+          inset-inline: 22%;
+          inset-block-start: 0;
+          block-size: 2px;
+          border-radius: 999px;
+          background: transparent;
+        }
+        :host([component-style="clean"]) button[aria-current="page"] {
+          background: transparent;
+          color: var(--mvx-accent-2);
+        }
+        :host([component-style="clean"]) button[aria-current="page"]::before {
+          background: var(--mvx-accent);
+        }
         small { font-size: 11px; }
       </style>
       <nav class="dock surface" part="navigation">
@@ -1962,19 +2031,89 @@ export class MvxImageList extends MvxPeerElement {
 }
 
 export class MvxIcon extends MvxPeerElement {
+  static observedAttributes = [...MvxPeerElement.observedAttributes, 'name', 'icon', 'size'];
+
   render() {
     const icons = {
       add: '+',
       plus: '+',
+      minus: '-',
       close: 'x',
+      x: 'x',
       check: '✓',
+      success: '✓',
       menu: '☰',
+      more: '⋯',
+      kebab: '⋮',
       search: '⌕',
       settings: '⚙',
+      gear: '⚙',
       user: '◎',
+      users: '◉',
       warning: '!',
+      danger: '!',
+      error: '!',
       info: 'i',
-      arrow: '→'
+      help: '?',
+      arrow: '→',
+      'arrow-right': '→',
+      'arrow-left': '←',
+      'arrow-up': '↑',
+      'arrow-down': '↓',
+      chevron: '›',
+      'chevron-right': '›',
+      'chevron-left': '‹',
+      'chevron-up': '⌃',
+      'chevron-down': '⌄',
+      external: '↗',
+      upload: '⇧',
+      download: '⇩',
+      refresh: '↻',
+      undo: '↶',
+      redo: '↷',
+      play: '▶',
+      pause: 'Ⅱ',
+      stop: '■',
+      edit: '✎',
+      copy: '⧉',
+      save: '▣',
+      trash: '⌫',
+      delete: '⌫',
+      filter: '⧨',
+      sort: '↕',
+      calendar: '◷',
+      clock: '◴',
+      mail: '✉',
+      lock: '⌑',
+      unlock: '◇',
+      home: '⌂',
+      link: '↔',
+      star: '★',
+      heart: '♥',
+      flag: '⚑',
+      bell: '◉',
+      command: '⌘',
+      terminal: '▹',
+      code: '</>',
+      database: '▤',
+      table: '▦',
+      chart: '▧',
+      grid: '▦',
+      list: '☷',
+      layers: '▰',
+      image: '▧',
+      file: '□',
+      folder: '▱',
+      cloud: '☁',
+      sparkles: '✦',
+      ai: '✦',
+      bot: '◌',
+      workflow: '↬',
+      lightning: '↯',
+      rocket: '▲',
+      package: '▣',
+      npm: 'npm',
+      github: '⌘'
     };
     const name = this.getAttribute('name') || this.getAttribute('icon') || 'check';
     const size = cssLength(this.getAttribute('size'), '1em');
@@ -1992,7 +2131,7 @@ export class MvxIcon extends MvxPeerElement {
 
 export class MvxIcons extends MvxPeerElement {
   render() {
-    const items = this.items.length ? this.items : ['check', 'close', 'plus', 'search', 'settings'];
+    const items = this.items.length ? this.items : ['check', 'close', 'plus', 'search', 'settings', 'chart', 'table', 'sparkles'];
     this.shadowRoot.innerHTML = `
       <style>
         ${sharedStyles}

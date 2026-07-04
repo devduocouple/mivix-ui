@@ -20,6 +20,7 @@ export { MvxToast } from './components/toast/index.js';
 export { MvxAppShell } from './components/app-shell/index.js';
 export { MvxDataTable } from './components/data-table/index.js';
 export { MvxChart } from './components/chart/index.js';
+export { MvxChartGroup } from './components/chart-group/index.js';
 export { MvxCommandPalette } from './components/command-palette/index.js';
 export { MvxAssistantPanel } from './components/ai-panel/index.js';
 export { MvxChatbot } from './components/chatbot/index.js';
@@ -51,6 +52,9 @@ declare global {
       theme?: 'dark' | 'light' | 'graphite' | 'aurora' | 'terminal' | string;
       componentStyle?: 'console' | 'minimal' | 'glass' | 'dashboard' | string;
       'component-style'?: 'console' | 'minimal' | 'glass' | 'dashboard' | string;
+      font?: 'system' | 'inter' | 'mono' | 'monospace' | 'serif' | 'rounded' | 'humanist' | 'geometric' | 'devanagari' | string;
+      fontFamily?: string;
+      'font-family'?: string;
       radius?: number | string;
       dir?: 'ltr' | 'rtl' | 'auto';
       lang?: string;
@@ -81,6 +85,7 @@ declare global {
       'mvx-app-shell': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-data-table': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-chart': MivixGlobalAttributes & Record<string, unknown>;
+      'mvx-chart-group': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-command-palette': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-ai-panel': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-chatbot': MivixGlobalAttributes & Record<string, unknown>;

@@ -35,9 +35,24 @@ export class MvxBreadcrumbs extends MvxElement {
           color: var(--mvx-muted);
           font-size: 13px;
         }
+        :host([component-style="clean"]) li {
+          gap: 9px;
+        }
+        :host([component-style="clean"]) li span[aria-hidden="true"] {
+          color: var(--mvx-subtle);
+        }
         a {
           color: var(--mvx-muted);
           text-decoration: none;
+        }
+        :host([component-style="clean"]) a,
+        :host([component-style="clean"]) [aria-current="page"] {
+          border-radius: var(--mvx-radius-xs);
+          padding: 2px 0;
+        }
+        :host([component-style="clean"]) [aria-current="page"] {
+          color: var(--mvx-fg);
+          font-weight: 700;
         }
         a:hover, a:focus-visible {
           color: var(--mvx-accent-2);

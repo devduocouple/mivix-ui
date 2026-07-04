@@ -21,6 +21,36 @@ export const baseStyles = `
     --mvx-stack-gap: clamp(8px, 0.8vw, 18px);
   }
 
+  :host([font="system"]),
+  :host([font="inter"]) {
+    --mvx-font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  :host([font="mono"]),
+  :host([font="monospace"]) {
+    --mvx-font-sans: var(--mvx-font-mono);
+  }
+
+  :host([font="serif"]) {
+    --mvx-font-sans: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  }
+
+  :host([font="rounded"]) {
+    --mvx-font-sans: ui-rounded, "SF Pro Rounded", "Avenir Next Rounded", "Nunito Sans", Inter, ui-sans-serif, system-ui, sans-serif;
+  }
+
+  :host([font="humanist"]) {
+    --mvx-font-sans: "Avenir Next", Avenir, "Segoe UI", Frutiger, Candara, Inter, ui-sans-serif, system-ui, sans-serif;
+  }
+
+  :host([font="geometric"]) {
+    --mvx-font-sans: Montserrat, Avenir, "Century Gothic", Inter, ui-sans-serif, system-ui, sans-serif;
+  }
+
+  :host([font="devanagari"]) {
+    --mvx-font-sans: "Noto Sans Devanagari", "Kohinoor Devanagari", "Mangal", Inter, ui-sans-serif, system-ui, sans-serif;
+  }
+
   :host([dir="ltr"]) {
     direction: ltr;
   }
@@ -255,6 +285,18 @@ export const toneMap = {
 
 export const themeStorageKey = 'mivix-ui:theme';
 
+export const fontStacks = {
+  system: 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  inter: 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  mono: 'var(--mvx-font-mono)',
+  monospace: 'var(--mvx-font-mono)',
+  serif: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif',
+  rounded: 'ui-rounded, "SF Pro Rounded", "Avenir Next Rounded", "Nunito Sans", Inter, ui-sans-serif, system-ui, sans-serif',
+  humanist: '"Avenir Next", Avenir, "Segoe UI", Frutiger, Candara, Inter, ui-sans-serif, system-ui, sans-serif',
+  geometric: 'Montserrat, Avenir, "Century Gothic", Inter, ui-sans-serif, system-ui, sans-serif',
+  devanagari: '"Noto Sans Devanagari", "Kohinoor Devanagari", "Mangal", Inter, ui-sans-serif, system-ui, sans-serif'
+};
+
 export function readStoredTheme(storageKey = themeStorageKey) {
   try {
     return globalThis.localStorage?.getItem(storageKey) || '';
@@ -342,7 +384,7 @@ export function parseData(value, fallback = []) {
 const HTMLElementBase = globalThis.HTMLElement || class {};
 
 export class MvxElement extends HTMLElementBase {
-  static globalAttributes = ['theme', 'component-style', 'radius', 'dir', 'lang', 'locale', 'i18n', 'skeleton', 'skeleton-lines'];
+  static globalAttributes = ['theme', 'component-style', 'font', 'font-family', 'radius', 'dir', 'lang', 'locale', 'i18n', 'skeleton', 'skeleton-lines'];
 
   constructor() {
     super();
@@ -379,6 +421,13 @@ export class MvxElement extends HTMLElementBase {
   }
 
   applyGlobalAttributes() {
+    const font = this.getAttribute('font') ?? this.getAttribute('font-family');
+    if (font === null) {
+      this.style.removeProperty('--mvx-font-sans');
+    } else {
+      this.style.setProperty('--mvx-font-sans', this.normalizeFont(font));
+    }
+
     const radius = this.getAttribute('radius');
     if (radius === null) {
       ['--mvx-radius-xs', '--mvx-radius-sm', '--mvx-radius-md', '--mvx-radius-lg'].forEach(token => this.style.removeProperty(token));
@@ -474,6 +523,12 @@ export class MvxElement extends HTMLElementBase {
     if (trimmed === 'square') return '0px';
     if (/^-?\d+(\.\d+)?$/.test(trimmed)) return `${Math.max(0, Number(trimmed))}px`;
     return trimmed;
+  }
+
+  normalizeFont(value) {
+    const trimmed = String(value ?? '').trim();
+    if (!trimmed || trimmed === 'inherit') return 'inherit';
+    return fontStacks[trimmed] || trimmed;
   }
 
   get i18n() {

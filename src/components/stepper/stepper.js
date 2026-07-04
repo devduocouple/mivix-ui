@@ -45,6 +45,9 @@ export class MvxStepper extends MvxElement {
           padding: 0;
           list-style: none;
         }
+        :host([component-style="clean"]) ol {
+          gap: ${vertical ? '6px' : '0'};
+        }
         button {
           display: grid;
           grid-template-columns: 30px minmax(0, 1fr);
@@ -60,6 +63,22 @@ export class MvxStepper extends MvxElement {
           padding: 8px;
           text-align: start;
         }
+        :host([component-style="clean"]) button {
+          position: relative;
+          border-color: transparent;
+          border-radius: 0;
+          background: transparent;
+          box-shadow: none;
+          padding: ${vertical ? '6px 6px 6px 0' : '6px 8px 6px 0'};
+        }
+        :host([component-style="clean"]) li:not(:last-child) button::after {
+          content: "";
+          position: absolute;
+          ${vertical
+            ? 'inset-inline-start: 14px; inset-block-start: 38px; inset-block-end: -6px; inline-size: 1px;'
+            : 'inset-inline-start: 30px; inset-inline-end: 8px; inset-block-start: 20px; block-size: 1px;'}
+          background: color-mix(in srgb, var(--mvx-border) 72%, transparent);
+        }
         .index {
           display: grid;
           place-items: center;
@@ -71,6 +90,10 @@ export class MvxStepper extends MvxElement {
           font-size: 12px;
           font-weight: 850;
         }
+        :host([component-style="clean"]) .index {
+          border: 1px solid var(--mvx-border);
+          background: var(--mvx-bg);
+        }
         button[data-state="active"],
         button[data-state="complete"] {
           border-color: color-mix(in srgb, var(--mvx-accent) 52%, var(--mvx-border));
@@ -78,6 +101,18 @@ export class MvxStepper extends MvxElement {
         }
         button[data-state="active"] .index,
         button[data-state="complete"] .index {
+          background: var(--mvx-accent);
+          color: white;
+        }
+        :host([component-style="clean"]) button[data-state="active"],
+        :host([component-style="clean"]) button[data-state="complete"] {
+          border-color: transparent;
+          background: transparent;
+          color: var(--mvx-fg);
+        }
+        :host([component-style="clean"]) button[data-state="active"] .index,
+        :host([component-style="clean"]) button[data-state="complete"] .index {
+          border-color: var(--mvx-accent);
           background: var(--mvx-accent);
           color: white;
         }

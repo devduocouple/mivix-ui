@@ -34,6 +34,9 @@ export class MvxPagination extends MvxElement {
           gap: 6px;
           align-items: center;
         }
+        :host([component-style="clean"]) nav {
+          gap: 2px;
+        }
         button {
           min-inline-size: 34px;
           min-block-size: 34px;
@@ -43,10 +46,29 @@ export class MvxPagination extends MvxElement {
           color: var(--mvx-muted);
           cursor: pointer;
         }
+        :host([component-style="clean"]) button {
+          border-color: transparent;
+          border-radius: var(--mvx-radius-xs);
+          background: transparent;
+          box-shadow: none;
+        }
         button[aria-current="page"] {
           border-color: color-mix(in srgb, var(--mvx-accent) 64%, var(--mvx-border));
           background: color-mix(in srgb, var(--mvx-accent) 18%, var(--mvx-bg-inset));
           color: var(--mvx-fg);
+        }
+        :host([component-style="clean"]) button:hover:not(:disabled) {
+          background: color-mix(in srgb, var(--mvx-accent) 8%, transparent);
+          color: var(--mvx-fg);
+        }
+        :host([component-style="clean"]) button[aria-current="page"] {
+          border-color: transparent;
+          background: transparent;
+          color: var(--mvx-accent-2);
+          font-weight: 800;
+          text-decoration: underline;
+          text-decoration-thickness: 2px;
+          text-underline-offset: 7px;
         }
         button:focus-visible {
           outline: none;

@@ -28,3 +28,7 @@ chat-history/
 AGENTS.md
 CLAUDE.md
 GEMINI.md
+
+# Local planning notes (keep out of git history)
+ROADMAP.md
+PHASE-1-RELEASE-AUDIT.md

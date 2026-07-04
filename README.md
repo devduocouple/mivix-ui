@@ -21,6 +21,16 @@ Mivix UI is currently best suited for evaluation, prototypes, internal tools, an
 - Use `mivix-ui@alpha` for early testing.
 - Avoid mission-critical production usage until the package is promoted from alpha.
 
+## Foundation Release Readiness
+
+Phase 1 is the trust layer for the ecosystem: installation, docs, examples, package exports, framework setup, contribution paths, and a clear alpha roadmap.
+
+- [Phase 1 release audit](./PHASE-1-RELEASE-AUDIT.md) tracks strengths, shortcomings, peer expectations, and page-by-page verification.
+- [Roadmap](./ROADMAP.md) separates foundation work from later CLI, adapters, templates, and Pro ecosystem work.
+- [Changelog](./CHANGELOG.md) records release-level changes and known gaps.
+- [Contributing](./CONTRIBUTING.md) describes the component compatibility standard.
+- [Security](./SECURITY.md) describes vulnerability reporting and baseline security expectations.
+
 ## Design Direction
 
 - **Graphite-first themes:** dark console surfaces, crisp edge highlights, and focused blue interaction states.
@@ -55,11 +65,16 @@ Install the current alpha:
 npm install mivix-ui@alpha
 ```
 
-Register the components from your app entry:
+For the smallest production bundles, import and register only the components your app uses:
 
 ```js
 import 'mivix-ui/styles';
-import 'mivix-ui';
+import { define } from 'mivix-ui/core';
+import { MvxButton } from 'mivix-ui/components/button';
+import { MvxSwitch } from 'mivix-ui/components/switch';
+
+define('mvx-button', MvxButton);
+define('mvx-switch', MvxSwitch);
 ```
 
 Use the custom elements in your markup:
@@ -69,26 +84,23 @@ Use the custom elements in your markup:
 <mvx-switch checked label="Auto-approve"></mvx-switch>
 ```
 
-Import the whole library when you want every custom element registered:
+Use the auto entry when you intentionally want every custom element registered, such as quick prototypes, docs, and demos:
 
 ```js
-import 'mivix-ui';
+import 'mivix-ui/auto';
 import 'mivix-ui/styles';
 ```
 
-Import individual component classes when you want fine-grained registration:
+The root package entry is tree-shakable and has no auto-registration side effects:
 
 ```js
-import { define } from 'mivix-ui/core';
-import { MvxButton } from 'mivix-ui/components/button';
-
-define('mvx-button', MvxButton);
+import { MvxButton, MvxChart } from 'mivix-ui';
 ```
 
 Use it from TypeScript with typed component classes and JSX/TSX element declarations:
 
 ```ts
-import 'mivix-ui';
+import 'mivix-ui/auto';
 import 'mivix-ui/styles';
 import type { MvxChart } from 'mivix-ui/components/chart';
 import type {} from 'mivix-ui';
@@ -114,7 +126,7 @@ Build the deployable docs artifact:
 npm run build:docs
 ```
 
-This writes a self-contained static site to `dist/docs`. The GitHub Pages workflow deploys that generated artifact, so the published docs do not depend on parent-directory imports like `../src/index.js`.
+This writes a self-contained static site to `dist/docs`. The GitHub Pages workflow deploys that generated artifact, so the published docs do not depend on parent-directory imports like `../src/auto.js`.
 
 ## SSR, SEO, And JSON Config
 
@@ -145,7 +157,7 @@ const formHtml = renderJsonSchemaForm({
 Set the theme on the document element:
 
 ```html
-<html data-mvx-theme="dark">
+<html data-mvx-theme="dark" data-mvx-font="system">
 ```
 
 Included themes:
@@ -162,6 +174,7 @@ Every component also accepts the same universal API:
 <mvx-data-table
   theme="dark"
   component-style="dashboard"
+  font="humanist"
   radius="0"
   lang="ar"
   dir="rtl"
@@ -171,7 +184,8 @@ Every component also accepts the same universal API:
 ```
 
 - `theme` changes only the color scheme, such as `dark`, `light`, `aurora`, or `terminal`.
-- `component-style` changes structure, surface treatment, density, and animation without changing color tokens.
+- `component-style` changes structure, surface treatment, density, and animation without changing color tokens. Use `clean` for low-chrome navigation, `minimal` for stripped surfaces, `glass` for expressive panels, and `dashboard` for dense operational UI.
+- `font` changes typography without changing color, structure, or spacing. Built-in presets are `system`, `mono`, `serif`, `rounded`, `humanist`, `geometric`, and `devanagari`; custom CSS font stacks are also accepted. Load external web fonts in your app before selecting them.
 - `radius` accepts `0`, a number in pixels, any CSS length, `square`, or `rounded`.
 - `lang`, `dir`, and `locale` support internationalization, bidirectional UI, and locale-aware comparison.
 - `i18n` is a JSON dictionary for built-in labels such as close, previous, next, empty states, command palette, and assistant composer text.
@@ -183,7 +197,7 @@ Every component also accepts the same universal API:
 ```html
 <link rel="stylesheet" href="/node_modules/mivix-ui/src/styles/tokens.css" />
 <script type="module">
-  import 'mivix-ui';
+  import 'mivix-ui/auto';
 </script>
 
 <mvx-button variant="primary">Deploy</mvx-button>
@@ -192,7 +206,7 @@ Every component also accepts the same universal API:
 ### TypeScript
 
 ```ts
-import 'mivix-ui';
+import 'mivix-ui/auto';
 import 'mivix-ui/styles';
 import type { MvxDataTable } from 'mivix-ui/components/data-table';
 import type {} from 'mivix-ui';
@@ -227,7 +241,7 @@ import type {} from 'mivix-ui';
 
 export default function Page() {
   useEffect(() => {
-    void import('mivix-ui');
+    void import('mivix-ui/auto');
   }, []);
 
   return <mvx-button variant="primary">Deploy</mvx-button>;
@@ -237,7 +251,7 @@ export default function Page() {
 ### React
 
 ```jsx
-import 'mivix-ui';
+import 'mivix-ui/auto';
 import 'mivix-ui/styles';
 
 export function Toolbar() {
@@ -250,7 +264,7 @@ export function Toolbar() {
 Add `CUSTOM_ELEMENTS_SCHEMA` to the module or standalone component schema, then import once:
 
 ```ts
-import 'mivix-ui';
+import 'mivix-ui/auto';
 import 'mivix-ui/styles';
 ```
 
@@ -264,7 +278,7 @@ Configure Vue to treat `mvx-*` tags as custom elements:
 
 ```ts
 app.config.compilerOptions.isCustomElement = tag => tag.startsWith('mvx-');
-import 'mivix-ui';
+import 'mivix-ui/auto';
 import 'mivix-ui/styles';
 ```
 

@@ -1,10 +1,11 @@
 export const palette = ['var(--mvx-accent)', 'var(--mvx-accent-2)', 'var(--mvx-success)', 'var(--mvx-warning)', 'var(--mvx-danger)', 'var(--mvx-info)', '#b48cff', '#ff8fc7'];
-export const cartesianTypes = new Set(['line', 'area', 'bar', 'column', 'grouped-bar', 'grouped-column', 'stacked-bar', 'stacked-column', '100%-stacked-bar', '100%-stacked-column', 'stacked-area', 'stacked-100-area', 'combo', 'histogram', 'waterfall', 'pareto', 'multi-line', 'step-line', 'range-area', 'confidence-band', 'error-band', 'range-bar', 'range-column', 'floating-bar', 'error-bar', 'lollipop', 'dumbbell']);
+export const cartesianTypes = new Set(['line', 'area', 'bar', 'column', 'grouped-bar', 'grouped-column', 'stacked-bar', 'stacked-column', '100%-stacked-bar', '100%-stacked-column', 'stacked-area', 'stacked-100-area', 'combo', 'histogram', 'waterfall', 'pareto', 'multi-line', 'step-line', 'range-area', 'confidence-band', 'error-band', 'range-bar', 'range-column', 'floating-bar', 'error-bar', 'lollipop', 'dumbbell', 'burndown', 'burnup', 'cumulative-flow', 'forecast-fan', 'slo-error-budget-burn', 'aging-bucket', 'variance-budget-actual']);
 export const radialTypes = new Set(['pie', 'donut', 'nested-donut', 'semi-donut', 'rose', 'polar-area', 'radial-bar', 'progress-ring']);
 export const flowTypes = new Set(['sankey', 'alluvial', 'process-flow']);
 export const networkTypes = new Set(['network', 'network-graph', 'force-directed', 'dependency-graph', 'arc-diagram', 'matrix-network', 'edge-bundling']);
 export const treeTypes = new Set(['org-chart', 'mind-map', 'tree-diagram', 'icicle', 'word-tree']);
 export const mapTypes = new Set(['choropleth', 'symbol-map', 'flow-map', 'geo-heatmap', 'bubble-map', 'tile-map', 'cartogram', 'route-map', 'map-with-markers', 'map-with-clusters']);
+export const enterpriseTypes = new Set(['cohort-retention', 'cumulative-flow', 'burndown', 'burnup', 'risk-matrix', 'correlation-matrix', 'tornado', 'decomposition-tree', 'forecast-fan', 'slo-error-budget-burn', 'resource-utilization', 'aging-bucket', 'boxen-plot', 'cohort-funnel', 'variance-budget-actual', 'small-multiples']);
 
 const comparisonSample = [
   { label: 'Jan', value: 18, y: 18, x: 1, size: 12, start: 0, end: 2 },
@@ -12,6 +13,63 @@ const comparisonSample = [
   { label: 'Mar', value: 44, y: 44, x: 3, size: 28, start: 3, end: 6 },
   { label: 'Apr', value: 37, y: 37, x: 4, size: 22, start: 5, end: 7 },
   { label: 'May', value: 62, y: 62, x: 5, size: 36, start: 6, end: 10 }
+];
+
+const rangeAreaSample = [
+  { label: '00:00', low: 18, value: 22, y: 22, high: 26 },
+  { label: '04:00', low: 17, value: 21, y: 21, high: 25 },
+  { label: '08:00', low: 21, value: 28, y: 28, high: 34 },
+  { label: '12:00', low: 28, value: 35, y: 35, high: 42 },
+  { label: '16:00', low: 31, value: 39, y: 39, high: 46 },
+  { label: '20:00', low: 24, value: 30, y: 30, high: 35 }
+];
+
+const confidenceBandSample = [
+  { label: 'Q1', low: 37, value: 42, y: 42, high: 47 },
+  { label: 'Q2', low: 41, value: 48, y: 48, high: 55 },
+  { label: 'Q3', low: 48, value: 57, y: 57, high: 66 },
+  { label: 'Q4', low: 51, value: 63, y: 63, high: 75 },
+  { label: 'Q5', low: 56, value: 71, y: 71, high: 86 },
+  { label: 'Q6', low: 60, value: 78, y: 78, high: 96 }
+];
+
+const errorBandSample = [
+  { label: 'Run A', low: 27, value: 31, y: 31, high: 35 },
+  { label: 'Run B', low: 30, value: 36, y: 36, high: 42 },
+  { label: 'Run C', low: 31, value: 34, y: 34, high: 37 },
+  { label: 'Run D', low: 36, value: 43, y: 43, high: 50 },
+  { label: 'Run E', low: 42, value: 47, y: 47, high: 52 },
+  { label: 'Run F', low: 37, value: 45, y: 45, high: 53 }
+];
+
+const stackedAreaSample = [
+  { name: 'Organic', data: [
+    { label: 'Jan', value: 18 }, { label: 'Feb', value: 22 }, { label: 'Mar', value: 27 },
+    { label: 'Apr', value: 31 }, { label: 'May', value: 38 }, { label: 'Jun', value: 44 }
+  ] },
+  { name: 'Product', data: [
+    { label: 'Jan', value: 12 }, { label: 'Feb', value: 18 }, { label: 'Mar', value: 21 },
+    { label: 'Apr', value: 29 }, { label: 'May', value: 33 }, { label: 'Jun', value: 41 }
+  ] },
+  { name: 'Partner', data: [
+    { label: 'Jan', value: 8 }, { label: 'Feb', value: 12 }, { label: 'Mar', value: 19 },
+    { label: 'Apr', value: 20 }, { label: 'May', value: 27 }, { label: 'Jun', value: 34 }
+  ] }
+];
+
+const stacked100AreaSample = [
+  { name: 'Core', data: [
+    { label: 'Jan', value: 58 }, { label: 'Feb', value: 52 }, { label: 'Mar', value: 47 },
+    { label: 'Apr', value: 43 }, { label: 'May', value: 39 }, { label: 'Jun', value: 34 }
+  ] },
+  { name: 'Growth', data: [
+    { label: 'Jan', value: 29 }, { label: 'Feb', value: 32 }, { label: 'Mar', value: 35 },
+    { label: 'Apr', value: 37 }, { label: 'May', value: 40 }, { label: 'Jun', value: 42 }
+  ] },
+  { name: 'Experimental', data: [
+    { label: 'Jan', value: 13 }, { label: 'Feb', value: 16 }, { label: 'Mar', value: 18 },
+    { label: 'Apr', value: 20 }, { label: 'May', value: 21 }, { label: 'Jun', value: 24 }
+  ] }
 ];
 
 const financialSample = [
@@ -66,6 +124,64 @@ const geoSample = [
 ];
 
 export function defaultSeriesForType(type = 'line') {
+  if (type === 'cohort-retention') return [{ name: 'Retention cohort', data: [
+    { xLabel: 'W1', yLabel: 'Jan', value: 82 }, { xLabel: 'W2', yLabel: 'Jan', value: 64 }, { xLabel: 'W3', yLabel: 'Jan', value: 51 }, { xLabel: 'W4', yLabel: 'Jan', value: 44 },
+    { xLabel: 'W1', yLabel: 'Feb', value: 78 }, { xLabel: 'W2', yLabel: 'Feb', value: 59 }, { xLabel: 'W3', yLabel: 'Feb', value: 48 }, { xLabel: 'W4', yLabel: 'Feb', value: 39 },
+    { xLabel: 'W1', yLabel: 'Mar', value: 86 }, { xLabel: 'W2', yLabel: 'Mar', value: 68 }, { xLabel: 'W3', yLabel: 'Mar', value: 57 }, { xLabel: 'W4', yLabel: 'Mar', value: 49 }
+  ] }];
+  if (type === 'risk-matrix') return [{ name: 'Risk matrix', data: [
+    { xLabel: 'Low', yLabel: 'Low', value: 2 }, { xLabel: 'Med', yLabel: 'Low', value: 5 }, { xLabel: 'High', yLabel: 'Low', value: 8 },
+    { xLabel: 'Low', yLabel: 'Med', value: 6 }, { xLabel: 'Med', yLabel: 'Med', value: 12 }, { xLabel: 'High', yLabel: 'Med', value: 18 },
+    { xLabel: 'Low', yLabel: 'High', value: 9 }, { xLabel: 'Med', yLabel: 'High', value: 18 }, { xLabel: 'High', yLabel: 'High', value: 25 }
+  ] }];
+  if (type === 'correlation-matrix') return [{ name: 'Correlation matrix', data: [
+    { xLabel: 'MRR', yLabel: 'MRR', value: 1 }, { xLabel: 'MRR', yLabel: 'Churn', value: -0.7 }, { xLabel: 'MRR', yLabel: 'NPS', value: 0.6 },
+    { xLabel: 'Churn', yLabel: 'MRR', value: -0.7 }, { xLabel: 'Churn', yLabel: 'Churn', value: 1 }, { xLabel: 'Churn', yLabel: 'NPS', value: -0.5 },
+    { xLabel: 'NPS', yLabel: 'MRR', value: 0.6 }, { xLabel: 'NPS', yLabel: 'Churn', value: -0.5 }, { xLabel: 'NPS', yLabel: 'NPS', value: 1 }
+  ] }];
+  if (type === 'tornado') return [{ name: 'Sensitivity', data: [
+    { label: 'Price', value: 42 }, { label: 'Churn', value: -31 }, { label: 'CAC', value: -24 }, { label: 'Expansion', value: 21 }, { label: 'Support', value: -13 }
+  ] }];
+  if (type === 'forecast-fan') return [{ name: 'Revenue forecast', data: [
+    { label: 'Q1', value: 42, p50Low: 38, p50High: 46, p80Low: 34, p80High: 51, p95Low: 29, p95High: 57 },
+    { label: 'Q2', value: 49, p50Low: 44, p50High: 55, p80Low: 39, p80High: 62, p95Low: 32, p95High: 69 },
+    { label: 'Q3', value: 58, p50Low: 51, p50High: 66, p80Low: 44, p80High: 75, p95Low: 36, p95High: 86 },
+    { label: 'Q4', value: 68, p50Low: 59, p50High: 78, p80Low: 49, p80High: 91, p95Low: 38, p95High: 105 }
+  ] }];
+  if (type === 'cumulative-flow') return stackedAreaSample;
+  if (type === 'burndown') return [{ name: 'Work remaining', data: [
+    { label: 'D1', value: 80 }, { label: 'D2', value: 68 }, { label: 'D3', value: 55 }, { label: 'D4', value: 42 }, { label: 'D5', value: 25 }, { label: 'D6', value: 8 }
+  ] }];
+  if (type === 'burnup') return [{ name: 'Work completed', data: [
+    { label: 'D1', value: 8 }, { label: 'D2', value: 22 }, { label: 'D3', value: 36 }, { label: 'D4', value: 53 }, { label: 'D5', value: 68 }, { label: 'D6', value: 80 }
+  ] }];
+  if (type === 'slo-error-budget-burn') return [{ name: 'Error budget remaining', data: [
+    { label: 'Mon', value: 100 }, { label: 'Tue', value: 86 }, { label: 'Wed', value: 72 }, { label: 'Thu', value: 49 }, { label: 'Fri', value: 31 }, { label: 'Sat', value: 18 }
+  ] }];
+  if (type === 'resource-utilization') return [{ name: 'Team capacity', data: [
+    { label: 'Design', start: 0, end: 4, value: 4 }, { label: 'Frontend', start: 2, end: 8, value: 8 }, { label: 'Backend', start: 1, end: 7, value: 7 }, { label: 'QA', start: 6, end: 10, value: 10 }
+  ] }];
+  if (type === 'aging-bucket') return [{ name: 'Invoice aging', data: [
+    { label: '0-30', value: 58 }, { label: '31-60', value: 31 }, { label: '61-90', value: 17 }, { label: '90+', value: 9 }
+  ] }];
+  if (type === 'boxen-plot') return [{ name: 'Large distribution', data: distributionSample }];
+  if (type === 'cohort-funnel') return [{ name: 'Cohort funnel', data: flowSample }];
+  if (type === 'variance-budget-actual') return [
+    { name: 'Budget', data: [{ label: 'Sales', value: 42 }, { label: 'R&D', value: 36 }, { label: 'Ops', value: 24 }] },
+    { name: 'Actual', data: [{ label: 'Sales', value: 47 }, { label: 'R&D', value: 31 }, { label: 'Ops', value: 29 }] }
+  ];
+  if (type === 'small-multiples') return [
+    { name: 'NA', data: [{ label: 'Jan', value: 18 }, { label: 'Feb', value: 23 }, { label: 'Mar', value: 31 }, { label: 'Apr', value: 36 }] },
+    { name: 'EU', data: [{ label: 'Jan', value: 14 }, { label: 'Feb', value: 21 }, { label: 'Mar', value: 24 }, { label: 'Apr', value: 33 }] },
+    { name: 'IN', data: [{ label: 'Jan', value: 9 }, { label: 'Feb', value: 16 }, { label: 'Mar', value: 29 }, { label: 'Apr', value: 41 }] },
+    { name: 'APAC', data: [{ label: 'Jan', value: 12 }, { label: 'Feb', value: 19 }, { label: 'Mar', value: 22 }, { label: 'Apr', value: 28 }] }
+  ];
+  if (type === 'decomposition-tree') return [{ name: 'Revenue breakdown', data: hierarchySample }];
+  if (type === 'range-area') return [{ name: 'Daily temperature range', data: rangeAreaSample }];
+  if (type === 'confidence-band') return [{ name: 'Forecast with 95% confidence', data: confidenceBandSample }];
+  if (type === 'error-band') return [{ name: 'Experiment mean +/- error', data: errorBandSample }];
+  if (type === 'stacked-area') return stackedAreaSample;
+  if (type === 'stacked-100-area') return stacked100AreaSample;
   if (flowTypes.has(type)) return [{ name: 'Flow', data: flowSample }];
   if (networkTypes.has(type) || type === 'chord') return [{ name: 'Network', data: networkSample }];
   if (treeTypes.has(type)) return [{ name: 'Hierarchy', data: hierarchySample }];
