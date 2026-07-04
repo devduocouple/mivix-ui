@@ -16,8 +16,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Pin env to keep existing Node 20 action runtime compatibility for now.
+  # Once deploy action updates to Node 24-compatible runtime, this can be removed.
+  #
+  # Global env is intentionally scoped to this workflow so normal build steps
+  # continue to use the node-version from setup-node.
   build:
     runs-on: ubuntu-latest
+    env:
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,7 +32,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Install dependencies
         run: npm install
@@ -47,10 +54,27 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages (attempt 1)
         id: deployment
+        # Temporarily suppress action/runtime deprecation warnings while GitHub
+        # pages actions catch up to newer Node runtimes.
+        env:
+          NODE_OPTIONS: "--no-deprecation"
         uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - name: Deploy to GitHub Pages (attempt 2)
+        id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
+        env:
+          NODE_OPTIONS: "--no-deprecation"
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - name: Ensure deployment succeeded
+        if: steps.deployment.outcome == 'failure' && steps.deployment_retry.outcome == 'failure'
+        run: |
+          echo "GitHub Pages deploy failed after retry."
+          exit 1
