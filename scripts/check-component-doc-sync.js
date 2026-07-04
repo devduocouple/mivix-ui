@@ -99,8 +99,32 @@ function extractArray(script, name) {
   return script.slice(start, arrayEnd + 1);
 }
 
+function extractDeclaration(script, name) {
+  const marker = `const ${name} =`;
+  const start = script.indexOf(marker);
+  if (start < 0) return null;
+
+  let cursor = start + marker.length;
+  while (cursor < script.length && /\s/.test(script[cursor])) cursor += 1;
+
+  const nextChar = script[cursor];
+  if (nextChar === '{') return extractObject(script, name);
+  if (nextChar === '[') return extractArray(script, name);
+
+  return null;
+}
+
+function ensureTerminated(statement) {
+  if (!statement) return statement;
+  const trimmed = statement.trimRight();
+  return /;\s*$/.test(trimmed) ? statement : `${statement};`;
+}
+
 function evaluateDocsScript(html) {
   const script = inlineDocsScript(html);
+  const commonApiText = extractObject(script, 'commonApi');
+  const globalApiText = extractDeclaration(script, 'globalApi');
+  const chartGalleryItemsText = extractDeclaration(script, 'chartGalleryItems');
   const docsText = extractObject(script, 'docs');
   const examplesText = extractObject(script, 'componentExamples');
   const codeExamplesText = extractObject(script, 'componentCodeExamples');
@@ -110,7 +134,16 @@ function evaluateDocsScript(html) {
     throw new Error('Could not extract docs/componentExamples payload.');
   }
 
-  const payload = `${docsText}\n${examplesText}\n${codeExamplesText ? `${codeExamplesText}\n` : ''}${peerText ? `${peerText}\n` : ''};\n({ docs, componentExamples, componentCodeExamples, peerParityComponents });`;
+  const parts = [
+    ensureTerminated(commonApiText) || 'const commonApi = { events: [] };',
+    ensureTerminated(globalApiText) || 'const globalApi = [];',
+    ensureTerminated(chartGalleryItemsText) || 'const chartGalleryItems = [];',
+    ensureTerminated(docsText),
+    ensureTerminated(examplesText),
+    ensureTerminated(codeExamplesText),
+    ensureTerminated(peerText) || 'const peerParityComponents = [];'
+  ].filter(Boolean);
+  const payload = `${parts.join('\n')}\n({ docs, componentExamples, componentCodeExamples, peerParityComponents });`;
   return vm.runInNewContext(payload, {}, { timeout: 1000 });
 }
 
