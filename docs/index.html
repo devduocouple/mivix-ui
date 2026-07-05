@@ -391,6 +391,27 @@
               </div>
             </div>
           </section>
+          <section class="icon-gallery" id="icon-gallery" hidden>
+            <div class="chart-gallery-head">
+              <div>
+                <span>Icon gallery</span>
+                <h3>Browse canonical Mivix icons</h3>
+              </div>
+              <label class="chart-search">
+                <span>Search icons</span>
+                <input id="icon-gallery-search" type="search" placeholder="Search name, alias, tag, or category" autocomplete="off" />
+              </label>
+            </div>
+            <div class="icon-gallery-grid" id="icon-gallery-grid"></div>
+            <div class="chart-gallery-footer">
+              <span id="icon-gallery-count">0 icons</span>
+              <div class="chart-pager" aria-label="Icon gallery pagination">
+                <button id="icon-prev" type="button">Previous</button>
+                <span id="icon-page" class="icon-page-list">1 / 1</span>
+                <button id="icon-next" type="button">Next</button>
+              </div>
+            </div>
+          </section>
           <div class="detail-secondary">
             <div class="detail-block">
               <h3>Features</h3>
@@ -486,7 +507,7 @@
             <div class="variants" aria-label="Related versions">
               <span>palette</span><span>picker</span><span>set</span>
             </div>
-            <mvx-icons items='["check","close","plus","search","settings","chart","table","sparkles"]'></mvx-icons>
+            <mvx-icons items='["check","close","add","search","settings","chart","table","sparkles"]'></mvx-icons>
           </mvx-card>
 
           <mvx-card class="component-card" title="mvx-badge" eyebrow="Feedback" data-category="feedback" data-search="badge status pill tone">
@@ -825,10 +846,13 @@
 
           <mvx-card class="component-card wide" title="mvx-chart-group" eyebrow="Charts" data-category="charts" data-search="chart group dashboard analytics panel grouped cards kpi reporting">
             <div class="variants" aria-label="Related versions">
-              <span>dashboard</span><span>report pack</span><span>chart cards</span>
+              <span>dashboard</span><span>report pack</span><span>chart panes</span>
             </div>
-            <mvx-chart-group title="Revenue analytics" subtitle="Grouped chart cards for one reporting context" columns="2" chart-height="180" density="compact">
+            <mvx-chart-group title="Revenue analytics" subtitle="One component shell coordinating multiple chart views" eyebrow="Dashboard" columns="2" chart-height="150" density="compact">
+              <mvx-button slot="actions" size="sm">Export</mvx-button>
               <mvx-chart type="line" title="MRR trend" legend grid></mvx-chart>
+              <mvx-chart type="bar" title="Pipeline mix" legend grid></mvx-chart>
+              <mvx-chart type="donut" title="Plan split" legend></mvx-chart>
               <mvx-chart type="variance-budget-actual" title="Budget vs actual" legend grid></mvx-chart>
             </mvx-chart-group>
           </mvx-card>
@@ -922,6 +946,69 @@
         </div>
         <div class="chart-modal-surface">
           <mvx-chart id="chart-modal-chart" type="line" title="Line chart" subtitle="Track trends over time" legend grid labels height="390"></mvx-chart>
+        </div>
+      </div>
+    </mvx-modal>
+
+    <mvx-modal id="icon-demo-modal" label="Icon playground">
+      <div class="icon-modal-content">
+        <div class="icon-modal-preview" aria-label="Icon preview">
+          <mvx-icon id="icon-modal-preview" name="sparkles" size="56px"></mvx-icon>
+          <div class="icon-modal-copy">
+            <span id="icon-modal-category">Icons</span>
+            <h3 id="icon-modal-title">sparkles</h3>
+            <p>Adjust color, size, and thickness, then copy the generated snippet.</p>
+          </div>
+        </div>
+        <div class="icon-modal-controls" aria-label="Icon playground controls">
+          <label>
+            <span>Tone</span>
+            <select id="icon-modal-tone">
+              <option value="">Neutral</option>
+              <option value="primary">Primary</option>
+              <option value="secondary">Secondary</option>
+              <option value="ghost">Ghost</option>
+              <option value="info">Info</option>
+              <option value="success">Success</option>
+              <option value="warning">Warning</option>
+              <option value="danger">Danger</option>
+            </select>
+          </label>
+          <label>
+            <span>Size</span>
+            <input id="icon-modal-size" type="text" value="56px" autocomplete="off" />
+          </label>
+          <label>
+            <span>Thickness</span>
+            <select id="icon-modal-weight">
+              <option value="hairline">Hairline</option>
+              <option value="ultralight">Ultralight</option>
+              <option value="light">Light</option>
+              <option value="normal">Normal</option>
+              <option value="medium">Medium</option>
+              <option value="semibold">Semibold</option>
+              <option value="bold">Bold</option>
+              <option value="bolder">Bolder</option>
+              <option value="900">Heavy</option>
+            </select>
+          </label>
+          <label>
+            <span>Custom color</span>
+            <input id="icon-modal-color" type="text" placeholder="#8b5cf6 or var(--token)" autocomplete="off" />
+          </label>
+        </div>
+        <div class="docs-code-editor icon-modal-editor">
+          <div class="docs-code-editor-head">
+            <strong>Icon snippet</strong>
+            <button id="copy-icon-code" class="docs-code-copy" type="button" title="Copy icon code" aria-label="Copy icon code">
+              <span class="docs-copy-icon" aria-hidden="true"></span>
+              <span class="sr-only">Copy icon code</span>
+            </button>
+          </div>
+          <div class="docs-code-editor-shell">
+            <pre id="icon-modal-code-lines" class="docs-code-line-numbers" aria-hidden="true">1</pre>
+            <pre id="icon-modal-code" class="docs-code-highlight" tabindex="0" aria-label="Icon source code"></pre>
+          </div>
         </div>
       </div>
     </mvx-modal>
@@ -1065,10 +1152,31 @@
         chartCount: document.querySelector('#chart-gallery-count'),
         chartPage: document.querySelector('#chart-page'),
         chartPrev: document.querySelector('#chart-prev'),
-        chartNext: document.querySelector('#chart-next')
+        chartNext: document.querySelector('#chart-next'),
+        iconGallery: document.querySelector('#icon-gallery'),
+        iconSearch: document.querySelector('#icon-gallery-search'),
+        iconGrid: document.querySelector('#icon-gallery-grid'),
+        iconCount: document.querySelector('#icon-gallery-count'),
+        iconPage: document.querySelector('#icon-page'),
+        iconPrev: document.querySelector('#icon-prev'),
+        iconNext: document.querySelector('#icon-next'),
+        iconModal: document.querySelector('#icon-demo-modal'),
+        iconModalPreview: document.querySelector('#icon-modal-preview'),
+        iconModalCategory: document.querySelector('#icon-modal-category'),
+        iconModalTitle: document.querySelector('#icon-modal-title'),
+        iconModalTone: document.querySelector('#icon-modal-tone'),
+        iconModalColor: document.querySelector('#icon-modal-color'),
+        iconModalSize: document.querySelector('#icon-modal-size'),
+        iconModalWeight: document.querySelector('#icon-modal-weight'),
+        iconModalCode: document.querySelector('#icon-modal-code'),
+        iconModalCodeLines: document.querySelector('#icon-modal-code-lines'),
+        iconModalCopy: document.querySelector('#copy-icon-code')
       };
       const landingSections = [
         document.querySelector('.hero-grid'),
+        document.querySelector('.ecosystem-grid'),
+        document.querySelector('.developer-start'),
+        document.querySelector('.documentation-links'),
         document.querySelector('.research-grid'),
         document.querySelector('#catalog')
       ];
@@ -1077,6 +1185,258 @@
       let activeApiRows = [];
       let activeSnippetName = 'Component';
       const chartGalleryState = { query: '', page: 1, pageSize: 3 };
+      const iconGalleryState = { query: '', page: 1, pageSize: 6 };
+      const iconModalState = { name: 'sparkles', category: 'AI', tone: '', color: '', size: '56px', weight: 'light' };
+      const iconGalleryItems = [
+        { name: 'add', glyph: '+', category: 'Actions', aliases: ['plus'] },
+        { name: 'minus', glyph: '-', category: 'Actions' },
+        { name: 'close', glyph: '×', category: 'Actions', aliases: ['x'] },
+        { name: 'check', glyph: '✓', category: 'Status', aliases: ['success'] },
+        { name: 'menu', glyph: '☰', category: 'Navigation' },
+        { name: 'more', glyph: '⋯', category: 'Navigation' },
+        { name: 'kebab', glyph: '⋮', category: 'Navigation' },
+        { name: 'search', glyph: 'search', category: 'Actions' },
+        { name: 'settings', glyph: 'settings', category: 'Actions' },
+        { name: 'gear', glyph: 'gear', category: 'Actions' },
+        { name: 'user', glyph: 'user', category: 'People' },
+        { name: 'users', glyph: 'users', category: 'People' },
+        { name: 'warning', glyph: '⚠', category: 'Status', aliases: ['danger'] },
+        { name: 'error', glyph: 'error', category: 'Status' },
+        { name: 'info', glyph: 'ⓘ', category: 'Status' },
+        { name: 'help', glyph: '?', category: 'Status' },
+        { name: 'arrow-right', glyph: '→', category: 'Navigation', aliases: ['arrow'] },
+        { name: 'arrow-left', glyph: '←', category: 'Navigation' },
+        { name: 'arrow-up', glyph: '↑', category: 'Navigation' },
+        { name: 'arrow-down', glyph: '↓', category: 'Navigation' },
+        { name: 'chevron-right', glyph: 'chevron-right', category: 'Navigation', aliases: ['chevron'] },
+        { name: 'chevron-left', glyph: 'chevron-left', category: 'Navigation' },
+        { name: 'chevron-up', glyph: 'chevron-up', category: 'Navigation' },
+        { name: 'chevron-down', glyph: 'chevron-down', category: 'Navigation' },
+        { name: 'external', glyph: '↗', category: 'Navigation' },
+        { name: 'upload', glyph: 'upload', category: 'Files' },
+        { name: 'download', glyph: 'download', category: 'Files' },
+        { name: 'refresh', glyph: '↻', category: 'Actions' },
+        { name: 'undo', glyph: 'undo', category: 'Actions' },
+        { name: 'redo', glyph: 'redo', category: 'Actions' },
+        { name: 'history', glyph: 'history', category: 'Time' },
+        { name: 'play', glyph: 'play', category: 'Media' },
+        { name: 'pause', glyph: 'pause', category: 'Media' },
+        { name: 'stop', glyph: 'stop', category: 'Media' },
+        { name: 'edit', glyph: '✎', category: 'Actions' },
+        { name: 'copy', glyph: '⧉', category: 'Actions' },
+        { name: 'save', glyph: '▣', category: 'Actions' },
+        { name: 'delete', glyph: '⌫', category: 'Actions', aliases: ['trash'] },
+        { name: 'filter', glyph: 'filter', category: 'Data' },
+        { name: 'sort', glyph: 'sort', category: 'Data' },
+        { name: 'calendar', glyph: 'calendar', category: 'Time' },
+        { name: 'clock', glyph: 'clock', category: 'Time' },
+        { name: 'mail', glyph: 'mail', category: 'Communication' },
+        { name: 'message', glyph: 'message', category: 'Communication', aliases: ['chat'] },
+        { name: 'send', glyph: 'send', category: 'Communication' },
+        { name: 'inbox', glyph: 'inbox', category: 'Communication' },
+        { name: 'phone', glyph: 'phone', category: 'Communication' },
+        { name: 'smartphone', glyph: 'smartphone', category: 'Mobile', aliases: ['mobile'] },
+        { name: 'tablet', glyph: 'tablet', category: 'Mobile' },
+        { name: 'watch', glyph: 'watch', category: 'Mobile' },
+        { name: 'wifi', glyph: 'wifi', category: 'Mobile' },
+        { name: 'signal', glyph: 'signal', category: 'Mobile' },
+        { name: 'battery', glyph: 'battery', category: 'Mobile' },
+        { name: 'bluetooth', glyph: 'bluetooth', category: 'Mobile' },
+        { name: 'tether', glyph: 'tether', category: 'Mobile', aliases: ['hotspot'] },
+        { name: 'nfc', glyph: 'nfc', category: 'Mobile' },
+        { name: 'qr-code', glyph: 'qr-code', category: 'Mobile', aliases: ['qr'] },
+        { name: 'fingerprint', glyph: 'fingerprint', category: 'Mobile' },
+        { name: 'vibration', glyph: 'vibration', category: 'Mobile' },
+        { name: 'rotate-phone', glyph: 'rotate-phone', category: 'Mobile', aliases: ['rotate-device'] },
+        { name: 'lock', glyph: 'lock', category: 'Security' },
+        { name: 'unlock', glyph: 'unlock', category: 'Security' },
+        { name: 'shield', glyph: 'shield', category: 'Security' },
+        { name: 'key', glyph: 'key', category: 'Security' },
+        { name: 'home', glyph: 'home', category: 'Navigation' },
+        { name: 'link', glyph: '↔', category: 'Navigation' },
+        { name: 'eye', glyph: 'eye', category: 'Visibility', aliases: ['view'] },
+        { name: 'eye-off', glyph: 'eye-off', category: 'Visibility', aliases: ['hide'] },
+        { name: 'star', glyph: '★', category: 'Status' },
+        { name: 'heart', glyph: '♥', category: 'Status' },
+        { name: 'bookmark', glyph: 'bookmark', category: 'Status' },
+        { name: 'tag', glyph: 'tag', category: 'Data' },
+        { name: 'map-pin', glyph: 'map-pin', category: 'Navigation', aliases: ['location'] },
+        { name: 'globe', glyph: 'globe', category: 'Navigation' },
+        { name: 'flag', glyph: '⚑', category: 'Status' },
+        { name: 'bell', glyph: 'bell', category: 'Communication' },
+        { name: 'command', glyph: '⌘', category: 'Actions' },
+        { name: 'terminal', glyph: 'terminal', category: 'Developer' },
+        { name: 'code', glyph: 'code', category: 'Developer' },
+        { name: 'database', glyph: 'database', category: 'Data' },
+        { name: 'table', glyph: 'table', category: 'Data' },
+        { name: 'chart', glyph: 'chart', category: 'Data' },
+        { name: 'grid', glyph: 'grid', category: 'Layout' },
+        { name: 'list', glyph: 'list', category: 'Layout' },
+        { name: 'layers', glyph: 'layers', category: 'Layout' },
+        { name: 'maximize', glyph: 'maximize', category: 'Layout', aliases: ['fullscreen'] },
+        { name: 'minimize', glyph: 'minimize', category: 'Layout' },
+        { name: 'move', glyph: 'move', category: 'Layout', aliases: ['drag'] },
+        { name: 'pin', glyph: 'pin', category: 'Layout' },
+        { name: 'image', glyph: 'image', category: 'Media' },
+        { name: 'camera', glyph: 'camera', category: 'Media' },
+        { name: 'video', glyph: 'video', category: 'Media' },
+        { name: 'mic', glyph: 'mic', category: 'Media', aliases: ['microphone'] },
+        { name: 'volume', glyph: 'volume', category: 'Media' },
+        { name: 'file', glyph: 'file', category: 'Files' },
+        { name: 'folder', glyph: 'folder', category: 'Files' },
+        { name: 'cloud', glyph: 'cloud', category: 'Platform' },
+        { name: 'printer', glyph: 'printer', category: 'Files', aliases: ['print'] },
+        { name: 'share', glyph: 'share', category: 'Actions' },
+        { name: 'login', glyph: 'login', category: 'Actions', aliases: ['sign-in'] },
+        { name: 'logout', glyph: 'logout', category: 'Actions', aliases: ['sign-out'] },
+        { name: 'credit-card', glyph: 'credit-card', category: 'Commerce', aliases: ['payment'] },
+        { name: 'cart', glyph: 'cart', category: 'Commerce', aliases: ['shopping-cart'] },
+        { name: 'loader', glyph: 'loader', category: 'Status', aliases: ['spinner'] },
+        { name: 'sparkles', glyph: 'sparkles', category: 'AI', aliases: ['ai'] },
+        { name: 'bot', glyph: '◌', category: 'AI' },
+        { name: 'workflow', glyph: '↬', category: 'AI' },
+        { name: 'brain', glyph: 'brain', category: 'AI', aliases: ['thinking'] },
+        { name: 'chip', glyph: 'chip', category: 'AI', aliases: ['model'] },
+        { name: 'neural', glyph: 'neural', category: 'AI', aliases: ['network'] },
+        { name: 'wand', glyph: 'wand', category: 'AI', aliases: ['magic-wand'] },
+        { name: 'prompt', glyph: 'prompt', category: 'AI', aliases: ['generate'] },
+        { name: 'lightning', glyph: 'bolt', category: 'Status', aliases: ['bolt'] },
+        { name: 'rocket', glyph: 'rocket', category: 'Status' },
+        { name: 'package', glyph: 'package', category: 'Platform' },
+        { name: 'npm', glyph: 'npm', category: 'Brand' },
+        { name: 'github', glyph: 'github', category: 'Brand' },
+        { name: 'facebook', glyph: 'facebook', category: 'Brand', aliases: ['meta'] },
+        { name: 'instagram', glyph: 'instagram', category: 'Brand', aliases: ['ig'] },
+        { name: 'linkedin', glyph: 'linkedin', category: 'Brand', aliases: ['linked-in'] },
+        { name: 'youtube', glyph: 'youtube', category: 'Brand', aliases: ['video'] },
+        { name: 'x-social', glyph: 'x-social', category: 'Brand', aliases: ['twitter', 'x'] },
+        { name: 'tiktok', glyph: 'tiktok', category: 'Brand', aliases: ['short video'] }
+      ];
+      const iconSearchTags = {
+        add: ['create', 'new', 'insert', 'append', 'positive', 'increase'],
+        minus: ['remove', 'subtract', 'decrease', 'collapse', 'negative'],
+        close: ['dismiss', 'cancel', 'clear', 'remove', 'exit', 'dialog'],
+        check: ['done', 'complete', 'approved', 'valid', 'ready', 'ok', 'tick'],
+        menu: ['hamburger', 'nav', 'navigation', 'drawer', 'sidebar'],
+        more: ['ellipsis', 'overflow', 'actions', 'options', 'horizontal'],
+        kebab: ['overflow', 'actions', 'options', 'vertical', 'dots'],
+        search: ['find', 'lookup', 'query', 'filter', 'magnify'],
+        settings: ['preferences', 'configure', 'controls', 'admin', 'tune', 'sliders'],
+        gear: ['cog', 'configure', 'mechanical', 'advanced settings', 'preferences'],
+        user: ['person', 'profile', 'account', 'member'],
+        users: ['team', 'people', 'group', 'members', 'community'],
+        warning: ['alert', 'caution', 'risk', 'danger', 'attention', 'issue'],
+        error: ['invalid', 'failed', 'failure', 'problem', 'bug', 'stop'],
+        info: ['information', 'details', 'about', 'notice', 'hint'],
+        help: ['question', 'support', 'faq', 'assist', 'unknown'],
+        'arrow-right': ['next', 'forward', 'continue', 'east'],
+        'arrow-left': ['back', 'previous', 'return', 'west'],
+        'arrow-up': ['top', 'increase', 'north', 'upload direction'],
+        'arrow-down': ['bottom', 'decrease', 'south', 'download direction'],
+        'chevron-right': ['next', 'expand', 'open', 'disclosure'],
+        'chevron-left': ['previous', 'collapse', 'back', 'disclosure'],
+        'chevron-up': ['collapse', 'up', 'accordion', 'disclosure'],
+        'chevron-down': ['expand', 'down', 'accordion', 'dropdown', 'disclosure'],
+        external: ['open', 'launch', 'new tab', 'link out'],
+        upload: ['import', 'send', 'cloud upload', 'publish'],
+        download: ['export', 'save as', 'receive', 'cloud download'],
+        refresh: ['reload', 'sync', 'restart', 'repeat'],
+        undo: ['back', 'revert', 'restore', 'history'],
+        redo: ['forward', 'repeat', 'restore', 'history'],
+        history: ['recent', 'activity', 'time travel', 'version', 'audit'],
+        play: ['start', 'run', 'media', 'video'],
+        pause: ['hold', 'wait', 'media', 'video'],
+        stop: ['end', 'halt', 'square', 'media'],
+        edit: ['pencil', 'write', 'compose', 'modify'],
+        copy: ['duplicate', 'clone', 'clipboard'],
+        save: ['store', 'persist', 'disk', 'commit'],
+        delete: ['trash', 'remove', 'discard', 'destroy'],
+        filter: ['funnel', 'refine', 'query', 'segment'],
+        sort: ['order', 'arrange', 'ascending', 'descending'],
+        calendar: ['date', 'schedule', 'event', 'month'],
+        clock: ['time', 'timer', 'schedule', 'duration'],
+        mail: ['email', 'message', 'inbox', 'send'],
+        message: ['chat', 'comment', 'conversation', 'bubble', 'support'],
+        send: ['paper plane', 'submit', 'message', 'share'],
+        inbox: ['mailbox', 'receive', 'messages', 'queue'],
+        phone: ['call', 'contact', 'mobile', 'support'],
+        smartphone: ['mobile', 'cell phone', 'iphone', 'android', 'device', 'handset', 'app'],
+        tablet: ['ipad', 'device', 'touchscreen', 'mobile', 'responsive'],
+        watch: ['smartwatch', 'wearable', 'device', 'fitness', 'time'],
+        wifi: ['wireless', 'network', 'internet', 'connection', 'online'],
+        signal: ['cellular', 'network', 'bars', 'reception', 'strength', 'mobile data'],
+        battery: ['charge', 'power', 'energy', 'status', 'level'],
+        bluetooth: ['wireless', 'pairing', 'device', 'connection', 'audio'],
+        tether: ['hotspot', 'personal hotspot', 'share internet', 'network sharing', 'mobile data'],
+        nfc: ['contactless', 'tap', 'near field', 'payment', 'reader', 'scan'],
+        'qr-code': ['qr', 'scan', 'barcode', 'code', 'camera', 'payment'],
+        fingerprint: ['biometric', 'touch id', 'auth', 'security', 'identity', '2fa', 'authentication'],
+        vibration: ['haptic', 'buzz', 'silent', 'alert', 'mobile'],
+        'rotate-phone': ['rotate device', 'screen rotation', 'auto rotate', 'orientation', 'landscape', 'portrait', 'responsive'],
+        lock: ['secure', 'private', 'password', 'permission'],
+        unlock: ['open', 'public', 'permission', 'access'],
+        shield: ['secure', 'protection', 'safety', 'verified', 'privacy'],
+        key: ['password', 'access', 'credential', 'token', 'auth'],
+        home: ['house', 'dashboard', 'start', 'main'],
+        link: ['url', 'chain', 'connect', 'relation'],
+        eye: ['view', 'visible', 'preview', 'show', 'read'],
+        'eye-off': ['hide', 'hidden', 'private', 'invisible', 'masked'],
+        star: ['favorite', 'featured', 'rating', 'bookmark'],
+        heart: ['like', 'love', 'favorite', 'health'],
+        bookmark: ['save', 'favorite', 'mark', 'read later'],
+        tag: ['label', 'price', 'category', 'metadata'],
+        'map-pin': ['location', 'place', 'marker', 'address', 'geo'],
+        globe: ['world', 'language', 'international', 'web', 'internet'],
+        flag: ['mark', 'report', 'milestone', 'country'],
+        bell: ['notification', 'alert', 'reminder', 'alarm'],
+        command: ['shortcut', 'keyboard', 'hotkey', 'action'],
+        terminal: ['console', 'shell', 'cli', 'prompt'],
+        code: ['developer', 'markup', 'html', 'snippet'],
+        database: ['storage', 'data', 'server', 'sql'],
+        table: ['rows', 'columns', 'grid data', 'spreadsheet'],
+        chart: ['analytics', 'graph', 'report', 'metrics'],
+        grid: ['layout', 'tiles', 'apps', 'matrix'],
+        list: ['rows', 'menu', 'items', 'bullets'],
+        layers: ['stack', 'overlap', 'levels', 'z-index'],
+        maximize: ['fullscreen', 'expand', 'grow', 'enlarge'],
+        minimize: ['shrink', 'collapse', 'reduce', 'small'],
+        move: ['drag', 'reorder', 'position', 'pan'],
+        pin: ['attach', 'sticky', 'keep', 'fix'],
+        image: ['photo', 'picture', 'media', 'thumbnail'],
+        camera: ['photo', 'capture', 'picture', 'snapshot'],
+        video: ['movie', 'recording', 'camera', 'stream'],
+        mic: ['microphone', 'audio', 'voice', 'record'],
+        volume: ['speaker', 'sound', 'audio', 'loud'],
+        file: ['document', 'page', 'attachment', 'paper'],
+        folder: ['directory', 'files', 'project', 'collection'],
+        cloud: ['hosting', 'server', 'online', 'sync'],
+        printer: ['print', 'paper', 'document', 'output'],
+        share: ['send', 'network', 'forward', 'distribute'],
+        login: ['sign in', 'enter', 'auth', 'session'],
+        logout: ['sign out', 'exit', 'leave', 'session'],
+        'credit-card': ['payment', 'billing', 'card', 'checkout'],
+        cart: ['shopping', 'basket', 'checkout', 'ecommerce'],
+        loader: ['spinner', 'loading', 'progress', 'busy'],
+        sparkles: ['ai', 'magic', 'auto', 'generate', 'assist'],
+        bot: ['assistant', 'robot', 'agent', 'automation'],
+        workflow: ['automation', 'flow', 'process', 'pipeline'],
+        brain: ['ai', 'thinking', 'reasoning', 'intelligence', 'cognition'],
+        chip: ['ai', 'model', 'inference', 'processor', 'machine learning'],
+        neural: ['ai', 'network', 'nodes', 'graph', 'connections'],
+        wand: ['ai', 'magic', 'enhance', 'generate', 'transform'],
+        prompt: ['ai', 'prompt', 'command', 'completion', 'generate'],
+        lightning: ['bolt', 'fast', 'energy', 'instant'],
+        rocket: ['launch', 'ship', 'deploy', 'startup'],
+        package: ['box', 'bundle', 'npm package', 'module'],
+        npm: ['package manager', 'registry', 'node'],
+        github: ['repo', 'git', 'source', 'code hosting'],
+        facebook: ['social', 'meta', 'facebook page', 'community'],
+        instagram: ['social', 'photos', 'reels', 'stories', 'ig'],
+        linkedin: ['social', 'professional', 'profile', 'company page'],
+        youtube: ['social', 'video', 'channel', 'creator'],
+        'x-social': ['social', 'twitter', 'x', 'post', 'tweet'],
+        tiktok: ['social', 'short video', 'creator', 'reels']
+      };
       function showDocsToast(message) {
         const toast = document.querySelector('#toast');
         toast.textContent = message;
@@ -1467,6 +1827,13 @@
         signals: ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8']
       };
 
+      const cohortFunnelDemoFlow = [
+        { from: 'Signup', to: 'Activation', value: 960 },
+        { from: 'Activation', to: 'Trial', value: 520 },
+        { from: 'Trial', to: 'Paid', value: 214 },
+        { from: 'Paid', to: 'Expansion', value: 74 }
+      ];
+
       const chartLineStyles = ['linear', 'smooth', 'step', 'dashed', 'dotted', 'area'];
       const chartPointStyles = ['circle', 'square', 'diamond', 'hollow'];
       const chartBarStyles = ['rounded', 'thin', 'stripe', 'glass', 'square', 'lollipop'];
@@ -1613,7 +1980,14 @@
       }
 
       function chartDemoFlowData(type) {
-        const source = type === 'process-flow' ? 'Intake' : type === 'alluvial' ? 'Visitors' : 'Traffic';
+        const source = type === 'process-flow'
+          ? 'Intake'
+          : type === 'alluvial'
+            ? 'Visitors'
+            : type === 'cohort-funnel'
+              ? 'Signup'
+              : 'Traffic';
+        if (type === 'cohort-funnel') return cohortFunnelDemoFlow;
         return [
           { from: source, to: 'Docs', value: 38 + chartTypeSeed(type) % 16 },
           { from: source, to: 'Trial', value: 26 + chartTypeSeed(type) % 13 },
@@ -1852,7 +2226,6 @@
           'resource-utilization': { series: [{ name: 'Team capacity', data: [{ label: 'Design', start: 0, end: 4, value: 4 }, { label: 'Frontend', start: 2, end: 8, value: 8 }, { label: 'Backend', start: 1, end: 7, value: 7 }, { label: 'QA', start: 6, end: 10, value: 10 }] }], categories: ['Design', 'Frontend', 'Backend', 'QA'], grid: false, thresholds: [] },
           'aging-bucket': compact(chartPointSeries('Invoice aging', ['0-30', '31-60', '61-90', '90+'], [58, 31, 17, 9]), { thresholds: [] }),
           'boxen-plot': compact(buildDistribution, { thresholds: [] }),
-          'cohort-funnel': { series: [{ name: 'January cohort funnel', data: [{ from: 'Signup', to: 'Activated', value: 860 }, { from: 'Activated', to: 'Week 2 retained', value: 520 }, { from: 'Week 2 retained', to: 'Paid', value: 214 }, { from: 'Paid', to: 'Expansion', value: 74 }] }], categories: [], grid: false, thresholds: [] },
           'variance-budget-actual': compact(chartMatrixSeries(['Sales', 'R&D', 'Ops'], { Budget: [42, 36, 24], Actual: [47, 31, 29] }), { thresholds: [] }),
           'small-multiples': { series: [
             { name: 'NA', data: [{ label: 'Jan', value: 18 }, { label: 'Feb', value: 23 }, { label: 'Mar', value: 31 }, { label: 'Apr', value: 36 }] },
@@ -2035,9 +2408,11 @@
           attrs.grid = false;
           return attrs;
         }
-        if (['funnel', 'pyramid', 'sankey', 'alluvial', 'process-flow'].includes(type)) {
-          attrs.series = [{ name: 'Conversion flow', data: type === 'funnel' || type === 'pyramid' ? chartDemoPointData(type, chartDemoFamilies.stages, 22, 78).sort((a, b) => b.value - a.value) : chartDemoFlowData(type) }];
-          attrs.categories = chartDemoFamilies.stages;
+        if (['funnel', 'pyramid', 'sankey', 'alluvial', 'process-flow', 'cohort-funnel'].includes(type)) {
+          const isFunnelShape = type === 'funnel' || type === 'pyramid';
+          const flowData = isFunnelShape ? chartDemoPointData(type, chartDemoFamilies.stages, 22, 78).sort((a, b) => b.value - a.value) : chartDemoFlowData(type);
+          attrs.series = [{ name: 'Conversion flow', data: flowData }];
+          attrs.categories = isFunnelShape ? chartDemoFamilies.stages : (type === 'cohort-funnel' ? flowData.flatMap((link) => [link.from, link.to]).filter((value, index, list) => list.indexOf(value) === index) : chartDemoFamilies.stages);
           attrs.grid = false;
           return attrs;
         }
@@ -2127,7 +2502,7 @@
 
       const globalApi = [
         { name: 'theme', type: 'dark | light | graphite | aurora | terminal', default: 'inherit', description: 'Color scheme only. Use dark/light for plain schemes or named themes for richer palettes.' },
-        { name: 'component-style', type: 'console | clean | minimal | glass | dashboard', default: 'console', description: 'Structural style: changes component layout, surface treatment, density, and animation without changing color tokens.', options: ['console', 'clean', 'minimal', 'glass', 'dashboard'] },
+            { name: 'component-style', type: 'console | clean | minimal | glass | dashboard | group', default: 'console', description: 'Structural style: changes component layout, surface treatment, density, and animation without changing color tokens.', options: ['console', 'clean', 'minimal', 'glass', 'dashboard', 'group'] },
         { name: 'font', type: 'system | mono | serif | rounded | humanist | geometric | devanagari | CSS font stack', default: 'inherit', description: 'Typography family preset or custom font stack. External web fonts should be loaded by the app first.', options: ['system', 'mono', 'serif', 'rounded', 'humanist', 'geometric', 'devanagari'] },
         { name: 'radius', type: 'number | CSS length | square | rounded', default: 'inherit', description: 'Controls corners from square edges to a specific rounding amount.' },
         { name: 'dir', type: 'ltr | rtl | auto', default: 'inherit', description: 'Direction-aware layout for bidirectional interfaces.' },
@@ -2678,7 +3053,7 @@
           family: 'Charts',
           description: 'Feature-rich SVG chart component covering comparison, trend, part-to-whole, distribution, correlation, hierarchy, network, flow, geo, funnel, KPI, financial, matrix, and schedule visualizations.',
           usage: 'Use for dashboards, analytics, admin reporting, AI-generated insights, finance, product telemetry, workflow status, and embeddable data stories.',
-          features: ['Broad chart taxonomy: line, area, bar, column, grouped, stacked, combo, pie, donut, rose, polar, radial, scatter, bubble, radar, heatmap, treemap, sunburst-style, funnel, pyramid, gauge, KPI, candlestick, OHLC, boxplot, violin-style, histogram, waterfall, gantt, timelines, sankey, alluvial, network, chord, hierarchy, geo maps, sparkline, bullet, waffle, slope, bump, streamgraph, marimekko, density, hexbin, parallel coordinates, and control charts', 'Threshold/reference lines with labels, custom point images, point CSS hooks, hover tooltips, hover animation, cursor-reactive canvas, and click/keyboard data mark events', 'Data-driven API with series, categories, values, OHLC, distribution, hierarchy, schedule, flow, node-link, and geo point shapes', 'Theme changes only the color scheme while component-style changes chart structure, surface treatment, density, and animation', 'Accessible SVG role, title/subtitle, empty states, labels, legends, theme, radius, i18n, and RTL support'],
+          features: ['Broad chart taxonomy: line, area, bar, column, grouped, stacked, combo, pie, donut, rose, polar, radial, scatter, bubble, radar, heatmap, treemap, sunburst-style, funnel, pyramid, gauge, KPI, candlestick, OHLC, boxplot, violin-style, histogram, waterfall, gantt, timelines, sankey, alluvial, network, chord, hierarchy, geo maps, sparkline, bullet, waffle, slope, bump, streamgraph, marimekko, density, hexbin, parallel coordinates, and control charts', 'Threshold/reference lines with labels, custom point images, point CSS hooks, hover tooltips, hover animation, configurable cursor focus, and click/keyboard data mark events', 'Data-driven API with series, categories, values, OHLC, distribution, hierarchy, schedule, flow, node-link, and geo point shapes', 'Theme changes only the color scheme while component-style changes chart structure, surface treatment, density, and animation', 'Accessible SVG role, title/subtitle, empty states, labels, legends, theme, radius, i18n, and RTL support'],
           api: [
             { name: 'type', type: 'supported chart type', default: 'line', description: 'Chart renderer to use.', options: chartGalleryItems.map(item => item.type) },
             { name: 'title', type: 'string', default: 'Chart', description: 'Accessible chart title.' },
@@ -2697,6 +3072,8 @@
             { name: 'point-size', type: 'number', default: '18', description: 'Custom image point size in pixels.' },
             { name: 'bar-style', type: 'rounded | square | thin | lollipop | glass | stripe', default: 'rounded', description: 'Bar and column mark design.', options: ['rounded', 'square', 'thin', 'lollipop', 'glass', 'stripe'] },
             { name: 'hover-animation', type: 'scale | lift | pulse | none', default: 'scale', description: 'Data mark hover/focus animation.', options: ['scale', 'lift', 'pulse', 'none'] },
+            { name: 'cursor-focus', type: 'subtle | soft | strong | none', default: 'subtle', description: 'Cursor-following canvas halo intensity.', options: ['subtle', 'soft', 'strong', 'none'] },
+            { name: 'cursor-focus-size', type: 'CSS length', default: '64px', description: 'Radius of the cursor focus halo.' },
             { name: 'thresholds', type: 'array | JSON', default: '[]', description: 'Reference lines with value or x plus label/name/color.' },
             { name: 'axes', type: 'true | false', default: 'true', description: 'Set to false to hide axes and chart guide furniture.', options: ['true', 'false'] },
             { name: 'no-axes', type: 'boolean attribute', default: 'false', description: 'Hides axes, axis labels, ticks, and grid helpers.' },
@@ -2714,13 +3091,13 @@
             { name: 'mvx-hover', type: 'CustomEvent', default: '-', description: 'Emitted when a data mark is hovered/focused with label, value, series, and index.' },
             { name: 'mvx-select', type: 'CustomEvent', default: '-', description: 'Emitted when a data mark is clicked or activated by keyboard.' }
           ],
-          demo: '<mvx-chart data-playground-target id="play-chart" type="combo" title="Component adoption" theme="dark" component-style="console" legend grid labels height="340" line-style="smooth" point-style="circle" bar-style="rounded" hover-animation="scale" thresholds="[{&quot;value&quot;:50,&quot;label&quot;:&quot;Target&quot;,&quot;color&quot;:&quot;var(--mvx-warning)&quot;}]"></mvx-chart>'
+          demo: '<mvx-chart data-playground-target id="play-chart" type="combo" title="Component adoption" theme="dark" component-style="console" legend grid labels height="340" line-style="smooth" point-style="circle" bar-style="rounded" hover-animation="scale" cursor-focus="subtle" cursor-focus-size="64px" thresholds="[{&quot;value&quot;:50,&quot;label&quot;:&quot;Target&quot;,&quot;color&quot;:&quot;var(--mvx-warning)&quot;}]"></mvx-chart>'
         },
         'mvx-chart-group': {
           family: 'Charts',
-          description: 'Dashboard-ready grouping component for multiple related chart cards, with shared title, actions, responsive grid layout, and optional JSON chart definitions.',
+          description: 'Dashboard-ready grouping component for multiple related chart views, with shared title, actions, responsive grid layout, and optional JSON chart definitions.',
           usage: 'Use for analytics sections, executive dashboards, metric packs, report pages, cohort reviews, finance workbooks, and AI-generated insight groups.',
-          features: ['Groups multiple mvx-chart cards under one reporting context', 'Supports slotted charts for full control or a charts JSON array for generated dashboards', 'Responsive columns, auto-fit mode, compact density, chart-height defaults, and actions slot', 'Keeps charts individually interactive while presenting them as one dashboard section'],
+          features: ['Groups multiple mvx-chart views inside one reporting component', 'Supports slotted charts for full control or a charts JSON array for generated dashboards', 'Responsive columns, auto-fit mode, compact density, chart-height defaults, and actions slot', 'Keeps charts individually interactive while presenting them as one dashboard section'],
           api: [
             { name: 'title', type: 'string', default: '-', description: 'Group heading.' },
             { name: 'subtitle', type: 'string', default: '-', description: 'Supporting context shown under the title.' },
@@ -2729,13 +3106,14 @@
             { name: 'columns', type: 'number', default: '2', description: 'Preferred number of chart columns.' },
             { name: 'min-column-width', type: 'CSS length', default: '260px', description: 'Minimum chart column width when responsive auto-fit is enabled.' },
             { name: 'responsive', type: 'auto-fit | false', default: 'breakpoints', description: 'Use auto-fit to flow charts by available width.', options: ['auto-fit', 'false'] },
-            { name: 'gap', type: 'CSS length', default: '14px', description: 'Spacing between chart cards.' },
+            { name: 'gap', type: 'CSS length', default: '14px', description: 'Spacing between the group header and chart panel.' },
             { name: 'density', type: 'comfortable | compact', default: 'comfortable', description: 'Adjusts internal group padding and spacing.', options: ['comfortable', 'compact'] },
             { name: 'variant', type: 'default | plain', default: 'default', description: 'Plain removes the group surface while keeping the chart grid.', options: ['default', 'plain'] },
+            { name: 'chart-card', type: 'card | flat', default: 'card', description: 'Controls child chart card shell; choose card for bordered charts, flat for plain chart canvases.', options: ['card', 'flat'] },
             { name: 'chart-height', type: 'number', default: '-', description: 'Default height applied to slotted charts that do not set their own height.' },
             { name: 'slot="actions"', type: 'slot', default: '-', description: 'Toolbar actions, filters, badges, or export buttons.' }
           ],
-          demo: '<mvx-chart-group data-playground-target title="Revenue analytics" subtitle="Grouped chart cards for one reporting context" eyebrow="Q3 review" columns="2" responsive="auto-fit" min-column-width="260px" chart-height="260"><mvx-button slot="actions" size="sm">Export</mvx-button><mvx-chart type="line" title="MRR trend" legend grid labels></mvx-chart><mvx-chart type="forecast-fan" title="Forecast range" legend grid labels></mvx-chart><mvx-chart type="variance-budget-actual" title="Budget vs actual" legend grid labels></mvx-chart><mvx-chart type="cohort-retention" title="Retention cohort" legend></mvx-chart></mvx-chart-group>'
+          demo: '<mvx-chart-group data-playground-target title="Revenue analytics" subtitle="One component with four coordinated chart views" eyebrow="Q3 review" columns="2" responsive="auto-fit" min-column-width="260px" chart-height="260"><mvx-button slot="actions" size="sm">Export</mvx-button><mvx-chart type="line" title="MRR trend" legend grid labels></mvx-chart><mvx-chart type="forecast-fan" title="Forecast range" legend grid labels></mvx-chart><mvx-chart type="variance-budget-actual" title="Budget vs actual" legend grid labels></mvx-chart><mvx-chart type="cohort-retention" title="Retention cohort" legend></mvx-chart></mvx-chart-group>'
         },
         'mvx-command-palette': {
           family: 'Overlays',
@@ -3003,6 +3381,8 @@
   type="combo"
   title="Component adoption"
   subtitle="Weekly usage across product teams"
+  cursor-focus="subtle"
+  cursor-focus-size="64px"
   legend
   grid
   labels
@@ -3018,6 +3398,22 @@
     }
   ]'
 ></mvx-chart>`,
+        'mvx-chart-group': `<mvx-chart-group
+  data-playground-target
+  title="Revenue analytics"
+  subtitle="One component shell coordinating multiple chart views"
+  eyebrow="Dashboard"
+  columns="2"
+  responsive="auto-fit"
+  min-column-width="260px"
+  chart-height="220"
+>
+  <mvx-button slot="actions" size="sm">Export</mvx-button>
+  <mvx-chart type="line" title="MRR trend" legend grid labels></mvx-chart>
+  <mvx-chart type="bar" title="Pipeline mix" legend grid labels></mvx-chart>
+  <mvx-chart type="donut" title="Plan split" legend></mvx-chart>
+  <mvx-chart type="variance-budget-actual" title="Budget vs actual" legend grid labels></mvx-chart>
+</mvx-chart-group>`,
         'mvx-command-palette': `<mvx-command-palette
   open
   placeholder="Search product actions"
@@ -3300,6 +3696,7 @@ timeline.items = [
         checked: { name: 'checked', type: 'boolean attribute', default: 'false', description: 'Marks a binary or toggle-like state as selected.' },
         columns: { name: 'columns', type: 'number | JSON array', default: '-', description: 'Grid column count or table column definitions.' },
         config: { name: 'config', type: 'JSON object | array', default: '[]', description: 'Declarative JSON tree used to render markup or components.' },
+        color: { name: 'color', type: 'CSS color', default: '-', description: 'Custom icon color such as #7c3aed, rebeccapurple, rgb(), hsl(), or var(--token).' },
         disabled: { name: 'disabled', type: 'boolean attribute', default: 'false', description: 'Prevents interaction.' },
         duration: { name: 'duration', type: 'number', default: '-', description: 'Duration in seconds or milliseconds depending on the component.' },
         endpoint: { name: 'endpoint', type: 'URL', default: '-', description: 'Backend endpoint that proxies local or cloud LLM requests.' },
@@ -3343,10 +3740,12 @@ timeline.items = [
         src: { name: 'src', type: 'URL', default: '-', description: 'Image, file, or media source.' },
         step: { name: 'step', type: 'number', default: '1', description: 'Numeric increment.' },
         themes: { name: 'themes', type: 'comma-separated list', default: 'dark,light,graphite,aurora,terminal', description: 'Theme names shown by the theme controller.' },
-        tone: { name: 'tone', type: 'accent | info | success | warning | danger', default: 'accent', description: 'Semantic color tone.', options: ['accent', 'info', 'success', 'warning', 'danger'] },
+        thickness: { name: 'thickness', type: 'hairline | ultralight | thin | light | normal | medium | semibold | bold | bolder | 50-1000', default: 'light', description: 'Alias for icon visual weight.', options: ['hairline', 'ultralight', 'thin', 'light', 'normal', 'medium', 'semibold', 'bold', 'bolder', '900'] },
+        tone: { name: 'tone', type: 'neutral | primary | secondary | ghost | info | success | warning | danger', default: 'neutral', description: 'Semantic color intent.', options: ['neutral', 'primary', 'secondary', 'ghost', 'info', 'success', 'warning', 'danger'] },
         uiSchema: { name: 'ui-schema', type: 'JSON object', default: '{}', description: 'UI schema hints for field order, widgets, labels, and helper text.' },
         value: { name: 'value', type: 'string | number', default: "''", description: 'Current value.' },
         variant: { name: 'variant', type: 'string', default: 'default', description: 'Component-specific visual variant.' },
+        weight: { name: 'weight', type: 'hairline | ultralight | thin | light | normal | medium | semibold | bold | bolder | 50-1000', default: 'light', description: 'Icon font weight or thickness.', options: ['hairline', 'ultralight', 'thin', 'light', 'normal', 'medium', 'semibold', 'bold', 'bolder', '900'] },
         wide: { name: 'wide', type: 'boolean attribute', default: 'false', description: 'Uses the wider 1920px container target for dashboard and 4K layouts.' }
       };
 
@@ -4171,10 +4570,10 @@ autocomplete.options = [
           family: 'Icons',
           category: 'icons',
           description: 'Inline icon primitive for compact status, action, navigation, data, and AI/workflow glyphs.',
-          usage: 'Use when a peer library expects an icon component or when compact symbolic UI is needed inside buttons, rows, alerts, menus, and labels.',
+          usage: 'Use neutral icons by default, then opt into primary, secondary, ghost, danger, warning, success, info, custom color, size, and weight when the UI context needs emphasis.',
           tags: ['icon', 'glyph', 'symbol', 'status icon', 'action icon'],
-          api: ['name', 'label', 'size', 'tone'],
-          demo: '<mvx-icon name="sparkles" label="AI ready" size="32px" tone="accent"></mvx-icon>'
+          api: ['name', 'label', 'size', 'tone', 'color', 'weight', 'thickness'],
+          demo: '<mvx-icon name="sparkles" label="AI ready" size="32px" tone="secondary" thickness="bold"></mvx-icon>'
         },
         {
           name: 'mvx-icons',
@@ -4184,7 +4583,7 @@ autocomplete.options = [
           usage: 'Use for icon palettes, editor toolbars, visual symbol selection, and showing the supported icon names in docs.',
           tags: ['icons', 'icon set', 'glyphs', 'icon palette', 'icon picker'],
           api: ['items'],
-          demo: '<mvx-icons items="[&quot;check&quot;,&quot;close&quot;,&quot;plus&quot;,&quot;search&quot;,&quot;settings&quot;,&quot;chart&quot;,&quot;table&quot;,&quot;sparkles&quot;]"></mvx-icons>'
+          demo: '<mvx-icons items="[&quot;check&quot;,&quot;close&quot;,&quot;add&quot;,&quot;search&quot;,&quot;settings&quot;,&quot;chart&quot;,&quot;table&quot;,&quot;sparkles&quot;]"></mvx-icons>'
         },
         {
           name: 'mvx-masonry',
@@ -4472,6 +4871,19 @@ table.data = [
           };
         }
       });
+
+      if (docs['mvx-icons']) {
+        docs['mvx-icons'].description = 'Paginated gallery for browsing, searching, previewing, and copying canonical Mivix icons.';
+        docs['mvx-icons'].usage = 'Use as the reference page for supported icons, aliases, and searchable tags, or embed mvx-icons when an app needs a compact symbol picker or toolbar palette.';
+        docs['mvx-icons'].features = [
+          'Searchable gallery of canonical Mivix icons with alias and tag matching',
+          'Paginated icon grid with stable card sizing',
+          'Click any icon card to copy its name',
+          'Neutral icons by default with opt-in primary, secondary, ghost, danger, warning, success, and info tones',
+          'Works with mvx-icon name, icon, tone, color, size, weight, and thickness attributes',
+          'Framework-neutral Web Component API'
+        ];
+      }
 
       const playgroundPreviewIds = {
         'mvx-accordion': 'play-accordion',
@@ -5858,6 +6270,8 @@ render(() => <App />, document.getElementById('root')!);`
         ['point-size', 41],
         ['bar-style', 41],
         ['hover-animation', 41],
+        ['cursor-focus', 41],
+        ['cursor-focus-size', 41],
         ['legend', 42],
         ['labels', 42],
         ['grid', 42],
@@ -5960,7 +6374,7 @@ render(() => <App />, document.getElementById('root')!);`
       function chartApiGroupForRow(row) {
         const name = normalizeControlName(row.name);
         if (['theme', 'component-style', 'font', 'font-family', 'radius', 'dir', 'lang', 'locale', 'i18n', 'type', 'title', 'subtitle', 'series', 'data', 'height', 'empty', 'watermark', 'no-watermark', 'chart-only'].includes(name)) return 'common';
-        if (['legend', 'labels', 'hover-animation'].includes(name)) return 'presentation';
+        if (['legend', 'labels', 'hover-animation', 'cursor-focus', 'cursor-focus-size'].includes(name)) return 'presentation';
         if (['categories', 'grid', 'thresholds'].includes(name)) return 'cartesian';
         if (['axes', 'no-axes'].includes(name)) return 'axes';
         if (name === 'stacked') return 'stacked';
@@ -6095,7 +6509,7 @@ render(() => <App />, document.getElementById('root')!);`
 
       const playgroundOptionSets = {
         theme: ['dark', 'light', 'graphite', 'aurora', 'terminal'],
-        'component-style': ['console', 'clean', 'minimal', 'glass', 'dashboard'],
+        'component-style': ['console', 'clean', 'minimal', 'glass', 'dashboard', 'group'],
         font: ['system', 'mono', 'serif', 'rounded', 'humanist', 'geometric', 'devanagari'],
         radius: ['0', '2px', '4px', '6px', '8px', '12px', '16px', '24px', '999px', 'square', 'rounded'],
         dir: ['ltr', 'rtl', 'auto'],
@@ -6444,6 +6858,125 @@ render(() => <App />, document.getElementById('root')!);`
         renderChartGallery();
       }
 
+      function iconGalleryMatches(item) {
+        const normalized = iconGalleryState.query.trim().toLowerCase();
+        if (!normalized) return true;
+        const searchText = [
+          item.name,
+          item.glyph,
+          item.category,
+          ...(item.aliases || []),
+          ...(iconSearchTags[item.name] || [])
+        ].join(' ').toLowerCase();
+        return searchText.includes(normalized);
+      }
+
+      function renderIconGallery() {
+        const filtered = iconGalleryItems.filter(iconGalleryMatches);
+        const categoryOrder = [...new Set(iconGalleryItems.map(item => item.category))];
+        const filteredGroups = categoryOrder
+          .map(category => [category, filtered.filter(item => item.category === category)])
+          .filter(([, items]) => items.length);
+        const pageCount = Math.max(1, Math.ceil(filteredGroups.length / iconGalleryState.pageSize));
+        iconGalleryState.page = Math.min(Math.max(iconGalleryState.page, 1), pageCount);
+        const start = (iconGalleryState.page - 1) * iconGalleryState.pageSize;
+        const pageGroups = filteredGroups.slice(start, start + iconGalleryState.pageSize);
+        detail.iconGrid.innerHTML = pageGroups.map(([category, items]) => `
+          <section class="icon-gallery-group" aria-label="${escapeHtml(category)} icons">
+            <div class="icon-group-heading">
+              <h3>${escapeHtml(category)}</h3>
+              <span>${items.length} icon${items.length === 1 ? '' : 's'}</span>
+            </div>
+            <div class="icon-group-grid">
+              ${items.map(item => `
+                <button class="icon-gallery-card" type="button" data-icon-name="${escapeHtml(item.name)}" aria-label="Open ${escapeHtml(item.name)} icon playground">
+                  <span class="icon-gallery-preview" aria-hidden="true">
+                    <mvx-icon name="${escapeHtml(item.name)}" size="30px"></mvx-icon>
+                  </span>
+                  <code>${escapeHtml(item.name)}</code>
+                </button>
+              `).join('')}
+            </div>
+          </section>
+        `).join('') || '<mvx-alert tone="info" title="No icons found">Try another icon name or category.</mvx-alert>';
+        detail.iconCount.textContent = `${filtered.length} icon${filtered.length === 1 ? '' : 's'}`;
+        detail.iconPage.innerHTML = Array.from({ length: pageCount }, (_item, index) => {
+          const page = index + 1;
+          return `<button type="button" data-icon-page="${page}" aria-label="Show icon gallery page ${page}" ${page === iconGalleryState.page ? 'aria-current="page"' : ''}>${page}</button>`;
+        }).join('');
+        detail.iconPrev.disabled = iconGalleryState.page <= 1;
+        detail.iconNext.disabled = iconGalleryState.page >= pageCount;
+        detail.iconGrid.querySelectorAll('[data-icon-name]').forEach(card => {
+          card.addEventListener('click', () => openIconDemo(card.dataset.iconName));
+        });
+        detail.iconPage.querySelectorAll('[data-icon-page]').forEach(button => {
+          button.addEventListener('click', () => {
+            iconGalleryState.page = Number(button.dataset.iconPage);
+            renderIconGallery();
+          });
+        });
+      }
+
+      function setIconGalleryVisible(visible) {
+        detail.iconGallery.hidden = !visible;
+        if (!visible) return;
+        iconGalleryState.query = '';
+        iconGalleryState.page = 1;
+        detail.iconSearch.value = '';
+        renderIconGallery();
+      }
+
+      function iconModalMarkup() {
+        const attributes = [
+          ['name', iconModalState.name],
+          ['label', iconModalState.name],
+          ['size', iconModalState.size],
+          ['tone', iconModalState.tone],
+          ['color', iconModalState.color],
+          ['thickness', iconModalState.weight]
+        ].filter(([, value]) => String(value || '').trim());
+        return [
+          '<mvx-icon',
+          ...attributes.map(([name, value]) => `  ${name}="${escapeHtml(value)}"`),
+          '></mvx-icon>'
+        ].join('\n');
+      }
+
+      function updateIconModal() {
+        const icon = detail.iconModalPreview;
+        icon.setAttribute('name', iconModalState.name);
+        icon.setAttribute('label', iconModalState.name);
+        icon.setAttribute('size', iconModalState.size || '56px');
+        if (iconModalState.tone) icon.setAttribute('tone', iconModalState.tone);
+        else icon.removeAttribute('tone');
+        if (iconModalState.color) icon.setAttribute('color', iconModalState.color);
+        else icon.removeAttribute('color');
+        if (iconModalState.weight) icon.setAttribute('thickness', iconModalState.weight);
+        else icon.removeAttribute('thickness');
+        detail.iconModalCategory.textContent = iconModalState.category;
+        detail.iconModalTitle.textContent = iconModalState.name;
+        const snippet = iconModalMarkup();
+        detail.iconModalCode.dataset.rawCode = snippet;
+        detail.iconModalCode.innerHTML = syntaxHighlightText(snippet, 'html');
+        detail.iconModalCodeLines.textContent = Array.from({ length: snippet.split('\n').length }, (_item, index) => String(index + 1)).join('\n');
+      }
+
+      function openIconDemo(name) {
+        const item = iconGalleryItems.find(icon => icon.name === name) || iconGalleryItems[0];
+        iconModalState.name = item.name;
+        iconModalState.category = item.category;
+        iconModalState.tone = '';
+        iconModalState.color = '';
+        iconModalState.size = '56px';
+        iconModalState.weight = 'light';
+        detail.iconModalTone.value = iconModalState.tone;
+        detail.iconModalColor.value = iconModalState.color;
+        detail.iconModalSize.value = iconModalState.size;
+        detail.iconModalWeight.value = iconModalState.weight;
+        updateIconModal();
+        detail.iconModal.setAttribute('open', '');
+      }
+
       function openChartDemo(type) {
         const item = chartGalleryItems.find(chart => chart.type === type) || chartGalleryItems[0];
         const modal = document.querySelector('#chart-demo-modal');
@@ -6500,6 +7033,7 @@ render(() => <App />, document.getElementById('root')!);`
         setTemplatePageMode(false);
         setChartPageMode(false);
         setChartGalleryVisible(false);
+        setIconGalleryVisible(false);
         activeApiRows = [];
         const doc = agentFeatureDocs[key] || agentFeatureDocs.overview;
         activeSnippetName = doc.title;
@@ -6532,6 +7066,7 @@ render(() => <App />, document.getElementById('root')!);`
         setTemplatePageMode(false);
         setChartPageMode(false);
         setChartGalleryVisible(false);
+        setIconGalleryVisible(false);
         activeApiRows = [];
         const doc = guideDocs[key] || guideDocs.install;
         const guidePills = Object.entries(guideDocs)
@@ -6567,6 +7102,7 @@ render(() => <App />, document.getElementById('root')!);`
         setChartPageMode(false);
         setTemplatePageMode(true);
         setChartGalleryVisible(false);
+        setIconGalleryVisible(false);
         activeApiRows = [];
         const doc = templateDocs[key] || templateDocs.overview;
         activeSnippetName = doc.title;
@@ -6607,6 +7143,7 @@ render(() => <App />, document.getElementById('root')!);`
         setComponentPage(true);
         setTemplatePageMode(false);
         setChartPageMode(true);
+        setIconGalleryVisible(false);
         activeApiRows = [];
         activeSnippetName = 'Chart gallery';
         detail.family.textContent = 'Charts';
@@ -6664,14 +7201,25 @@ render(() => <App />, document.getElementById('root')!);`
         const displayName = componentDisplayName(name);
         activeSnippetName = displayName;
         setChartGalleryVisible(false);
+        setIconGalleryVisible(name === 'mvx-icons');
         detail.family.textContent = doc.family;
-        detail.title.textContent = displayName;
+        detail.title.textContent = name === 'mvx-icons' ? 'Icon gallery' : displayName;
         detail.description.textContent = doc.description;
         detail.usage.textContent = doc.usage;
-        detail.tag.textContent = `<${name}>`;
+        detail.tag.textContent = name === 'mvx-icons' ? `${iconGalleryItems.length} icons` : `<${name}>`;
         detail.features.innerHTML = doc.features.map(feature => `<li>${escapeHtml(feature)}</li>`).join('');
         const apiRows = orderApiRows(doc.api, globalApi);
-        detail.api.innerHTML = apiRows.map(row => `
+        const visibleRows = name === 'mvx-icons'
+          ? [
+            { name: 'name', type: 'icon name', default: 'check', description: 'Choose any built-in icon from the gallery and pass it to mvx-icon.' },
+            parityApiRows.tone,
+            parityApiRows.color,
+            { name: 'size', type: 'CSS length', default: '1em', description: 'Sets the icon box and glyph size.' },
+            parityApiRows.weight,
+            { name: 'items', type: 'JSON array', default: 'default icon set', description: 'Optional icon names rendered by mvx-icons for compact palettes.' }
+          ]
+          : apiRows;
+        detail.api.innerHTML = visibleRows.map(row => `
           <tr>
             <td><code>${escapeHtml(row.name)}</code></td>
             <td>${escapeHtml(row.type)}</td>
@@ -6679,6 +7227,42 @@ render(() => <App />, document.getElementById('root')!);`
             <td>${escapeHtml(row.description)}</td>
           </tr>
         `).join('');
+        if (name === 'mvx-icons') {
+          detail.playground.innerHTML = `
+            <div class="icon-doc-preview" data-playground-target>
+              <mvx-icon name="search" size="32px"></mvx-icon>
+              <mvx-icon name="settings" tone="primary" size="32px"></mvx-icon>
+              <mvx-icon name="table" tone="secondary" size="32px"></mvx-icon>
+              <mvx-icon name="warning" tone="warning" size="32px"></mvx-icon>
+              <mvx-icon name="warning" tone="danger" size="32px" weight="bold"></mvx-icon>
+              <mvx-icon name="sparkles" color="#8b5cf6" size="32px" weight="semibold"></mvx-icon>
+            </div>
+          `;
+          detail.controls.innerHTML = `
+            <div class="controls-heading">
+              <h3>Icon workflow</h3>
+              <span>browse + tune + copy</span>
+            </div>
+            <div class="support-pills">
+              <span>${iconGalleryItems.length} canonical icons</span>
+              <span>alias + tag search</span>
+              <span>neutral default</span>
+              <span>intent tones</span>
+              <span>custom color</span>
+              <span>size</span>
+              <span>weight</span>
+              <span>modal playground</span>
+            </div>
+          `;
+          setExampleCode(`<mvx-icon
+  name="sparkles"
+  label="sparkles"
+  tone="secondary"
+  size="32px"
+  weight="semibold"
+></mvx-icon>`, name);
+          return;
+        }
         detail.playground.innerHTML = renderComponentDemo(name, doc);
         hydratePlayground();
         renderPlaygroundControls(name, apiRows);
@@ -7072,6 +7656,38 @@ render(() => <App />, document.getElementById('root')!);`
       detail.chartNext.addEventListener('click', () => {
         chartGalleryState.page += 1;
         renderChartGallery();
+      });
+      detail.iconSearch.addEventListener('input', event => {
+        iconGalleryState.query = event.target.value;
+        iconGalleryState.page = 1;
+        renderIconGallery();
+      });
+      detail.iconPrev.addEventListener('click', () => {
+        iconGalleryState.page -= 1;
+        renderIconGallery();
+      });
+      detail.iconNext.addEventListener('click', () => {
+        iconGalleryState.page += 1;
+        renderIconGallery();
+      });
+      detail.iconModalTone.addEventListener('change', event => {
+        iconModalState.tone = event.target.value;
+        updateIconModal();
+      });
+      detail.iconModalColor.addEventListener('input', event => {
+        iconModalState.color = event.target.value.trim();
+        updateIconModal();
+      });
+      detail.iconModalSize.addEventListener('input', event => {
+        iconModalState.size = event.target.value.trim() || '56px';
+        updateIconModal();
+      });
+      detail.iconModalWeight.addEventListener('change', event => {
+        iconModalState.weight = event.target.value;
+        updateIconModal();
+      });
+      detail.iconModalCopy.addEventListener('click', () => {
+        copyTextToClipboard(detail.iconModalCode.dataset.rawCode || detail.iconModalCode.textContent, 'Icon code copied.');
       });
       document.querySelector('#close-modal').addEventListener('click', () => document.querySelector('#modal').removeAttribute('open'));
       document.querySelector('#open-toast').addEventListener('click', () => {

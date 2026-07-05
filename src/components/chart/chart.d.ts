@@ -38,5 +38,8 @@ export class MvxChart extends MvxElement {
   width?: number;
   height?: number;
   viewHeight?: number;
-  componentStyle?: 'console' | 'minimal' | 'glass' | 'dashboard' | string;
+  componentStyle?: 'console' | 'minimal' | 'glass' | 'dashboard' | 'group' | string;
+  cursorFocus?: 'subtle' | 'soft' | 'strong' | 'none' | string;
+  cursorFocusSize?: string;
+  chartCard?: 'card' | 'flat' | 'off' | 'none' | 'false' | string;
 }

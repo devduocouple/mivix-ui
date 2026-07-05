@@ -4,6 +4,21 @@ import { chartSubtitle, defaultSeriesForType, normalizePoint, palette } from './
 import { chartStyles } from './styles.js';
 import { barShape, markWrap as renderMarkWrap, pathForPoints, pointMarker, renderBoxplot, renderBullet, renderCalendarEvents, renderCandlestick, renderCartesian, renderChord, renderContour, renderControlChart, renderEnterprise, renderFrame, renderFunnel, renderGantt, renderGauge, renderHeatmap, renderHexbin, renderMap, renderMarimekko, renderNetwork, renderParallelCoordinates, renderRadar, renderRadial, renderSankey, renderScatter, renderSlope, renderSparkline, renderStreamgraph, renderTimelineEvents, renderTree, renderTreemap, renderWaffle } from './renderers.js';
 
+const cursorFocusPresets = {
+  none: { size: '0px', color: 'transparent' },
+  subtle: { size: '64px', color: 'color-mix(in srgb, var(--mvx-accent) 6%, transparent)' },
+  soft: { size: '88px', color: 'color-mix(in srgb, var(--mvx-accent) 8%, transparent)' },
+  strong: { size: '112px', color: 'color-mix(in srgb, var(--mvx-accent) 12%, transparent)' }
+};
+
+function cssLength(value, fallback) {
+  const raw = String(value ?? '').trim();
+  if (!raw) return fallback;
+  if (/^\d+(\.\d+)?$/.test(raw)) return `${Number(raw)}px`;
+  if (/^\d+(\.\d+)?(px|rem|em|%|vh|vw|vmin|vmax)$/.test(raw)) return raw;
+  return fallback;
+}
+
 export class MvxChart extends MvxElement {
   static observedAttributes = [
     'type',
@@ -24,6 +39,9 @@ export class MvxChart extends MvxElement {
     'point-size',
     'component-style',
     'hover-animation',
+    'cursor-focus',
+    'cursor-focus-size',
+    'chart-card',
     'thresholds',
     'axes',
     'no-axes',
@@ -84,10 +102,12 @@ export class MvxChart extends MvxElement {
     const requestedHeight = Number(this.getAttribute('height') || 340);
     const height = Number.isFinite(requestedHeight) && requestedHeight > 0 ? requestedHeight : 340;
     const chartOnly = this.chartOnly;
+    const cursorFocus = this.cursorFocus;
+    const cardStyle = this.chartCardStyle;
     const svg = this.renderChart(type, this.viewportWidth(), this.viewportHeight(height));
     this.shadowRoot.innerHTML = `
       ${chartStyles({ chartOnly, hasLegend: this.hasLegend })}
-      <section class="chart edge" part="chart" aria-label="${htmlEscape(title)}" style="--mvx-chart-height:${height}px">
+      <section class="chart ${cardStyle}" part="chart" aria-label="${htmlEscape(title)}" style="--mvx-chart-height:${height}px;--mvx-chart-cursor-size:${cursorFocus.size};--mvx-chart-cursor-color:${cursorFocus.color};--mvx-chart-cursor-active-color:transparent">
         <header>
           <div>
             <h3>${htmlEscape(title)}</h3>
@@ -107,6 +127,20 @@ export class MvxChart extends MvxElement {
 
   get chartOnly() {
     return this.hasAttribute('chart-only');
+  }
+
+  get chartCardStyle() {
+    const raw = String(this.getAttribute('chart-card') || 'card').trim().toLowerCase();
+    return raw === 'flat' || raw === 'none' || raw === 'false' || raw === 'off' ? '' : 'edge';
+  }
+
+  get cursorFocus() {
+    const presetName = (this.getAttribute('cursor-focus') || 'subtle').trim().toLowerCase();
+    const preset = cursorFocusPresets[presetName] || cursorFocusPresets.subtle;
+    return {
+      size: cssLength(this.getAttribute('cursor-focus-size'), preset.size),
+      color: preset.color
+    };
   }
 
   viewportWidth() {
@@ -150,6 +184,7 @@ export class MvxChart extends MvxElement {
       const rect = canvas.getBoundingClientRect();
       canvas.style.setProperty('--mx', `${event.clientX - rect.left}px`);
       canvas.style.setProperty('--my', `${event.clientY - rect.top}px`);
+      canvas.style.setProperty('--mvx-chart-cursor-active-color', getComputedStyle(canvas).getPropertyValue('--mvx-chart-cursor-color').trim() || 'transparent');
       const mark = event.target.closest?.('.chart-mark');
       if (!mark) return;
       tooltip.style.display = 'block';
@@ -159,6 +194,7 @@ export class MvxChart extends MvxElement {
     });
     canvas.addEventListener('pointerleave', () => {
       tooltip.style.display = 'none';
+      canvas.style.setProperty('--mvx-chart-cursor-active-color', 'transparent');
     });
     canvas.addEventListener('pointerover', event => {
       const mark = event.target.closest?.('.chart-mark');

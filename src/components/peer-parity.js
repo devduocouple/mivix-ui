@@ -108,7 +108,49 @@ function cssLength(value, fallback) {
   return /^-?\d+(\.\d+)?$/.test(raw) ? `${raw}px` : raw;
 }
 
+function cssColor(value, fallback = '') {
+  const raw = String(value ?? '').trim();
+  if (!raw || /[;{}<>]/.test(raw) || /url\s*\(|expression\s*\(/i.test(raw)) return fallback;
+  if (raw.startsWith('var(')) return /^var\(--[\w-]+(,\s*[^;{}<>]+)?\)$/.test(raw) ? raw : fallback;
+  if (typeof CSS !== 'undefined' && CSS.supports?.('color', raw)) return raw;
+  return fallback;
+}
+
+function cssFontWeight(value, fallback = '300') {
+  const raw = String(value ?? '').trim().toLowerCase();
+  if (!raw) return fallback;
+  if (/^\d+$/.test(raw)) {
+    const numeric = Number(raw);
+    return numeric >= 1 && numeric <= 1000 ? String(numeric) : fallback;
+  }
+  const weights = {
+    hairline: '50',
+    ultralight: '100',
+    'ultra-light': '100',
+    thin: '100',
+    'extra-light': '200',
+    extralight: '200',
+    light: '300',
+    normal: '400',
+    regular: '400',
+    medium: '500',
+    semibold: '600',
+    'semi-bold': '600',
+    bold: '700',
+    bolder: 'bolder',
+    lighter: 'lighter',
+    'extra-bold': '800',
+    extrabold: '800',
+    black: '900',
+    heavy: '900'
+  };
+  return weights[raw] || fallback;
+}
+
 function toneColor(tone) {
+  if (tone === 'primary' || tone === 'accent') return 'var(--mvx-accent)';
+  if (tone === 'secondary') return 'var(--mvx-accent-2)';
+  if (tone === 'ghost' || tone === 'neutral' || tone === 'muted') return 'var(--mvx-muted)';
   if (tone === 'success') return 'var(--mvx-success)';
   if (tone === 'warning') return 'var(--mvx-warning)';
   if (tone === 'danger') return 'var(--mvx-danger)';
@@ -2031,112 +2073,295 @@ export class MvxImageList extends MvxPeerElement {
 }
 
 export class MvxIcon extends MvxPeerElement {
-  static observedAttributes = [...MvxPeerElement.observedAttributes, 'name', 'icon', 'size'];
+  static observedAttributes = [...MvxPeerElement.observedAttributes, 'name', 'icon', 'size', 'color', 'weight', 'thickness'];
 
   render() {
+    const svgIcon = points => `<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="${points}" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" /></svg>`;
+    const svgPaths = paths => `<svg viewBox="0 0 24 24" aria-hidden="true">${paths.map(d => `<path d="${d}" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />`).join('')}</svg>`;
+    const svgRaw = content => `<svg viewBox="0 0 24 24" aria-hidden="true">${content}</svg>`;
+    const chevrons = {
+      right: svgIcon('9 6 15 12 9 18'),
+      left: svgIcon('15 6 9 12 15 18'),
+      up: svgIcon('6 15 12 9 18 15'),
+      down: svgIcon('6 9 12 15 18 9')
+    };
+    const history = {
+      undo: svgPaths(['M9 14 4 9l5-5', 'M4 9h10.5a5.5 5.5 0 0 1 0 11H11']),
+      redo: svgPaths(['m15 14 5-5-5-5', 'M20 9H9.5a5.5 5.5 0 0 0 0 11H13'])
+    };
+    const shapes = {
+      user: svgPaths(['M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z', 'M4 21a8 8 0 0 1 16 0']),
+      users: svgPaths(['M10.2 11.25a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z', 'M3.75 20.5a6.45 6.45 0 0 1 12.9 0', 'M16.8 11a3.15 3.15 0 0 0 .2-6.1', 'M18.15 20.25a5.2 5.2 0 0 0-3.25-5.1']),
+      home: svgPaths(['M3 11.5 12 4l9 7.5', 'M5 10.5V20h5v-5h4v5h5v-9.5']),
+      search: svgRaw('<circle cx="10.7" cy="10.7" r="6.2" fill="none" stroke="currentColor" /><path d="m15.35 15.35 5.15 5.15" fill="none" stroke="currentColor" stroke-linecap="round" />'),
+      settings: svgRaw('<path d="M4 6h5" fill="none" stroke="currentColor" stroke-linecap="round" /><path d="M15 6h5" fill="none" stroke="currentColor" stroke-linecap="round" /><circle cx="12" cy="6" r="2.25" fill="none" stroke="currentColor" /><path d="M4 12h9" fill="none" stroke="currentColor" stroke-linecap="round" /><path d="M19 12h1" fill="none" stroke="currentColor" stroke-linecap="round" /><circle cx="16" cy="12" r="2.25" fill="none" stroke="currentColor" /><path d="M4 18h1" fill="none" stroke="currentColor" stroke-linecap="round" /><path d="M11 18h9" fill="none" stroke="currentColor" stroke-linecap="round" /><circle cx="8" cy="18" r="2.25" fill="none" stroke="currentColor" />'),
+      gear: svgRaw('<g transform="translate(1.5 1.5) scale(1.3125)" fill="currentColor" stroke="none"><path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/><path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/></g>'),
+      brain: svgRaw('<path d="M10.25 4.2a3.55 3.55 0 0 0-4 3.6A3.85 3.85 0 0 0 4 11.35c0 1.35.68 2.52 1.72 3.2A3.45 3.45 0 0 0 9.05 20H11V4.35c-.25-.08-.5-.13-.75-.15Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" /><path d="M13.75 4.2a3.55 3.55 0 0 1 4 3.6A3.85 3.85 0 0 1 20 11.35c0 1.35-.68 2.52-1.72 3.2A3.45 3.45 0 0 1 14.95 20H13V4.35c.25-.08.5-.13.75-.15Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" /><path d="M11 8.35H8.85a1.65 1.65 0 0 0-1.6 1.25M13 8.35h2.15a1.65 1.65 0 0 1 1.6 1.25M11 14.5H8.9M13 14.5h2.1" fill="none" stroke="currentColor" stroke-linecap="round" />'),
+      chip: svgRaw('<rect x="6.75" y="6.75" width="10.5" height="10.5" rx="2.25" fill="none" stroke="currentColor" stroke-linejoin="round" /><rect x="10" y="10" width="4" height="4" rx="1" fill="none" stroke="currentColor" stroke-linejoin="round" /><path d="M9 3.5v3.25M12 3.5v3.25M15 3.5v3.25M9 17.25v3.25M12 17.25v3.25M15 17.25v3.25M3.5 9h3.25M3.5 12h3.25M3.5 15h3.25M17.25 9h3.25M17.25 12h3.25M17.25 15h3.25" fill="none" stroke="currentColor" stroke-linecap="round" />'),
+      neural: svgRaw('<path d="M7 8.1 12.2 5.2 17 9M7 8.1l1.3 7.4M17 9l-1.6 6.2M8.3 15.5l7.1-.3M12.2 5.2l3.2 10" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" /><circle cx="7" cy="8.1" r="1.85" fill="none" stroke="currentColor" /><circle cx="12.2" cy="5.2" r="1.85" fill="none" stroke="currentColor" /><circle cx="17" cy="9" r="1.85" fill="none" stroke="currentColor" /><circle cx="8.3" cy="15.5" r="1.85" fill="none" stroke="currentColor" /><circle cx="15.4" cy="15.2" r="1.85" fill="none" stroke="currentColor" />'),
+      sparkles: svgRaw('<path d="M11.6 3.5 13.05 8.4 17.95 9.85 13.05 11.3 11.6 16.2 10.15 11.3 5.25 9.85 10.15 8.4 11.6 3.5Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" /><path d="M5.4 4.15 6 6.05 7.9 6.65 6 7.25 5.4 9.15 4.8 7.25 2.9 6.65 4.8 6.05 5.4 4.15ZM18.15 14.35l.7 2.25 2.25.7-2.25.7-.7 2.25-.7-2.25-2.25-.7 2.25-.7.7-2.25Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />'),
+      wand: svgRaw('<path d="M4.5 19.5 15.6 8.4" fill="none" stroke="currentColor" stroke-linecap="round" /><path d="m13.25 6.05 4.7 4.7" fill="none" stroke="currentColor" stroke-linecap="round" /><path d="M16.6 3.2 17.35 5.65 19.8 6.4l-2.45.75-.75 2.45-.75-2.45-2.45-.75 2.45-.75.75-2.45Z" fill="none" stroke="currentColor" stroke-linejoin="round" /><path d="M7.2 3.8v2.4M6 5h2.4M19 16.8v2.4M17.8 18h2.4" fill="none" stroke="currentColor" stroke-linecap="round" />'),
+      prompt: svgRaw('<rect x="4" y="5" width="16" height="14" rx="2.25" fill="none" stroke="currentColor" /><path d="M8 10 10.6 12 8 14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" /><path d="M13 14h3.4" fill="none" stroke="currentColor" stroke-linecap="round" /><path d="M17 7.4l.35 1.05 1.05.35-1.05.35L17 10.2l-.35-1.05-1.05-.35 1.05-.35L17 7.4Z" fill="currentColor" stroke="none" />'),
+      lightning: svgIcon('13 2 4 14 11 14 9 22 20 9 13 9 13 2'),
+      rocket: svgRaw('<path d="M4.5 16.5c-1.5 1.3-2 5-2 5s3.7-.5 5-2c.7-.8.7-2.1-.1-2.9a2.2 2.2 0 0 0-2.9-.1Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" /><path d="M12 15 9 12a22 22 0 0 1 2-4 13 13 0 0 1 11-6 13 13 0 0 1-6 11 22 22 0 0 1-4 2Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" /><path d="M9 12H4s.6-3 2-4c1.6-1.1 5 0 5 0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" /><path d="M12 15v5s3-.6 4-2c1.1-1.6 0-5 0-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" /><circle cx="15" cy="8" r="1.5" fill="none" stroke="currentColor" />'),
+      error: svgPaths(['M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z', 'm15 9-6 6', 'm9 9 6 6']),
+      eye: svgPaths(['M2.5 12c2.1-3.8 5.25-6 9.5-6s7.4 2.2 9.5 6c-2.1 3.8-5.25 6-9.5 6s-7.4-2.2-9.5-6Z', 'M12 15.25a3.25 3.25 0 1 0 0-6.5 3.25 3.25 0 0 0 0 6.5Z']),
+      'eye-off': svgPaths(['M3.25 3.25 20.75 20.75', 'M10.15 6.15c.6-.1 1.22-.15 1.85-.15 4.25 0 7.4 2.2 9.5 6a15.9 15.9 0 0 1-3.05 3.95', 'M14.25 14.25a3.25 3.25 0 0 1-4.5-4.5', 'M6.05 7.05A15.9 15.9 0 0 0 2.5 12c2.1 3.8 5.25 6 9.5 6 1.4 0 2.7-.24 3.88-.7']),
+      lock: svgPaths(['M7 10V7.5a5 5 0 0 1 10 0V10', 'M5.5 10h13v10.5h-13V10Z', 'M12 14.25v2.75']),
+      unlock: svgPaths(['M7 10V7.75a4.75 4.75 0 0 1 8.8-2.5', 'M5.5 10h13v10.5h-13V10Z', 'M12 14.25v2.75']),
+      shield: svgPaths(['M12 3.25 19.5 6v5.8c0 4.7-3 7.8-7.5 8.95-4.5-1.15-7.5-4.25-7.5-8.95V6L12 3.25Z', 'M9 12l2 2 4-4']),
+      key: svgRaw('<circle cx="7.5" cy="12" r="4" fill="none" stroke="currentColor" /><circle cx="7.5" cy="12" r="1" fill="currentColor" stroke="none" /><path d="M11.5 12h9" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" /><path d="M16.5 12v3" fill="none" stroke="currentColor" stroke-linecap="round" /><path d="M19.5 12v2" fill="none" stroke="currentColor" stroke-linecap="round" />'),
+      phone: svgRaw('<g transform="scale(1.5)" fill="currentColor" stroke="none"><path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"/></g>'),
+      smartphone: svgPaths(['M8.2 3h7.6A2.2 2.2 0 0 1 18 5.2v13.6a2.2 2.2 0 0 1-2.2 2.2H8.2A2.2 2.2 0 0 1 6 18.8V5.2A2.2 2.2 0 0 1 8.2 3Z', 'M10.2 5.4h3.6', 'M11.35 18.35h1.3']),
+      tablet: svgPaths(['M5.4 3.5h13.2a2.15 2.15 0 0 1 2.15 2.15v12.7a2.15 2.15 0 0 1-2.15 2.15H5.4a2.15 2.15 0 0 1-2.15-2.15V5.65A2.15 2.15 0 0 1 5.4 3.5Z', 'M11.25 18h1.5']),
+      watch: svgPaths(['M9.25 2.75h5.5l.75 4.5h-7l.75-4.5Z', 'M8.5 16.75h7l-.75 4.5h-5.5l-.75-4.5Z', 'M8.35 7.25h7.3a2.35 2.35 0 0 1 2.35 2.35v4.8a2.35 2.35 0 0 1-2.35 2.35h-7.3A2.35 2.35 0 0 1 6 14.4V9.6a2.35 2.35 0 0 1 2.35-2.35Z', 'M12 10.1v2.1l1.45.95']),
+      wifi: svgPaths(['M4.5 9.5a11 11 0 0 1 15 0', 'M7.8 13a6.2 6.2 0 0 1 8.4 0', 'M11 16.3a1.5 1.5 0 0 1 2 0', 'M12 19h.01']),
+      signal: svgPaths(['M5 19v-3.5', 'M9.7 19v-6.5', 'M14.3 19v-9.5', 'M19 19V5.5']),
+      battery: svgPaths(['M3 7h15a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H3V7Z', 'M22 10v4', 'M6.5 10v4', 'M10 10v4', 'M13.5 10v4']),
+      bluetooth: svgPaths(['M7 7.5 12 12l-5 4.5', 'M12 2.5v19l6-5.5-6-4 6-4-6-5.5Z']),
+      tether: svgPaths(['M8 15.5h8a2 2 0 0 1 2 2v1.5a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-1.5a2 2 0 0 1 2-2Z', 'M11.5 18.5h1', 'M8 11a5.7 5.7 0 0 1 8 0', 'M5 7.5a10 10 0 0 1 14 0', 'M12 13h.01']),
+      nfc: svgPaths(['M5.2 5.2h7.6A2.2 2.2 0 0 1 15 7.4v9.2a2.2 2.2 0 0 1-2.2 2.2H5.2V5.2Z', 'M8 8.8h3.3', 'M8 12h2.2', 'M8 15.2h3.3', 'M17 8.4a5.15 5.15 0 0 1 0 7.2', 'M19.6 6.2a8.75 8.75 0 0 1 0 11.6']),
+      'qr-code': svgRaw('<path d="M4 4h6v6H4V4Z" fill="none" stroke="currentColor" stroke-linejoin="round" /><path d="M14 4h6v6h-6V4Z" fill="none" stroke="currentColor" stroke-linejoin="round" /><path d="M4 14h6v6H4v-6Z" fill="none" stroke="currentColor" stroke-linejoin="round" /><path d="M14 14h2.5v2.5H14V14Z" fill="currentColor" stroke="none" /><path d="M18 14h2v6h-5v-2h3v-4Z" fill="currentColor" stroke="none" /><path d="M6.25 6.25h1.5v1.5h-1.5v-1.5ZM16.25 6.25h1.5v1.5h-1.5v-1.5ZM6.25 16.25h1.5v1.5h-1.5v-1.5Z" fill="currentColor" stroke="none" />'),
+      fingerprint: svgRaw('<path d="M17.81 4.47c-.08 0-.16-.02-.23-.06C15.66 3.42 14 3 12.01 3c-1.98 0-3.86.47-5.57 1.41-.24.13-.54.04-.68-.2-.13-.24-.04-.55.2-.68C7.82 2.52 9.86 2 12.01 2c2.13 0 3.99.47 6.03 1.52.25.13.34.43.21.67-.09.18-.26.28-.44.28M3.5 9.72c-.1 0-.2-.03-.29-.09-.23-.16-.28-.47-.12-.7.99-1.4 2.25-2.5 3.75-3.27C9.98 4.04 14 4.03 17.15 5.65c1.5.77 2.76 1.86 3.75 3.25.16.22.11.54-.12.7s-.54.11-.7-.12c-.9-1.26-2.04-2.25-3.39-2.94-2.87-1.47-6.54-1.47-9.4.01-1.36.7-2.5 1.7-3.4 2.96-.08.14-.23.21-.39.21m6.25 12.07c-.13 0-.26-.05-.35-.15-.87-.87-1.34-1.43-2.01-2.64-.69-1.23-1.05-2.73-1.05-4.34 0-2.97 2.54-5.39 5.66-5.39s5.66 2.42 5.66 5.39c0 .28-.22.5-.5.5s-.5-.22-.5-.5c0-2.42-2.09-4.39-4.66-4.39s-4.66 1.97-4.66 4.39c0 1.44.32 2.77.93 3.85.64 1.15 1.08 1.64 1.85 2.42.19.2.19.51 0 .71-.11.1-.24.15-.37.15m7.17-1.85c-1.19 0-2.24-.3-3.1-.89-1.49-1.01-2.38-2.65-2.38-4.39 0-.28.22-.5.5-.5s.5.22.5.5c0 1.41.72 2.74 1.94 3.56.71.48 1.54.71 2.54.71.24 0 .64-.03 1.04-.1.27-.05.53.13.58.41.05.27-.13.53-.41.58-.57.11-1.07.12-1.21.12M14.91 22c-.04 0-.09-.01-.13-.02-1.59-.44-2.63-1.03-3.72-2.1-1.4-1.39-2.17-3.24-2.17-5.22 0-1.62 1.38-2.94 3.08-2.94s3.08 1.32 3.08 2.94c0 1.07.93 1.94 2.08 1.94s2.08-.87 2.08-1.94c0-3.77-3.25-6.83-7.25-6.83-2.84 0-5.44 1.58-6.61 4.03-.39.81-.59 1.76-.59 2.8 0 .78.07 2.01.67 3.61.1.26-.03.55-.29.64-.26.1-.55-.04-.64-.29-.49-1.31-.73-2.61-.73-3.96 0-1.2.23-2.29.68-3.24 1.33-2.79 4.28-4.6 7.51-4.6 4.55 0 8.25 3.51 8.25 7.83 0 1.62-1.38 2.94-3.08 2.94s-3.08-1.32-3.08-2.94c0-1.07-.93-1.94-2.08-1.94s-2.08.87-2.08 1.94c0 1.71.66 3.31 1.87 4.51.95.94 1.86 1.46 3.27 1.85.27.07.42.35.35.61-.05.23-.26.38-.47.38" fill="currentColor" stroke="none" />'),
+      vibration: svgPaths(['M8.2 3.8h7.6A2.2 2.2 0 0 1 18 6v12a2.2 2.2 0 0 1-2.2 2.2H8.2A2.2 2.2 0 0 1 6 18V6a2.2 2.2 0 0 1 2.2-2.2Z', 'M11.3 17.35h1.4', 'M3.7 8.6a6.4 6.4 0 0 0 0 6.8', 'M20.3 8.6a6.4 6.4 0 0 1 0 6.8', 'M2 6.3a10.2 10.2 0 0 0 0 11.4', 'M22 6.3a10.2 10.2 0 0 1 0 11.4']),
+      'rotate-phone': svgRaw('<g transform="scale(1.5)" fill="currentColor" stroke="none"><path fill-rule="evenodd" d="M11 1H5a1 1 0 0 0-1 1v6a.5.5 0 0 1-1 0V2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v6a.5.5 0 0 1-1 0V2a1 1 0 0 0-1-1m1 13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-2a.5.5 0 0 0-1 0v2a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2a.5.5 0 0 0-1 0zM1.713 7.954a.5.5 0 1 0-.419-.908c-.347.16-.654.348-.882.57C.184 7.842 0 8.139 0 8.5c0 .546.408.94.823 1.201.44.278 1.043.51 1.745.696C3.978 10.773 5.898 11 8 11q.148 0 .294-.002l-1.148 1.148a.5.5 0 0 0 .708.708l2-2a.5.5 0 0 0 0-.708l-2-2a.5.5 0 1 0-.708.708l1.145 1.144L8 10c-2.04 0-3.87-.221-5.174-.569-.656-.175-1.151-.374-1.47-.575C1.012 8.639 1 8.506 1 8.5c0-.003 0-.059.112-.17.115-.112.31-.242.6-.376Zm12.993-.908a.5.5 0 0 0-.419.908c.292.134.486.264.6.377.113.11.113.166.113.169s0 .065-.13.187c-.132.122-.352.26-.677.4-.645.28-1.596.523-2.763.687a.5.5 0 0 0 .14.99c1.212-.17 2.26-.43 3.02-.758.38-.164.713-.357.96-.587.246-.229.45-.537.45-.919 0-.362-.184-.66-.412-.883s-.535-.411-.882-.571M7.5 2a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1z"/></g>'),
+      mail: svgPaths(['M3.5 6h17v12h-17V6Z', 'M4 7l8 6 8-6', 'M4 17l5.2-4', 'M20 17l-5.2-4']),
+      message: svgPaths(['M4 5.5h16v10.75H8.6L4 20V5.5Z', 'M8 9h8', 'M8 12.5h5']),
+      send: svgPaths(['M22 2 11 13', 'M22 2 15 22l-4-9-9-4 20-7Z']),
+      inbox: svgPaths(['M4 4h16l2 10v6H2v-6L4 4Z', 'M2 14h6l2 3h4l2-3h6']),
+      play: svgRaw('<path d="M8 5.4v13.2c0 .75.82 1.2 1.44.78l9.6-6.6a.95.95 0 0 0 0-1.56l-9.6-6.6A.95.95 0 0 0 8 5.4Z" fill="currentColor" stroke="none" />'),
+      pause: svgRaw('<path d="M7 5h3.5v14H7V5Z" fill="currentColor" stroke="none" /><path d="M13.5 5H17v14h-3.5V5Z" fill="currentColor" stroke="none" />'),
+      stop: svgRaw('<path d="M6.5 6.5h11v11h-11v-11Z" fill="currentColor" stroke="none" />'),
+      upload: svgPaths(['M12 15V4', 'M8 8l4-4 4 4', 'M4 15v4h16v-4']),
+      download: svgPaths(['M12 4v11', 'M8 11l4 4 4-4', 'M4 15v4h16v-4']),
+      bookmark: svgPaths(['M6 4h12v17l-6-4-6 4V4Z']),
+      tag: svgPaths(['M4 4h7l9 9-7 7-9-9V4Z', 'M8.5 8.5h.01']),
+      filter: svgPaths(['M4 5h16l-6 7v5l-4 2v-7L4 5Z']),
+      sort: svgPaths(['M8 4v16', 'M5 7l3-3 3 3', 'M16 20V4', 'M13 17l3 3 3-3']),
+      calendar: svgPaths(['M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z', 'M3 9h18', 'M8 2.5v4', 'M16 2.5v4', 'M7 13h3', 'M14 13h3', 'M7 17h3', 'M14 17h3']),
+      clock: svgPaths(['M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z', 'M12 6.5V12l3.5 2']),
+      history: svgPaths(['M4 12a8 8 0 1 0 2.35-5.65L4 8.7', 'M4 4v4.7h4.7', 'M12 7.5V12l3 1.8']),
+      database: svgPaths(['M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3Z', 'M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6', 'M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6']),
+      table: svgPaths(['M4 5.5h16v13H4v-13Z', 'M4 9.5h16', 'M4 14h16', 'M9.5 5.5v13', 'M15 5.5v13']),
+      chart: svgPaths(['M4 19V5', 'M4 19h16', 'M8 16v-5', 'M12 16V8', 'M16 16v-8']),
+      'map-pin': svgPaths(['M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11Z', 'M12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z']),
+      globe: svgPaths(['M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z', 'M2 12h20', 'M12 2a15 15 0 0 1 0 20', 'M12 2a15 15 0 0 0 0 20']),
+      bell: svgPaths(['M18 10a6 6 0 0 0-12 0c0 3.3-1.1 5.2-2.2 6.4-.4.45-.08 1.1.52 1.1h15.36c.6 0 .92-.65.52-1.1C19.1 15.2 18 13.3 18 10Z', 'M9.5 20a2.75 2.75 0 0 0 5 0']),
+      camera: svgPaths(['M4 7h4l1.5-2h5L16 7h4v12H4V7Z', 'M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z']),
+      image: svgPaths(['M4 5h16v14H4V5Z', 'M7 15l3-3 3 3 2-2 3 4', 'M8.5 9.5h.01']),
+      video: svgPaths(['M4 6h11v12H4V6Z', 'M15 10l5-3v10l-5-3']),
+      mic: svgPaths(['M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z', 'M5 11a7 7 0 0 0 14 0', 'M12 18v4']),
+      volume: svgPaths(['M4 10v4h4l5 4V6l-5 4H4Z', 'M16 9a4 4 0 0 1 0 6']),
+      file: svgPaths(['M6 3h8l4 4v14H6V3Z', 'M14 3v5h4', 'M9 13h6', 'M9 17h6']),
+      folder: svgPaths(['M3 6h7l2 2h9v11H3V6Z', 'M3 10h18']),
+      printer: svgPaths(['M7 8V3h10v5', 'M6 18H4v-8h16v8h-2', 'M7 14h10v7H7v-7Z']),
+      share: svgRaw('<circle cx="18" cy="5" r="3" fill="none" stroke="currentColor" /><circle cx="6" cy="12" r="3" fill="none" stroke="currentColor" /><circle cx="18" cy="19" r="3" fill="none" stroke="currentColor" /><path d="M8.7 10.7 15.3 6.3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" /><path d="M8.7 13.3 15.3 17.7" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />'),
+      login: svgPaths(['M10 17l5-5-5-5', 'M15 12H3', 'M14 4h5v16h-5']),
+      logout: svgPaths(['M14 17l5-5-5-5', 'M19 12H7', 'M10 4H5v16h5']),
+      terminal: svgRaw('<rect x="3.5" y="5" width="17" height="14" rx="2.25" fill="none" stroke="currentColor" /><path d="M7 9.5 10 12l-3 2.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" /><path d="M12.5 15h4.5" fill="none" stroke="currentColor" stroke-linecap="round" />'),
+      code: svgPaths(['M8.25 8 4.25 12l4 4', 'M15.75 8l4 4-4 4', 'M13.5 5.5l-3 13']),
+      grid: svgRaw('<rect x="4" y="4" width="6" height="6" rx="1.25" fill="none" stroke="currentColor" /><rect x="14" y="4" width="6" height="6" rx="1.25" fill="none" stroke="currentColor" /><rect x="4" y="14" width="6" height="6" rx="1.25" fill="none" stroke="currentColor" /><rect x="14" y="14" width="6" height="6" rx="1.25" fill="none" stroke="currentColor" />'),
+      list: svgPaths(['M8 6h12', 'M8 12h12', 'M8 18h12', 'M4.5 6h.01', 'M4.5 12h.01', 'M4.5 18h.01']),
+      layers: svgPaths(['M12 3.5 21 8.5 12 13.5 3 8.5 12 3.5Z', 'M5 12l7 4 7-4', 'M5 15.5l7 4 7-4']),
+      maximize: svgPaths(['M8 3H3v5', 'M16 3h5v5', 'M21 16v5h-5', 'M3 16v5h5']),
+      minimize: svgPaths(['M8 3v5H3', 'M16 3v5h5', 'M21 16h-5v5', 'M3 16h5v5']),
+      move: svgPaths(['M12 2v20', 'M2 12h20', 'M12 2 9 5', 'M12 2l3 3', 'M22 12l-3-3', 'M22 12l-3 3', 'M12 22l-3-3', 'M12 22l3-3', 'M2 12l3-3', 'M2 12l3 3']),
+      pin: svgPaths(['M12 16.5V22', 'M7 3.5h10', 'M9 3.5l.75 5.9-3.3 3.3A2.15 2.15 0 0 0 5.8 14.25V16h12.4v-1.75a2.15 2.15 0 0 0-.65-1.55l-3.3-3.3L15 3.5', 'M8.4 9.5h7.2']),
+      cloud: svgPaths(['M6.8 19C4.2 19 2.5 17.35 2.5 15.25c0-1.95 1.5-3.55 3.45-3.82C6.55 8.35 9.1 6 12.15 6c2.7 0 4.95 1.72 5.65 4.12 2.08.12 3.7 1.88 3.7 4.12 0 2.58-2 4.76-4.55 4.76H6.8Z']),
+      package: svgPaths(['M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5v-9Z', 'M3.5 7.5 12 12l8.5-4.5', 'M12 12v9', 'M7.75 5.25l8.5 4.5']),
+      npm: svgRaw('<rect x="3" y="7" width="18" height="10" rx="1.5" fill="none" stroke="currentColor" /><text x="12" y="14.5" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="5.8" font-weight="800" fill="currentColor" stroke="none">npm</text>'),
+      github: svgRaw('<g transform="scale(1.5)" fill="currentColor" stroke="none"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.65 7.65 0 0 1 8 3.86c.68 0 1.36.09 2 .27 1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.45.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z" /></g>'),
+      facebook: svgRaw('<path d="M14.2 8.1h2.15V4.65a13 13 0 0 0-3.15-.18c-3.1 0-5.05 1.9-5.05 5.35v2.7H5v3.85h3.15V22h4.05v-5.63h3.05l.58-3.85H12.2v-2.3c0-1.25.35-2.12 2-2.12Z" fill="currentColor" stroke="none" />'),
+      instagram: svgRaw('<rect x="4" y="4" width="16" height="16" rx="4.2" fill="none" stroke="currentColor" /><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" /><circle cx="16.75" cy="7.25" r="1" fill="currentColor" stroke="none" />'),
+      linkedin: svgRaw('<rect x="3.75" y="3.75" width="16.5" height="16.5" rx="2.25" fill="none" stroke="currentColor" /><path d="M7.35 10.2h2.6v7.1h-2.6v-7.1ZM7.2 7.55a1.45 1.45 0 1 1 2.9 0 1.45 1.45 0 0 1-2.9 0ZM12.1 10.2h2.45v1.05a2.7 2.7 0 0 1 2.35-1.25c1.8 0 3.1 1.18 3.1 3.72v3.58h-2.6v-3.18c0-1.15-.42-1.82-1.38-1.82-.78 0-1.22.52-1.42 1.02-.08.18-.1.45-.1.72v3.26h-2.6v-7.1Z" fill="currentColor" stroke="none" />'),
+      youtube: svgRaw('<rect x="3.25" y="6.75" width="17.5" height="10.5" rx="3" fill="none" stroke="currentColor" /><path d="M10.25 9.35v5.3L15.2 12l-4.95-2.65Z" fill="currentColor" stroke="none" />'),
+      'x-social': svgRaw('<path d="M5 4.5h4.35l3.3 4.55 4-4.55h2.55l-5.38 6.12L20 19.5h-4.35l-3.8-5.25-4.62 5.25H4.7l6.02-6.85L5 4.5Zm3.1 1.9 8.55 11.2h1.25L9.35 6.4H8.1Z" fill="currentColor" stroke="none" />'),
+      tiktok: svgRaw('<path d="M14.2 3.5c.35 2.45 1.75 3.9 4.1 4.15v3.35a7.2 7.2 0 0 1-4.02-1.25v5.25c0 3.3-2.2 5.55-5.35 5.55-2.85 0-5.23-2.05-5.23-4.9 0-3.28 2.9-5.42 6.05-4.82v3.35c-1.15-.38-2.52.28-2.52 1.48 0 1.05.82 1.72 1.85 1.72 1.12 0 1.92-.75 1.92-2.1V3.5h3.2Z" fill="currentColor" stroke="none" />'),
+      'credit-card': svgRaw('<rect x="3.5" y="6" width="17" height="12" rx="2" fill="none" stroke="currentColor" /><path d="M3.5 10h17" fill="none" stroke="currentColor" stroke-linecap="round" /><path d="M7 14.5h3.8" fill="none" stroke="currentColor" stroke-linecap="round" /><path d="M14.75 14.5H17" fill="none" stroke="currentColor" stroke-linecap="round" />'),
+      cart: svgRaw('<path d="M3.5 4.5h2l2.15 10.25a1.4 1.4 0 0 0 1.37 1.1H18a1.4 1.4 0 0 0 1.35-1.02L21 8H7" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" /><circle cx="9.5" cy="20" r="1.5" fill="none" stroke="currentColor" /><circle cx="17.5" cy="20" r="1.5" fill="none" stroke="currentColor" /><path d="M8.5 11.5h11.25" fill="none" stroke="currentColor" stroke-linecap="round" />'),
+      loader: svgRaw('<path d="M12 2v4" fill="none" stroke="currentColor" stroke-linecap="round" /><path d="M12 18v4" fill="none" stroke="currentColor" stroke-linecap="round" opacity=".35" /><path d="M4.9 4.9l2.8 2.8" fill="none" stroke="currentColor" stroke-linecap="round" opacity=".8" /><path d="M16.3 16.3l2.8 2.8" fill="none" stroke="currentColor" stroke-linecap="round" opacity=".25" /><path d="M2 12h4" fill="none" stroke="currentColor" stroke-linecap="round" opacity=".6" /><path d="M18 12h4" fill="none" stroke="currentColor" stroke-linecap="round" opacity=".2" /><path d="M4.9 19.1l2.8-2.8" fill="none" stroke="currentColor" stroke-linecap="round" opacity=".45" /><path d="M16.3 7.7l2.8-2.8" fill="none" stroke="currentColor" stroke-linecap="round" opacity=".9" />')
+    };
     const icons = {
       add: '+',
       plus: '+',
       minus: '-',
-      close: 'x',
-      x: 'x',
+      close: '×',
+      x: '×',
       check: '✓',
       success: '✓',
       menu: '☰',
       more: '⋯',
       kebab: '⋮',
-      search: '⌕',
-      settings: '⚙',
-      gear: '⚙',
-      user: '◎',
-      users: '◉',
-      warning: '!',
-      danger: '!',
-      error: '!',
-      info: 'i',
+      search: shapes.search,
+      settings: shapes.settings,
+      gear: shapes.gear,
+      user: shapes.user,
+      users: shapes.users,
+      warning: '⚠',
+      danger: '⚠',
+      error: shapes.error,
+      info: 'ⓘ',
       help: '?',
       arrow: '→',
       'arrow-right': '→',
       'arrow-left': '←',
       'arrow-up': '↑',
       'arrow-down': '↓',
-      chevron: '›',
-      'chevron-right': '›',
-      'chevron-left': '‹',
-      'chevron-up': '⌃',
-      'chevron-down': '⌄',
+      chevron: chevrons.right,
+      'chevron-right': chevrons.right,
+      'chevron-left': chevrons.left,
+      'chevron-up': chevrons.up,
+      'chevron-down': chevrons.down,
       external: '↗',
-      upload: '⇧',
-      download: '⇩',
+      upload: shapes.upload,
+      download: shapes.download,
       refresh: '↻',
-      undo: '↶',
-      redo: '↷',
-      play: '▶',
-      pause: 'Ⅱ',
-      stop: '■',
-      edit: '✎',
+      undo: history.undo,
+      redo: history.redo,
+      play: shapes.play,
+      pause: shapes.pause,
+      stop: shapes.stop,
+      edit: svgRaw('<g transform="translate(24 0) scale(-1 1) rotate(20 12 12)"><text x="12" y="18" text-anchor="middle" font-size="21" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI Symbol, Apple Symbols, sans-serif" font-weight="400" fill="currentColor" stroke="none">✎</text></g>'),
       copy: '⧉',
       save: '▣',
       trash: '⌫',
       delete: '⌫',
-      filter: '⧨',
-      sort: '↕',
-      calendar: '◷',
-      clock: '◴',
-      mail: '✉',
-      lock: '⌑',
-      unlock: '◇',
-      home: '⌂',
+      filter: shapes.filter,
+      sort: shapes.sort,
+      calendar: shapes.calendar,
+      clock: shapes.clock,
+      history: shapes.history,
+      mail: shapes.mail,
+      message: shapes.message,
+      send: shapes.send,
+      inbox: shapes.inbox,
+      phone: shapes.phone,
+      smartphone: shapes.smartphone,
+      mobile: shapes.smartphone,
+      tablet: shapes.tablet,
+      watch: shapes.watch,
+      wifi: shapes.wifi,
+      signal: shapes.signal,
+      battery: shapes.battery,
+      bluetooth: shapes.bluetooth,
+      tether: shapes.tether,
+      hotspot: shapes.tether,
+      nfc: shapes.nfc,
+      'qr-code': shapes['qr-code'],
+      qr: shapes['qr-code'],
+      fingerprint: shapes.fingerprint,
+      vibration: shapes.vibration,
+      'rotate-phone': shapes['rotate-phone'],
+      'rotate-device': shapes['rotate-phone'],
+      lock: shapes.lock,
+      unlock: shapes.unlock,
+      shield: shapes.shield,
+      key: shapes.key,
+      home: shapes.home,
       link: '↔',
+      eye: shapes.eye,
+      'eye-off': shapes['eye-off'],
       star: '★',
       heart: '♥',
+      bookmark: shapes.bookmark,
+      tag: shapes.tag,
+      'map-pin': shapes['map-pin'],
+      globe: shapes.globe,
       flag: '⚑',
-      bell: '◉',
+      bell: shapes.bell,
       command: '⌘',
-      terminal: '▹',
-      code: '</>',
-      database: '▤',
-      table: '▦',
-      chart: '▧',
-      grid: '▦',
-      list: '☷',
-      layers: '▰',
-      image: '▧',
-      file: '□',
-      folder: '▱',
-      cloud: '☁',
-      sparkles: '✦',
-      ai: '✦',
+      terminal: shapes.terminal,
+      code: shapes.code,
+      database: shapes.database,
+      table: shapes.table,
+      chart: shapes.chart,
+      grid: shapes.grid,
+      list: shapes.list,
+      layers: shapes.layers,
+      image: shapes.image,
+      camera: shapes.camera,
+      video: shapes.video,
+      mic: shapes.mic,
+      volume: shapes.volume,
+      file: shapes.file,
+      folder: shapes.folder,
+      cloud: shapes.cloud,
+      printer: shapes.printer,
+      share: shapes.share,
+      login: shapes.login,
+      logout: shapes.logout,
+      maximize: shapes.maximize,
+      minimize: shapes.minimize,
+      move: shapes.move,
+      pin: shapes.pin,
+      'credit-card': shapes['credit-card'],
+      cart: shapes.cart,
+      loader: shapes.loader,
+      sparkles: shapes.sparkles,
+      ai: shapes.sparkles,
       bot: '◌',
       workflow: '↬',
-      lightning: '↯',
-      rocket: '▲',
-      package: '▣',
-      npm: 'npm',
-      github: '⌘'
+      brain: shapes.brain,
+      chip: shapes.chip,
+      neural: shapes.neural,
+      wand: shapes.wand,
+      prompt: shapes.prompt,
+      lightning: shapes.lightning,
+      bolt: shapes.lightning,
+      rocket: shapes.rocket,
+      package: shapes.package,
+      npm: shapes.npm,
+      github: shapes.github,
+      facebook: shapes.facebook,
+      instagram: shapes.instagram,
+      linkedin: shapes.linkedin,
+      youtube: shapes.youtube,
+      'x-social': shapes['x-social'],
+      twitter: shapes['x-social'],
+      tiktok: shapes.tiktok
     };
     const name = this.getAttribute('name') || this.getAttribute('icon') || 'check';
     const size = cssLength(this.getAttribute('size'), '1em');
     const label = this.getAttribute('label') || name;
+    const color = cssColor(this.getAttribute('color')) || (this.hasAttribute('tone') ? toneColor(this.getAttribute('tone')) : toneColor('ghost'));
+    const weight = cssFontWeight(this.getAttribute('thickness') || this.getAttribute('weight'), '300');
+    const strokeWeight = {
+      50: '1',
+      100: '1.15',
+      200: '1.35',
+      300: '1.55',
+      400: '1.75',
+      500: '2',
+      600: '2.25',
+      700: '2.5',
+      800: '2.8',
+      900: '3.1',
+      bolder: '2.8',
+      lighter: '1.25'
+    }[weight] || '2';
+    const icon = icons[name] || name.charAt(0).toUpperCase();
+    const iconContent = String(icon).startsWith('<svg') ? icon : htmlEscape(icon);
     this.shadowRoot.innerHTML = `
       <style>
         ${sharedStyles}
-        :host { display: inline-grid; place-items: center; inline-size: ${size}; block-size: ${size}; }
-        .icon { display: inline-grid; place-items: center; inline-size: 100%; block-size: 100%; color: ${toneColor(this.getAttribute('tone'))}; font-size: ${size}; font-weight: 850; line-height: 1; }
+        :host { display: inline-grid; place-items: center; inline-size: ${size}; block-size: ${size}; --mvx-icon-stroke-default: ${strokeWeight}; }
+        .icon { display: inline-grid; place-items: center; inline-size: 100%; block-size: 100%; color: var(--mvx-icon-color, ${color}); font-size: ${size}; font-weight: var(--mvx-icon-weight, ${weight}); line-height: 1; }
+        .icon svg { inline-size: 1em; block-size: 1em; stroke-width: var(--mvx-icon-stroke, var(--mvx-icon-stroke-default)); }
+        .icon svg * { stroke-width: inherit; }
       </style>
-      <span class="icon" part="icon" role="img" aria-label="${htmlEscape(label)}"><slot>${htmlEscape(icons[name] || name.charAt(0).toUpperCase())}</slot></span>
+      <span class="icon" part="icon" role="img" aria-label="${htmlEscape(label)}"><slot>${iconContent}</slot></span>
     `;
   }
 }
 
 export class MvxIcons extends MvxPeerElement {
   render() {
-    const items = this.items.length ? this.items : ['check', 'close', 'plus', 'search', 'settings', 'chart', 'table', 'sparkles'];
+    const items = this.items.length ? this.items : ['check', 'close', 'add', 'search', 'settings', 'chart', 'table', 'sparkles'];
     this.shadowRoot.innerHTML = `
       <style>
         ${sharedStyles}
         .icons { display: flex; flex-wrap: wrap; gap: 8px; }
-        .item { display: grid; place-items: center; inline-size: 34px; block-size: 34px; border: 1px solid var(--mvx-border); border-radius: var(--mvx-radius-sm); background: var(--mvx-bg-inset); }
+        .item { display: grid; place-items: center; inline-size: 34px; block-size: 34px; border: 0; border-radius: 0; background: transparent; }
       </style>
       <span class="icons" part="icons" aria-label="${htmlEscape(this.titleText('Icons'))}">
         ${items.map(item => `<span class="item"><mvx-icon name="${escapeAttr(optionLabel(item, item))}"></mvx-icon></span>`).join('')}
@@ -2787,8 +3012,8 @@ export class MvxRichTextEditor extends MvxPeerElement {
       </style>
       <section class="editor-shell surface" part="editor">
         <div class="toolbar" part="toolbar">
-          <button type="button" data-command="undo" title="Undo">↶</button>
-          <button type="button" data-command="redo" title="Redo">↷</button>
+          <button type="button" data-command="undo" title="Undo"><mvx-icon name="undo" label="Undo" size="16px"></mvx-icon></button>
+          <button type="button" data-command="redo" title="Redo"><mvx-icon name="redo" label="Redo" size="16px"></mvx-icon></button>
           <button type="button" data-command="bold" title="Bold"><strong>B</strong></button>
           <button type="button" data-command="italic" title="Italic"><em>I</em></button>
           <button type="button" data-command="underline" title="Underline"><u>U</u></button>

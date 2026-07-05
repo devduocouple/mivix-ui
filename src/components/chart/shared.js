@@ -88,11 +88,10 @@ const distributionSample = [
 ];
 
 const flowSample = [
-  { from: 'Visitors', to: 'Trials', value: 42 },
-  { from: 'Visitors', to: 'Docs', value: 24 },
-  { from: 'Trials', to: 'Qualified', value: 28 },
-  { from: 'Docs', to: 'Qualified', value: 14 },
-  { from: 'Qualified', to: 'Customers', value: 18 }
+  { from: 'Signup', to: 'Activation', value: 960 },
+  { from: 'Activation', to: 'Trial', value: 520 },
+  { from: 'Trial', to: 'Paid', value: 214 },
+  { from: 'Paid', to: 'Expansion', value: 74 }
 ];
 
 const networkSample = [

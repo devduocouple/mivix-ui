@@ -35,6 +35,15 @@ export function chartStyles({ chartOnly, hasLegend }) {
     gap: 0;
     padding: 0;
   }
+  :host([component-style="group"]) .chart {
+    gap: 6px;
+    block-size: 100%;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    padding: 12px;
+  }
   :host([chart-only]) .chart {
     block-size: var(--mvx-chart-height, 100%);
     gap: 0;
@@ -66,6 +75,14 @@ export function chartStyles({ chartOnly, hasLegend }) {
     background: color-mix(in srgb, var(--mvx-bg-inset) 62%, transparent);
     padding: 10px 12px;
   }
+  :host([component-style="group"]) header {
+    align-items: center;
+    min-block-size: 24px;
+  }
+  :host([component-style="group"]) header p,
+  :host([component-style="group"]) .type {
+    display: none;
+  }
   h3, p { margin: 0; }
   h3 { font-size: 15px; font-weight: 600; }
   p { color: var(--mvx-muted); font-size: 12px; }
@@ -87,7 +104,7 @@ export function chartStyles({ chartOnly, hasLegend }) {
     border: 1px solid var(--mvx-border);
     border-radius: var(--mvx-radius-sm);
     background:
-      radial-gradient(circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--mvx-accent) 14%, transparent), transparent 26%),
+      radial-gradient(circle at var(--mx, 50%) var(--my, 50%), var(--mvx-chart-cursor-active-color, transparent) 0, transparent var(--mvx-chart-cursor-size, 64px)),
       linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent),
       var(--mvx-bg-inset);
   }
@@ -98,7 +115,7 @@ export function chartStyles({ chartOnly, hasLegend }) {
   :host([component-style="glass"]) .canvas {
     border-color: color-mix(in srgb, var(--mvx-accent) 24%, var(--mvx-border));
     background:
-      radial-gradient(circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--mvx-accent) 22%, transparent), transparent 28%),
+      radial-gradient(circle at var(--mx, 50%) var(--my, 50%), var(--mvx-chart-cursor-active-color, transparent) 0, transparent var(--mvx-chart-cursor-size, 64px)),
       linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent),
       color-mix(in srgb, var(--mvx-bg-inset) 74%, transparent);
   }
@@ -108,6 +125,14 @@ export function chartStyles({ chartOnly, hasLegend }) {
     background:
       linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
       var(--mvx-bg-inset);
+  }
+  :host([component-style="group"]) .canvas {
+    overflow: hidden;
+    border: 0;
+    border-radius: 0;
+    background:
+      radial-gradient(circle at var(--mx, 50%) var(--my, 50%), var(--mvx-chart-cursor-active-color, transparent) 0, transparent var(--mvx-chart-cursor-size, 64px)),
+      transparent;
   }
   :host([chart-only]) .canvas {
     block-size: 100%;
@@ -242,6 +267,11 @@ export function chartStyles({ chartOnly, hasLegend }) {
   :host([component-style="dashboard"]) .legend {
     border-block-start: 1px solid var(--mvx-border);
     padding: 9px 12px;
+  }
+  :host([component-style="group"]) .legend {
+    gap: 6px 10px;
+    font-size: 11.5px;
+    margin-block-start: -2px;
   }
   .legend span {
     display: inline-flex;

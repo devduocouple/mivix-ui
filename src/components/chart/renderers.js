@@ -439,6 +439,104 @@ export function renderGantt(chart, width, height) {
     return chart.renderFrame(width, Math.max(height, data.length * rowH + 56), body);
   }
 
+function renderCohortFunnel(chart, width, height) {
+    const links = (chart.series[0]?.data || chart.data)
+      .map(link => ({
+        from: String(link.from ?? '').trim(),
+        to: String(link.to ?? '').trim(),
+        value: Number(link.value ?? 0)
+      }))
+      .filter(link => link.from && link.to);
+
+    const nodes = [...new Set(links.flatMap(link => [link.from, link.to]).filter(Boolean))];
+    if (!nodes.length) return chart.renderFrame(width, height, '');
+
+    const outgoing = new Map(nodes.map(node => [node, []]));
+    const incoming = new Map(nodes.map(node => [node, 0]));
+    links.forEach((link, index) => {
+      if (!outgoing.has(link.from) || !outgoing.has(link.to)) return;
+      outgoing.get(link.from).push({ ...link, index });
+      incoming.set(link.to, (incoming.get(link.to) || 0) + 1);
+    });
+
+    const ordered = [];
+    const seen = new Set();
+    const queue = nodes.filter(node => (incoming.get(node) || 0) === 0 && (outgoing.get(node)?.length || 0));
+    while (queue.length) {
+      const node = queue.shift();
+      if (seen.has(node)) continue;
+      ordered.push(node);
+      seen.add(node);
+      const next = outgoing.get(node)
+        .map(item => item.to)
+        .filter((target, index, source) => source.indexOf(target) === index && !seen.has(target));
+      queue.push(...next);
+      const unique = [];
+      const seenQueue = new Set();
+      queue.forEach(item => {
+        if (!seenQueue.has(item)) {
+          unique.push(item);
+          seenQueue.add(item);
+        }
+      });
+      queue.splice(0, queue.length, ...unique);
+    }
+    for (const node of nodes) {
+      if (!seen.has(node)) ordered.push(node);
+    }
+
+    const inbound = new Map(nodes.map(node => [node, 0]));
+    const outbound = new Map(nodes.map(node => [node, 0]));
+    links.forEach(link => {
+      outbound.set(link.from, (outbound.get(link.from) || 0) + link.value);
+      inbound.set(link.to, (inbound.get(link.to) || 0) + link.value);
+    });
+
+    const values = ordered.map(node => {
+      const inValue = inbound.get(node) || 0;
+      return inValue > 0 ? inValue : (outbound.get(node) || 0);
+    });
+    const maxValue = Math.max(...values, 1);
+    const baseline = values[0] || maxValue;
+
+    const pad = plotPad(chart, { l: 72, r: 38, t: 22, b: 34 }, { l: 40, r: 26, t: 12, b: 16 });
+    const cx = width / 2;
+    const n = ordered.length;
+    const yRange = height - pad.t - pad.b;
+    const step = n > 1 ? yRange / (n - 1) : yRange;
+    const bandHeight = n > 1 ? Math.max(22, Math.min(68, step * 0.7)) : Math.max(36, yRange * 0.46);
+    const centers = n > 1 ? ordered.map((_node, index) => pad.t + index * step) : [pad.t + yRange / 2];
+    const maxBarWidth = width - pad.l - pad.r - 18;
+    const minBarWidth = Math.min(164, maxBarWidth * 0.32);
+    const widthFor = value => Math.max(minBarWidth, maxBarWidth * (value / maxValue));
+
+    const stages = ordered.map((node, index) => {
+      const value = values[index];
+      const nextValue = values[index + 1] ?? value;
+      const topW = widthFor(value);
+      const bottomW = widthFor(nextValue);
+      const y1 = centers[index] - bandHeight / 2;
+      const y2 = centers[index] + bandHeight / 2;
+      const topL = cx - topW / 2;
+      const topR = cx + topW / 2;
+      const bottomR = cx + bottomW / 2;
+      const bottomL = cx - bottomW / 2;
+      const fill = palette[index % palette.length];
+      const stageRetention = Math.max(1, Math.round((value / baseline) * 100));
+      const drop = index ? Math.max(0, Math.round(100 - (value / (values[index - 1] || value)) * 100)) : 0;
+      const dropLabel = index ? `${drop}% drop` : '';
+      return `${chart.markWrap(
+        `<polygon points="${topL} ${y1} ${topR} ${y1} ${bottomR} ${y2} ${bottomL} ${y2}" fill="${fill}" opacity="0.88" stroke="${fill}" stroke-width="0.9" />`,
+        { label: node, value: `${Math.round(value)} users (${stageRetention}% of cohort)`, series: 'Cohort funnel', seriesIndex: 0, index }
+      )}
+        <text class="label" x="${pad.l + 8}" y="${(y1 + y2) / 2 + 5}" text-anchor="start">${htmlEscape(node)}</text>
+        <text class="muted-label" x="${width - pad.r - 8}" y="${(y1 + y2) / 2 + 5}" text-anchor="end">${Math.round(value)} users${index ? ` · ${Math.round((value / (values[index - 1] || value)) * 100)}%` : ''}</text>`
+        + (dropLabel ? `<text class="muted-label" x="${pad.l + 8}" y="${y1 - 8}" text-anchor="start">${dropLabel}</text>` : '');
+    }).join('');
+
+    return chart.renderFrame(width, height, stages);
+  }
+
 export function renderSankey(chart, type, width, height) {
     const links = (chart.series[0]?.data || chart.data);
     const nodes = [...new Set(links.flatMap(link => [link.from, link.to]).filter(Boolean))];
@@ -831,7 +929,7 @@ export function renderEnterprise(chart, width, height) {
     if (type === 'resource-utilization') return renderGantt(chart, width, height);
     if (type === 'aging-bucket') return renderCartesian(chart, 'bar', width, height);
     if (type === 'boxen-plot') return renderBoxplot(chart, 'boxplot', width, height);
-    if (type === 'cohort-funnel') return renderSankey(chart, 'sankey', width, height);
+    if (type === 'cohort-funnel') return renderCohortFunnel(chart, width, height);
     if (type === 'variance-budget-actual') return renderCartesian(chart, 'grouped-bar', width, height);
     if (type === 'decomposition-tree') return renderTree(chart, 'tree-diagram', width, height);
     return renderCartesian(chart, 'line', width, height);

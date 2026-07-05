@@ -50,8 +50,8 @@ declare global {
   namespace JSX {
     interface MivixGlobalAttributes {
       theme?: 'dark' | 'light' | 'graphite' | 'aurora' | 'terminal' | string;
-      componentStyle?: 'console' | 'minimal' | 'glass' | 'dashboard' | string;
-      'component-style'?: 'console' | 'minimal' | 'glass' | 'dashboard' | string;
+      componentStyle?: 'console' | 'minimal' | 'glass' | 'dashboard' | 'group' | string;
+      'component-style'?: 'console' | 'minimal' | 'glass' | 'dashboard' | 'group' | string;
       font?: 'system' | 'inter' | 'mono' | 'monospace' | 'serif' | 'rounded' | 'humanist' | 'geometric' | 'devanagari' | string;
       fontFamily?: string;
       'font-family'?: string;
@@ -63,6 +63,10 @@ declare global {
       skeletonLines?: number | string;
       'skeleton-lines'?: number | string;
       i18n?: string | Record<string, string>;
+      cursorFocus?: 'subtle' | 'soft' | 'strong' | 'none' | string;
+      'cursor-focus'?: 'subtle' | 'soft' | 'strong' | 'none' | string;
+      cursorFocusSize?: string;
+      'cursor-focus-size'?: string;
     }
 
     interface IntrinsicElements {

@@ -921,6 +921,9 @@ body.mobile-nav-open .mobile-nav-toggle span:nth-child(3) {
 
 .component-detail[hidden],
 .hero-grid[hidden],
+.ecosystem-grid[hidden],
+.developer-start[hidden],
+.documentation-links[hidden],
 .research-grid[hidden],
 .component-grid[hidden],
 .empty-state[hidden] {
@@ -1209,14 +1212,16 @@ body.component-page .component-detail {
   padding: 12px;
 }
 
-.chart-gallery {
+.chart-gallery,
+.icon-gallery {
   display: grid;
   gap: 16px;
   border-block-start: 1px solid var(--mvx-border);
   padding-block-start: 18px;
 }
 
-.chart-gallery[hidden] {
+.chart-gallery[hidden],
+.icon-gallery[hidden] {
   display: none;
 }
 
@@ -1263,6 +1268,100 @@ body.component-page .component-detail {
 .chart-gallery-grid {
   display: grid;
   gap: 18px;
+}
+
+.icon-gallery-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.icon-doc-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 112px;
+}
+
+.icon-gallery-card {
+  --icon-usage-color: var(--mvx-muted);
+  display: grid;
+  grid-template-rows: 34px auto;
+  gap: 5px;
+  min-block-size: 86px;
+  border: 0;
+  border-radius: var(--mvx-radius-md);
+  background: transparent;
+  color: var(--mvx-fg);
+  cursor: pointer;
+  font: inherit;
+  justify-items: center;
+  padding: 8px 6px;
+  text-align: center;
+  transition:
+    border-color var(--mvx-duration-fast),
+    box-shadow var(--mvx-duration-fast),
+    transform var(--mvx-duration-fast);
+}
+
+.icon-gallery-card:hover {
+  box-shadow: none;
+  transform: translateY(-1px);
+}
+
+.icon-gallery-card:focus-visible {
+  outline: none;
+  box-shadow: var(--mvx-focus);
+}
+
+.icon-gallery-preview {
+  display: grid;
+  place-items: center;
+  inline-size: 34px;
+  block-size: 34px;
+  border-radius: 0;
+  background: transparent;
+}
+
+.icon-gallery-card code {
+  max-inline-size: 100%;
+  color: var(--mvx-fg);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.icon-gallery-group {
+  display: grid;
+  gap: 8px;
+}
+
+.icon-group-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.icon-group-heading h3 {
+  color: var(--mvx-fg);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.icon-group-heading span {
+  color: var(--mvx-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.icon-group-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(82px, 92px));
+  gap: 6px 8px;
+  justify-content: start;
 }
 
 .chart-gallery-group {
@@ -1418,6 +1517,12 @@ body.component-page .component-detail {
   align-items: center;
 }
 
+.icon-page-list {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .chart-pager button {
   min-block-size: 32px;
   border: 1px solid var(--mvx-border);
@@ -1430,6 +1535,18 @@ body.component-page .component-detail {
   padding: 0 10px;
 }
 
+.icon-page-list button {
+  min-inline-size: 32px;
+  padding-inline: 8px;
+}
+
+.icon-page-list button[aria-current="page"] {
+  border-color: color-mix(in srgb, var(--mvx-accent) 68%, var(--mvx-border));
+  background: color-mix(in srgb, var(--mvx-accent) 18%, var(--mvx-bg-inset));
+  color: var(--mvx-accent);
+  font-weight: 800;
+}
+
 .chart-pager button:disabled {
   cursor: not-allowed;
   opacity: 0.45;
@@ -1439,6 +1556,95 @@ body.component-page .component-detail {
 .chart-modal-copy {
   display: grid;
   gap: 12px;
+}
+
+.icon-modal-content {
+  display: grid;
+  gap: 16px;
+}
+
+#icon-demo-modal::part(panel) {
+  inline-size: min(760px, 100%);
+}
+
+.icon-modal-preview {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  min-block-size: 112px;
+}
+
+.icon-modal-copy {
+  display: grid;
+  gap: 6px;
+  min-inline-size: 0;
+}
+
+.icon-modal-copy span {
+  color: var(--mvx-accent-2);
+  font-size: 11px;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.icon-modal-copy h3,
+.icon-modal-copy p {
+  margin: 0;
+}
+
+.icon-modal-copy h3 {
+  color: var(--mvx-fg);
+  font-size: 18px;
+}
+
+.icon-modal-copy p {
+  color: var(--mvx-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.icon-modal-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  min-inline-size: 0;
+}
+
+.icon-modal-controls label {
+  display: grid;
+  gap: 6px;
+  min-inline-size: 0;
+}
+
+.icon-modal-controls span {
+  color: var(--mvx-muted);
+  font-size: 11px;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.icon-modal-controls input,
+.icon-modal-controls select {
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 38px;
+  border: 1px solid var(--mvx-border);
+  border-radius: var(--mvx-radius-sm);
+  background: var(--mvx-bg-inset);
+  color: var(--mvx-fg);
+  font: inherit;
+  padding: 0 10px;
+}
+
+.icon-modal-controls input:focus-visible,
+.icon-modal-controls select:focus-visible {
+  outline: none;
+  box-shadow: var(--mvx-focus);
+}
+
+.icon-modal-editor .docs-code-editor-shell {
+  max-block-size: 180px;
 }
 
 .chart-modal-copy h3,

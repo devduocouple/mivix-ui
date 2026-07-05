@@ -16,4 +16,5 @@ export interface MvxChartGroupItem {
 
 export class MvxChartGroup extends MvxElement {
   charts: MvxChartGroupItem[];
+  chartCard?: string;
 }

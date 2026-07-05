@@ -51,15 +51,23 @@ export class MvxCheckbox extends MvxElement {
           block-size: 22px;
           border: 1px solid var(--mvx-border);
           border-radius: var(--mvx-radius-xs);
-          background: var(--mvx-control-glaze), var(--mvx-bg-inset);
-          box-shadow: var(--mvx-control-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+          background:
+            var(--mvx-control-glaze),
+            var(--mvx-bg-inset);
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.12),
+            inset 0 -1px 2px rgba(0, 0, 0, 0.26),
+            inset 0 0 0 1px rgba(0, 0, 0, 0.08);
           transition: background var(--mvx-duration), border-color var(--mvx-duration), box-shadow var(--mvx-duration), transform var(--mvx-duration-fast);
         }
         .mark {
-          color: white;
+          position: relative;
+          z-index: 1;
+          color: var(--mvx-accent);
           font-size: 15px;
           font-weight: 900;
           line-height: 1;
+          text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
           opacity: 0;
           transform: scale(0.72);
           transition: opacity var(--mvx-duration-fast), transform var(--mvx-duration-fast);
@@ -68,14 +76,16 @@ export class MvxCheckbox extends MvxElement {
         button[aria-checked="mixed"] .box {
           border-color: color-mix(in srgb, var(--mvx-accent) 72%, white);
           background:
-            linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 32%, transparent), transparent),
-            var(--mvx-accent);
+            linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8)),
+            #ffffff;
           box-shadow:
-            0 8px 18px color-mix(in srgb, var(--mvx-accent) 24%, transparent),
-            inset 0 1px 0 rgba(255, 255, 255, 0.24);
+            inset 0 1px 0 rgba(255, 255, 255, 0.24),
+            inset 0 -1px 2px rgba(0, 0, 0, 0.28),
+            inset 0 0 0 1px rgba(0, 0, 0, 0.12);
         }
         button[aria-checked="true"] .mark,
         button[aria-checked="mixed"] .mark {
+          color: #1f66ff;
           opacity: 1;
           transform: scale(1);
         }
@@ -97,14 +107,21 @@ export class MvxCheckbox extends MvxElement {
         }
         button:hover:not(:disabled) .box {
           border-color: color-mix(in srgb, var(--mvx-accent) 42%, var(--mvx-border-strong));
-          box-shadow: var(--mvx-control-shadow), 0 6px 14px color-mix(in srgb, var(--mvx-accent) 12%, transparent);
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.12),
+            inset 0 -1px 2px rgba(0, 0, 0, 0.26),
+            inset 0 0 0 1px rgba(0, 0, 0, 0.08),
           transform: translateY(-1px);
         }
         button:focus-visible {
           outline: none;
         }
         button:focus-visible .box {
-          box-shadow: var(--mvx-focus), var(--mvx-control-shadow);
+          box-shadow:
+            var(--mvx-focus),
+            inset 0 1px 0 rgba(255, 255, 255, 0.12),
+            inset 0 -1px 2px rgba(0, 0, 0, 0.26),
+            inset 0 0 0 1px rgba(0, 0, 0, 0.08);
         }
         button:disabled {
           cursor: not-allowed;

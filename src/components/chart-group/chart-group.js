@@ -19,7 +19,7 @@ function chartAttributeString(chart) {
 }
 
 export class MvxChartGroup extends MvxElement {
-  static observedAttributes = ['title', 'subtitle', 'eyebrow', 'charts', 'columns', 'min-column-width', 'gap', 'density', 'variant', 'chart-height', 'responsive'];
+  static observedAttributes = ['title', 'subtitle', 'eyebrow', 'charts', 'columns', 'min-column-width', 'gap', 'density', 'variant', 'chart-height', 'responsive', 'chart-card'];
 
   set charts(value) {
     this._charts = value;
@@ -37,11 +37,16 @@ export class MvxChartGroup extends MvxElement {
     const columns = Math.max(1, Number(this.getAttribute('columns') || 2) || 2);
     const minColumn = cssLength(this.getAttribute('min-column-width'), '260px');
     const gap = cssLength(this.getAttribute('gap'), this.getAttribute('density') === 'compact' ? '10px' : '14px');
+    const chartCard = this.getAttribute('chart-card');
     const chartHeight = this.getAttribute('chart-height') || '';
     const charts = this.charts;
     const hasMeta = title || subtitle || eyebrow || this.querySelector('[slot="actions"]');
     const renderedCharts = charts.length
-      ? charts.map((chart, index) => `<mvx-chart ${chartAttributeString({ height: chartHeight || undefined, ...chart })} data-group-index="${index}"></mvx-chart>`).join('')
+      ? charts.map((chart, index) => {
+        const item = Object.assign({}, chart);
+        if (chartCard && item.chartCard === undefined && item['chart-card'] === undefined) item.chartCard = chartCard;
+        return `<mvx-chart ${chartAttributeString({ componentStyle: 'group', height: chartHeight || undefined, ...item })} data-group-index="${index}"></mvx-chart>`;
+      }).join('')
       : '<slot></slot>';
 
     this.shadowRoot.innerHTML = `
@@ -55,7 +60,12 @@ export class MvxChartGroup extends MvxElement {
           display: grid;
           gap: ${gap};
           inline-size: 100%;
+          border: 1px solid var(--mvx-border);
           border-radius: var(--mvx-radius-md);
+          background:
+            linear-gradient(145deg, color-mix(in srgb, var(--mvx-accent) 9%, transparent), transparent 42%),
+            color-mix(in srgb, var(--mvx-bg-panel) 92%, var(--mvx-bg-inset));
+          box-shadow: var(--mvx-shadow-soft);
           padding: ${this.getAttribute('density') === 'compact' ? '12px' : '16px'};
         }
         :host([variant="plain"]) .group {
@@ -71,6 +81,8 @@ export class MvxChartGroup extends MvxElement {
           align-items: end;
           justify-content: space-between;
           min-inline-size: 0;
+          border-block-end: ${hasMeta ? '1px solid color-mix(in srgb, var(--mvx-border) 78%, transparent)' : '0'};
+          padding-block-end: ${hasMeta ? (this.getAttribute('density') === 'compact' ? '10px' : '12px') : '0'};
         }
         .copy {
           display: grid;
@@ -108,9 +120,10 @@ export class MvxChartGroup extends MvxElement {
         .charts {
           display: grid;
           grid-template-columns: repeat(${columns}, minmax(0, 1fr));
-          gap: ${gap};
+          gap: 0;
           align-items: stretch;
           min-inline-size: 0;
+          overflow: hidden;
         }
         :host([responsive="auto-fit"]) .charts,
         :host([min-column-width]) .charts {
@@ -118,7 +131,10 @@ export class MvxChartGroup extends MvxElement {
         }
         ::slotted(mvx-chart),
         .charts > mvx-chart {
+          display: block;
           min-inline-size: 0;
+          overflow: hidden;
+          border-radius: 0;
         }
         @media (max-width: 960px) {
           .charts {
@@ -155,11 +171,31 @@ export class MvxChartGroup extends MvxElement {
 
   applyChartDefaults() {
     const height = this.getAttribute('chart-height');
-    if (!height) return;
-    this.shadowRoot.querySelector('slot')?.addEventListener('slotchange', event => {
-      event.target.assignedElements().forEach(element => {
-        if (element.localName === 'mvx-chart' && !element.hasAttribute('height')) element.setAttribute('height', height);
+    const chartCard = this.getAttribute('chart-card');
+    const slot = this.shadowRoot.querySelector('slot');
+    const applyDefaults = elements => {
+      elements.forEach((element) => {
+        if (element.localName !== 'mvx-chart') return;
+        if (height && !element.hasAttribute('height')) element.setAttribute('height', height);
+        if (!element.hasAttribute('component-style')) element.setAttribute('component-style', 'group');
+        if (chartCard !== null && !element.hasAttribute('chart-card')) element.setAttribute('chart-card', chartCard);
       });
-    });
+    };
+
+    if (slot) {
+      const syncSlotCharts = () => {
+        const assigned = slot.assignedElements({ flatten: true }).filter(el => el.localName === 'mvx-chart');
+        if (assigned.length) return applyDefaults(assigned);
+
+        const fallback = [...this.children].filter(el => el.localName === 'mvx-chart');
+        applyDefaults(fallback);
+      };
+
+      syncSlotCharts();
+      slot.addEventListener('slotchange', event => applyDefaults(event.target.assignedElements({ flatten: true })));
+      return;
+    }
+
+    applyDefaults(this.shadowRoot.querySelectorAll('.charts > mvx-chart'));
   }
 }
