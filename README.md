@@ -1,16 +1,185 @@
 # Mivix UI
 
-> Status: Alpha. Mivix UI is under active development. Components are not yet stable, and APIs, styling details, and behavior may change while the library is hardened toward a stable release.
+[![npm version](https://img.shields.io/npm/v/mivix-ui.svg)](https://www.npmjs.com/package/mivix-ui)
+[![npm downloads](https://img.shields.io/npm/dm/mivix-ui.svg)](https://www.npmjs.com/package/mivix-ui)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-4f46e5)](https://devduocouple.github.io/mivix-ui/)
 
-Mivix UI is an open source library of reactive, AI-ready Web Components inspired by compact developer consoles: graphite glass, beveled panels, thin luminous edges, cobalt blue state, and dense workflows.
+Mivix UI is an open source UI component library of reactive, AI-ready Web Components.
 
-It ships as standards-based custom elements, so the same package works in JavaScript, TypeScript, Next.js, React, Angular, Vue, .NET/Blazor, server-rendered apps, and plain HTML.
+> Status: Alpha. Components are still evolving and APIs may change before Beta. Use `mivix-ui@alpha` for early testing.
 
-## Free Core And Pro
+## Install
 
-`mivix-ui` is the free MIT-licensed core package. The core is intended to stay useful on its own: teams should be able to build real apps with the base components, theme tokens, SSR helpers, docs, and framework examples.
+```bash
+npm install mivix-ui@alpha
+```
 
-Mivix UI will use an open-core business model as it matures. Advanced commercial work will live in a future Pro layer, such as `@mivix-ui/pro`, template packs, enterprise themes, advanced data components, and paid support. See [PRO.md](./PRO.md) for the current plan.
+## Why Mivix UI?
+
+- Standards-based web components with custom elements (`mvx-*`)
+- Works in JavaScript, TypeScript, React, Next.js, Angular, Vue, and Blazor
+- Tree-shakable entrypoints and optional auto-registration
+- Shared design tokens, theme system, SSR helpers, and framework adapters
+- Lightweight visual and interaction patterns for dashboard-style and AI-driven product surfaces
+
+## Quick start
+
+Use exact imports only for what you use in production:
+
+```ts
+import 'mivix-ui/styles';
+import { define } from 'mivix-ui/core';
+import { MvxButton } from 'mivix-ui/components/button';
+
+define('mvx-button', MvxButton);
+```
+
+```html
+<mvx-button variant="primary">Create project</mvx-button>
+```
+
+Use `mivix-ui/auto` when you want all components registered:
+
+```ts
+import 'mivix-ui/auto';
+import 'mivix-ui/styles';
+```
+
+The root package export stays tree-shakable:
+
+```ts
+import { MvxButton, MvxChart } from 'mivix-ui';
+```
+
+## Free Core and Pro
+
+`mivix-ui` is the free MIT-licensed core package. The core is intended to stay useful on its own: teams can build production apps with the base components, theme tokens, SSR helpers, docs, and examples.
+
+Mivix UI follows an open-core direction. Advanced commercial features may move into future Pro offerings such as templates, enterprise themes, advanced data tooling, and support packages. See [PRO.md](./PRO.md).
+
+## Documentation
+
+- Docs site: https://devduocouple.github.io/mivix-ui/
+- Demo and framework setup sections are in this README and `docs/index.html`
+- Changelog: [CHANGELOG.md](./CHANGELOG.md)
+- Architecture and roadmap: [ROADMAP.md](./ROADMAP.md)
+
+## What to expect on npm
+
+This release highlights the parts that matter most to teams evaluating a UI library:
+
+- **Framework parity**: works with JS, TS, React, Next.js, Angular, Vue, and Blazor
+- **Composable foundation**: small, explicit imports for tree-shaken bundles
+- **Product-ready visuals**: charts, icon updates, checkbox, and new playground controls
+- **AI-oriented workflows**: chart insights, AI panel patterns, and reusable iconography
+- **Enterprise-ready tokens**: theme system, directionality, locale and accessibility support
+
+## Featured examples to show
+
+1) **Getting started**
+
+```bash
+npm install mivix-ui@alpha
+```
+
+```ts
+import 'mivix-ui/styles';
+import { define } from 'mivix-ui/core';
+import { MvxButton } from 'mivix-ui/components/button';
+import { MvxInput } from 'mivix-ui/components/input';
+
+define('mvx-button', MvxButton);
+define('mvx-input', MvxInput);
+```
+
+```html
+<div style="display:flex; gap: .75rem; align-items:center">
+  <mvx-input label="Project name" />
+  <mvx-button variant="primary">Create</mvx-button>
+</div>
+```
+
+2) **Core UI primitives**
+
+Buttons, switches, checkbox, and input variants with consistent interaction and style settings.
+
+```html
+<mvx-button tone="success">Approve</mvx-button>
+<mvx-button tone="danger">Reject</mvx-button>
+<mvx-switch checked label="Auto-save"></mvx-switch>
+<mvx-checkbox checked>Enable notifications</mvx-checkbox>
+```
+
+3) **Data and charts**
+
+```html
+<mvx-chart id="daily" type="bar" title="Daily Active Users"></mvx-chart>
+<mvx-chart id="funnel" type="cohort-funnel" title="Cohort Funnel"></mvx-chart>
+```
+
+```ts
+const dailyChart = document.querySelector('mvx-chart#daily');
+const funnelChart = document.querySelector('mvx-chart#funnel');
+
+if (dailyChart) {
+  dailyChart.series = [{ name: 'Users', data: [12, 24, 19, 38, 42, 55] }];
+}
+if (funnelChart) {
+  funnelChart.series = [
+    {
+      name: 'Cohort',
+      data: [1000, 760, 480, 260, 140],
+      stages: ['Visit', 'Sign up', 'Activate', 'Subscribe', 'Renew']
+    }
+  ];
+}
+```
+
+4) **Theme and style system**
+
+```html
+<div data-mvx-theme="terminal" data-mvx-font="mono">
+  <mvx-card title="Operations view">...</mvx-card>
+</div>
+```
+
+5) **AI + icon updates**
+
+```html
+<mvx-ai-panel title="Agent flow">
+  <mvx-icon name="brain" size="20"></mvx-icon>
+  <mvx-icon name="sparkles" size="20"></mvx-icon>
+  <mvx-icon name="chip" size="20"></mvx-icon>
+</mvx-ai-panel>
+```
+
+6) **Framework snippets**
+
+- `JavaScript`: custom element imports with direct registration
+- `TypeScript`: typed imports and component-class usage
+- `Next.js`: client-side registration in a `"use client"` entry
+- `Blazor`: `mivix` web component interop pattern
+
+## Screenshot gallery (desktop + mobile)
+
+Drop final screenshots into `assets/screenshots/` and keep these file names:
+
+- `hero-actions-forms-desktop.svg`
+- `charts-cohort-funnel-desktop.svg`
+- `theme-switcher-desktop.svg`
+- `framework-react-ts-usage-desktop.svg`
+- `icon-gallery-desktop.svg`
+- `icon-gallery-mobile.svg`
+
+| Section | Screenshot |
+| - | - |
+| Hero actions and forms | ![Hero actions and forms](https://raw.githubusercontent.com/devduocouple/mivix-ui/main/assets/screenshots/hero-actions-forms-desktop.svg) |
+| Charts and cohort funnel | ![Charts and cohort funnel](https://raw.githubusercontent.com/devduocouple/mivix-ui/main/assets/screenshots/charts-cohort-funnel-desktop.svg) |
+| Theme and style system | ![Theme and style system](https://raw.githubusercontent.com/devduocouple/mivix-ui/main/assets/screenshots/theme-switcher-desktop.svg) |
+| Framework snippet preview | ![Framework snippet preview](https://raw.githubusercontent.com/devduocouple/mivix-ui/main/assets/screenshots/framework-react-ts-usage-desktop.svg) |
+| Icon gallery (desktop) | ![Icon gallery desktop](https://raw.githubusercontent.com/devduocouple/mivix-ui/main/assets/screenshots/icon-gallery-desktop.svg) |
+| Icon gallery (mobile) | ![Icon gallery mobile](https://raw.githubusercontent.com/devduocouple/mivix-ui/main/assets/screenshots/icon-gallery-mobile.svg) |
 
 ## Alpha Status
 

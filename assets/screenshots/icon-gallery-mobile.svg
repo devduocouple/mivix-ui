@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844">
+  <defs>
+    <linearGradient id="g6" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0b1020"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+  </defs>
+  <rect width="390" height="844" fill="url(#g6)"/>
+  <rect x="14" y="18" width="362" height="808" rx="16" fill="#0b1222" stroke="#334155"/>
+  <text x="28" y="58" font-family="Arial, sans-serif" font-size="26" fill="#93c5fd">Icon Gallery - Mobile</text>
+  <rect x="30" y="82" width="328" height="94" rx="10" fill="#0f172a" stroke="#475569"/>
+  <text x="48" y="128" font-family="Arial, sans-serif" font-size="20" fill="#e2e8f0">Compact cards + tighter spacing</text>
+  <rect x="30" y="190" width="328" height="560" rx="10" fill="#111827" stroke="#475569"/>
+  <rect x="48" y="220" width="292" height="72" rx="10" fill="#1d4ed8"/>
+  <rect x="48" y="308" width="292" height="72" rx="10" fill="#2563eb"/>
+  <rect x="48" y="396" width="292" height="72" rx="10" fill="#1e40af"/>
+  <rect x="48" y="484" width="292" height="72" rx="10" fill="#1d4ed8"/>
+  <rect x="48" y="572" width="292" height="72" rx="10" fill="#1e3a8a"/>
+  <text x="48" y="786" font-family="Arial, sans-serif" font-size="18" fill="#94a3b8">Swipeable preview and pagination bullets</text>
+</svg>
+

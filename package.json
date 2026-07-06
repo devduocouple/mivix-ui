@@ -80,7 +80,15 @@
     "blazor",
     "theme"
   ],
+  "author": {
+    "name": "devduocouple",
+    "url": "https://github.com/devduocouple"
+  },
   "license": "MIT",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/devduocouple/mivix-ui"
+  },
   "publishConfig": {
     "access": "public"
   },

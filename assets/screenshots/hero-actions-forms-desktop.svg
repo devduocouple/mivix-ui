@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675">
+  <defs>
+    <linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#g1)"/>
+  <rect x="28" y="24" width="1144" height="627" rx="12" fill="#0b1120" stroke="#334155" stroke-width="2"/>
+  <text x="48" y="74" font-family="Arial, sans-serif" font-size="36" fill="#93c5fd">Mivix UI - Hero Actions &amp; Forms</text>
+  <rect x="72" y="118" width="520" height="58" rx="10" fill="#0f172a" stroke="#475569"/>
+  <text x="98" y="159" font-family="Arial, sans-serif" font-size="20" fill="#e2e8f0">Project name</text>
+  <rect x="620" y="118" width="212" height="58" rx="10" fill="#2563eb" />
+  <text x="692" y="157" font-family="Arial, sans-serif" font-size="24" fill="#e2e8f0">Create</text>
+  <rect x="864" y="118" width="212" height="58" rx="10" fill="#0ea5e9"/>
+  <text x="915" y="157" font-family="Arial, sans-serif" font-size="24" fill="#e2e8f0">Auto-save enabled</text>
+  <rect x="72" y="210" width="250" height="130" rx="12" fill="#1e293b"/>
+  <text x="94" y="272" font-family="Arial, sans-serif" font-size="20" fill="#bfdbfe">Approve</text>
+  <rect x="344" y="210" width="250" height="130" rx="12" fill="#ef4444"/>
+  <text x="366" y="272" font-family="Arial, sans-serif" font-size="20" fill="#fee2e2">Reject</text>
+  <rect x="616" y="210" width="240" height="130" rx="12" fill="#22c55e"/>
+  <text x="678" y="272" font-family="Arial, sans-serif" font-size="20" fill="#dcfce7">Checkbox</text>
+  <text x="48" y="610" font-family="Arial, sans-serif" font-size="22" fill="#94a3b8">Placeholder preview — replace with final screenshot</text>
+</svg>
+
