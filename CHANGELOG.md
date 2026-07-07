@@ -4,7 +4,25 @@ All notable changes to Mivix UI will be documented in this file.
 
 Mivix UI is currently alpha software. APIs, component behavior, and styling details may change before the first beta.
 
-## 0.1.0-alpha.0 - Foundation Release
+## 0.1.0-alpha.2 - Foundation Refresh
+
+### Added
+
+- README refresh with compact project overview and showcase screenshots.
+- Release publish automation with token-aware workflow (`.env.npm`, `scripts/publish.js`), plus release helper docs.
+- npm metadata updates for homepage and repository visibility on npm.
+
+### Changed
+
+- Versioning docs now emphasize current channel (`alpha`) and the active target (`0.1.0-alpha.2`).
+- Removed references to historical release docs from active README guidance.
+- `.npmrc` usage aligned for local login and automation token flows.
+
+### Fixed
+
+- Clarified distribution docs to keep package publication steps and changelog references aligned.
+
+## 0.1.0-alpha.0 - Foundation Release (Historical)
 
 ### Added
 

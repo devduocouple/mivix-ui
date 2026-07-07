@@ -1,11 +1,11 @@
 {
   "name": "mivix-ui",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.2",
   "description": "Reactive, AI-ready Web Components for JavaScript, TypeScript, Next.js, React, Angular, Vue, .NET, and plain HTML.",
-  "homepage": "https://devduocouple.github.io/mivix-ui/",
+  "homepage": "https://www.mivix-ui.io/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/devduocouple/mivix-ui.git"
+    "url": "https://github.com/devduocouple/mivix-ui"
   },
   "bugs": {
     "url": "https://github.com/devduocouple/mivix-ui/issues"
@@ -60,6 +60,12 @@
     "test:tooltip:screenshot": "node scripts/screenshot-tooltip.js",
     "check": "node --check src/index.js && node --check src/auto.js && node --check scripts/dev-server.js && node --check scripts/build-docs.js && node --check scripts/validate-doc-previews.js && node scripts/validate-doc-previews.js && node scripts/check-component-doc-sync.js",
     "check:previews": "node scripts/validate-doc-previews.js && node scripts/check-component-doc-sync.js",
+    "publish:alpha": "node scripts/publish.js alpha",
+    "publish:alpha-latest": "node scripts/publish.js alpha-latest",
+    "publish:set-latest": "node scripts/publish.js set-latest",
+    "release:alpha": "npm run publish:alpha",
+    "release:alpha:latest": "npm run publish:alpha-latest",
+    "release:set-latest": "npm run publish:set-latest",
     "prepublishOnly": "npm run check"
   },
   "keywords": [

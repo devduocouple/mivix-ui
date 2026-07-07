@@ -9,7 +9,9 @@ coverage/
 .env
 .env.*
 !.env.example
+.env.npm
 .DS_Store
+.npmrc
 
 # Local dev servers and package manager caches
 .npm/
