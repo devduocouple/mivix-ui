@@ -41,6 +41,7 @@
     "src",
     "docs",
     "examples",
+    "assets",
     "scripts",
     "CHANGELOG.md",
     "CONTRIBUTING.md",

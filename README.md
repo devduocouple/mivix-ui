@@ -60,13 +60,13 @@ define('mvx-input', MvxInput);
 
 ## Showcase
 
-![Icon Gallery](assets/screenshots/icon-gallery-desktop.svg)
+![Landing Page](./assets/screenshots/landing-page-desktop.png)
 
-![Chart Library](assets/screenshots/charts-cohort-funnel-desktop.svg)
+![Icon Components](./assets/screenshots/icons-components-desktop.png)
 
-![Components and Forms](assets/screenshots/hero-actions-forms-desktop.svg)
+![Charts Group](./assets/screenshots/chart-group-desktop.png)
 
-![Theme Switching](assets/screenshots/theme-switcher-desktop.svg)
+![Switch](./assets/screenshots/switch-desktop.png)
 
 ## Documentation
 
