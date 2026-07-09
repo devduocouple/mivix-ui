@@ -45,6 +45,17 @@ export class MvxDropdownMenu extends MvxElement {
           padding: 0 12px;
         }
         button.trigger::after { content: "⌄"; color: var(--mvx-subtle); }
+        button.trigger:disabled {
+          cursor: not-allowed;
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          color: var(--mvx-disabled-fg);
+          box-shadow: var(--mvx-disabled-shadow);
+          filter: saturate(0.88);
+        }
+        button.trigger:disabled::after {
+          color: var(--mvx-disabled-fg);
+        }
         .menu {
           position: absolute;
           z-index: 20;
@@ -79,15 +90,21 @@ export class MvxDropdownMenu extends MvxElement {
           text-align: start;
           text-decoration: none;
         }
-        .item:hover,
-        .item:focus-visible {
+        .item:not([aria-disabled="true"]):hover,
+        .item:not([aria-disabled="true"]):focus-visible {
           background: color-mix(in srgb, var(--mvx-accent) 12%, var(--mvx-bg-inset));
           color: var(--mvx-fg);
           outline: none;
         }
         .shortcut { color: var(--mvx-subtle); font-family: var(--mvx-font-mono); font-size: 11px; }
         .separator { block-size: 1px; margin: 5px; background: var(--mvx-border); }
-        .item[aria-disabled="true"] { cursor: not-allowed; opacity: 0.5; }
+        .item[aria-disabled="true"] {
+          cursor: not-allowed;
+          background: transparent;
+          color: var(--mvx-disabled-fg);
+          box-shadow: none;
+          filter: saturate(0.88);
+        }
       </style>
       <button class="trigger" part="trigger" aria-haspopup="menu" aria-expanded="${this.hasAttribute('open')}" ${this.hasAttribute('disabled') ? 'disabled' : ''}>
         <slot name="trigger">${htmlEscape(label)}</slot>

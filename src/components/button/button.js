@@ -92,7 +92,16 @@ export class MvxButton extends MvxElement {
         }
         button:disabled {
           cursor: not-allowed;
-          opacity: 0.55;
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          color: var(--mvx-disabled-fg);
+          box-shadow: var(--mvx-disabled-shadow);
+          transform: none;
+          filter: saturate(0.88);
+        }
+        button:disabled::before,
+        button:disabled::after {
+          display: none;
         }
         .primary {
           --button-bg: var(--mvx-accent);

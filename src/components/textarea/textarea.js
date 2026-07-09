@@ -59,9 +59,18 @@ export class MvxTextarea extends MvxElement {
         :host([invalid]) textarea {
           border-color: var(--mvx-danger);
         }
+        :host([disabled]) label,
+        :host([disabled]) .meta {
+          color: var(--mvx-disabled-fg);
+        }
         textarea:disabled,
         textarea[readonly] {
-          opacity: 0.65;
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          color: var(--mvx-disabled-fg);
+          box-shadow: var(--mvx-disabled-shadow);
+          cursor: not-allowed;
+          filter: saturate(0.88);
         }
         .meta {
           display: flex;

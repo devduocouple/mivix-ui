@@ -59,8 +59,25 @@ export class MvxList extends MvxElement {
         li.selectable {
           cursor: pointer;
         }
-        li.selectable:hover {
+        li.selectable:not([aria-disabled="true"]):hover {
           border-color: var(--mvx-border-strong);
+        }
+        li[aria-disabled="true"] {
+          cursor: not-allowed;
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          color: var(--mvx-disabled-fg);
+          box-shadow: var(--mvx-disabled-shadow);
+          filter: saturate(0.88);
+        }
+        li[aria-disabled="true"] .title,
+        li[aria-disabled="true"] .description,
+        li[aria-disabled="true"] .meta {
+          color: var(--mvx-disabled-fg);
+        }
+        li[aria-disabled="true"] .media {
+          color: var(--mvx-disabled-fg);
+          background: color-mix(in srgb, var(--mvx-disabled-bg) 78%, transparent);
         }
         li:focus-visible {
           outline: none;
@@ -86,8 +103,9 @@ export class MvxList extends MvxElement {
         ${items.map((item, index) => {
           const value = String(item.value ?? item.label ?? index);
           const selected = value === String(this.value);
+          const disabled = Boolean(item.disabled);
           return `
-            <li role="${selectable ? 'option' : 'listitem'}" tabindex="${selectable ? '0' : '-1'}" data-index="${index}" aria-selected="${selected}" class="${selectable ? 'selectable' : ''}">
+            <li role="${selectable ? 'option' : 'listitem'}" tabindex="${selectable && !disabled ? '0' : '-1'}" data-index="${index}" aria-selected="${selected}" aria-disabled="${disabled}" class="${selectable ? 'selectable' : ''}">
               <span class="media">${htmlEscape(item.avatar || item.icon || String(index + 1))}</span>
               <span class="copy">
                 <span class="title">${htmlEscape(item.title || item.label || '')}</span>

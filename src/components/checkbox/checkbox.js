@@ -110,7 +110,7 @@ export class MvxCheckbox extends MvxElement {
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.12),
             inset 0 -1px 2px rgba(0, 0, 0, 0.26),
-            inset 0 0 0 1px rgba(0, 0, 0, 0.08),
+            inset 0 0 0 1px rgba(0, 0, 0, 0.08);
           transform: translateY(-1px);
         }
         button:focus-visible {
@@ -125,7 +125,20 @@ export class MvxCheckbox extends MvxElement {
         }
         button:disabled {
           cursor: not-allowed;
-          opacity: 0.55;
+          color: var(--mvx-disabled-fg);
+          filter: saturate(0.88);
+        }
+        button:disabled .box {
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          box-shadow: var(--mvx-disabled-shadow);
+          transform: none;
+        }
+        button:disabled .mark,
+        button:disabled .label,
+        button:disabled .helper {
+          color: var(--mvx-disabled-fg);
+          text-shadow: none;
         }
       </style>
       <button part="checkbox" role="checkbox" aria-checked="${ariaChecked}" ${disabled ? 'disabled' : ''} aria-required="${this.hasAttribute('required')}">

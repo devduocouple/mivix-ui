@@ -171,9 +171,17 @@ export class MvxDatePicker extends MvxElement {
           border-color: var(--mvx-accent);
           box-shadow: var(--mvx-focus);
         }
+        :host([disabled]) label,
+        :host([disabled]) .helper {
+          color: var(--mvx-disabled-fg);
+        }
         input:disabled {
           cursor: not-allowed;
-          opacity: 0.6;
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          color: var(--mvx-disabled-fg);
+          box-shadow: var(--mvx-disabled-shadow);
+          filter: saturate(0.88);
         }
         .helper {
           color: var(--mvx-subtle);
@@ -251,7 +259,16 @@ export class MvxDatePicker extends MvxElement {
         }
         .trigger:disabled {
           cursor: not-allowed;
-          opacity: 0.6;
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          color: var(--mvx-disabled-fg);
+          box-shadow: var(--mvx-disabled-shadow);
+          transform: none;
+          filter: saturate(0.88);
+        }
+        :host([disabled]) .field,
+        :host([disabled]) .helper {
+          color: var(--mvx-disabled-fg);
         }
         .value {
           overflow: hidden;
@@ -323,7 +340,7 @@ export class MvxDatePicker extends MvxElement {
           color: var(--mvx-fg);
           cursor: pointer;
         }
-        .nav:hover {
+        .nav:hover:not(:disabled) {
           border-color: var(--mvx-border-strong);
           color: var(--mvx-accent-2);
         }
@@ -391,7 +408,11 @@ export class MvxDatePicker extends MvxElement {
         }
         .day:disabled {
           cursor: not-allowed;
-          opacity: 0.3;
+          border-color: transparent;
+          background: transparent;
+          color: var(--mvx-disabled-fg);
+          box-shadow: none;
+          filter: saturate(0.88);
         }
         .range-preview {
           display: grid;

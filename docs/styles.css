@@ -304,6 +304,7 @@ body.mobile-nav-open .mobile-nav-toggle span:nth-child(3) {
 .rail-search {
   display: grid;
   gap: 6px;
+  margin-block-start: 6px;
 }
 
 .rail-search span {
@@ -320,8 +321,16 @@ body.mobile-nav-open .mobile-nav-toggle span:nth-child(3) {
   border-radius: var(--mvx-radius-sm);
   background: var(--mvx-bg-inset);
   color: var(--mvx-fg);
+  color-scheme: var(--mvx-color-scheme, dark);
+  accent-color: var(--mvx-accent);
+  caret-color: var(--mvx-accent);
   outline: none;
   padding: 0 11px;
+}
+
+.rail-search input::placeholder {
+  color: color-mix(in srgb, var(--mvx-muted) 72%, transparent);
+  opacity: 1;
 }
 
 .rail-search input:focus {
@@ -685,6 +694,10 @@ body.mobile-nav-open .mobile-nav-toggle span:nth-child(3) {
   --tree-active-surface:
     linear-gradient(145deg, color-mix(in srgb, var(--mvx-accent) 10%, transparent), transparent 42%),
     var(--mvx-bg-panel);
+}
+
+.tree-nav [hidden] {
+  display: none !important;
 }
 
 .tree-nav summary {
@@ -1254,8 +1267,29 @@ body.component-page .component-detail {
   border-radius: var(--mvx-radius-sm);
   background: var(--mvx-bg-inset);
   color: var(--mvx-fg);
+  color-scheme: var(--mvx-color-scheme, dark);
+  accent-color: var(--mvx-accent);
+  caret-color: var(--mvx-accent);
   font: inherit;
   padding: 0 11px;
+}
+
+.chart-search input::placeholder {
+  color: color-mix(in srgb, var(--mvx-muted) 72%, transparent);
+  opacity: 1;
+}
+
+.rail-search input::-webkit-search-cancel-button,
+.chart-search input::-webkit-search-cancel-button {
+  cursor: pointer;
+  opacity: 0.72;
+}
+
+.rail-search input:hover::-webkit-search-cancel-button,
+.rail-search input:focus::-webkit-search-cancel-button,
+.chart-search input:hover::-webkit-search-cancel-button,
+.chart-search input:focus::-webkit-search-cancel-button {
+  opacity: 0.92;
 }
 
 .chart-search input:focus-visible,

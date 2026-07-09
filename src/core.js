@@ -1,7 +1,7 @@
 export const baseStyles = `
   :host {
     box-sizing: border-box;
-    color-scheme: dark;
+    color-scheme: var(--mvx-color-scheme, dark);
     color: var(--mvx-fg);
     direction: inherit;
     font-family: var(--mvx-font-sans);
@@ -11,6 +11,10 @@ export const baseStyles = `
     --mvx-surface-backdrop: none;
     --mvx-control-glaze: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02));
     --mvx-control-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 8px 18px rgba(0, 0, 0, 0.18);
+    --mvx-disabled-fg: color-mix(in srgb, var(--mvx-muted) 82%, var(--mvx-fg) 18%);
+    --mvx-disabled-bg: color-mix(in srgb, var(--mvx-bg-inset) 74%, var(--mvx-bg-panel));
+    --mvx-disabled-border: color-mix(in srgb, var(--mvx-border) 82%, var(--mvx-muted) 18%);
+    --mvx-disabled-shadow: inset 0 1px 0 color-mix(in srgb, var(--mvx-fg) 4%, transparent);
     --mvx-hover-lift: -1px;
     --mvx-touch-target: 44px;
     --mvx-container-max: 1440px;
@@ -61,6 +65,7 @@ export const baseStyles = `
 
   :host([theme="dark"]),
   :host([theme="graphite"]) {
+    --mvx-color-scheme: dark;
     --mvx-bg: #111315;
     --mvx-bg-raised: #181a1d;
     --mvx-bg-panel: #202226;
@@ -79,7 +84,8 @@ export const baseStyles = `
   }
 
   :host([theme="light"]) {
-    color-scheme: light;
+    --mvx-color-scheme: light;
+    color-scheme: var(--mvx-color-scheme);
     --mvx-bg: #f6f7f9;
     --mvx-bg-raised: #ffffff;
     --mvx-bg-panel: #fdfefe;
@@ -100,6 +106,7 @@ export const baseStyles = `
   }
 
   :host([theme="aurora"]) {
+    --mvx-color-scheme: dark;
     --mvx-bg: #11161b;
     --mvx-bg-raised: #182024;
     --mvx-bg-panel: #202a2f;
@@ -118,6 +125,7 @@ export const baseStyles = `
   }
 
   :host([theme="terminal"]) {
+    --mvx-color-scheme: dark;
     --mvx-bg: #070808;
     --mvx-bg-raised: #101211;
     --mvx-bg-panel: #171a18;
@@ -213,13 +221,50 @@ export const baseStyles = `
     box-sizing: border-box;
   }
 
-  button, input, textarea {
+  button, input, select, textarea {
     font: inherit;
     letter-spacing: 0;
   }
 
+  input, select, textarea {
+    color-scheme: var(--mvx-color-scheme, dark);
+    accent-color: var(--mvx-accent);
+  }
+
+  input::-webkit-search-cancel-button {
+    cursor: pointer;
+    opacity: 0.72;
+  }
+
+  input:hover::-webkit-search-cancel-button,
+  input:focus::-webkit-search-cancel-button {
+    opacity: 0.92;
+  }
+
   button {
     color: inherit;
+  }
+
+  :host([disabled]) {
+    cursor: not-allowed;
+  }
+
+  button:disabled,
+  input:disabled,
+  select:disabled,
+  textarea:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+    color: var(--mvx-disabled-fg);
+    filter: saturate(0.88);
+  }
+
+  input:disabled,
+  select:disabled,
+  textarea:disabled {
+    border-color: var(--mvx-disabled-border);
+    background: var(--mvx-disabled-bg);
+    box-shadow: var(--mvx-disabled-shadow);
   }
 
   :host([radius]) article,

@@ -37,6 +37,7 @@ export { MvxDropdownMenu } from './components/dropdown-menu/index.js';
 export { MvxPopover } from './components/popover/index.js';
 export { MvxNavbar } from './components/navbar/index.js';
 export { MvxSidebar } from './components/sidebar/index.js';
+export { MvxSidebarDropdown } from './components/sidebar-dropdown/index.js';
 export { MvxDivider } from './components/divider/index.js';
 export { MvxList } from './components/list/index.js';
 export { MvxSpinner } from './components/spinner/index.js';

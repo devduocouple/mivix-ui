@@ -50,25 +50,39 @@ export class MvxRadioGroup extends MvxElement {
     this.shadowRoot.innerHTML = `
       <style>
         ${baseStyles}
-        :host { display: block; }
-        fieldset {
+        :host { display: inline-block; inline-size: auto; }
+        .group-wrap {
           display: grid;
-          gap: 10px;
-          min-inline-size: 0;
-          margin: 0;
-          border: 0;
-          padding: 0;
+          gap: 4px;
         }
-        legend {
+        .group-label {
           color: var(--mvx-muted);
           font-size: 13px;
           font-weight: 750;
+          padding-inline: 2px;
+          line-height: 1.2;
+        }
+        fieldset {
+          display: grid;
+          gap: 0;
+          min-inline-size: 0;
+          margin: 0;
+          width: fit-content;
+          min-width: 0;
           padding: 0;
+          border: 1px solid var(--mvx-border);
+          border-radius: var(--mvx-radius-md);
+          background: var(--mvx-control-glaze), var(--mvx-bg-inset);
+          box-shadow: var(--mvx-control-shadow);
+          overflow: hidden;
         }
         .options {
           display: ${horizontal ? 'flex' : 'grid'};
-          flex-wrap: wrap;
-          gap: 8px;
+          flex-wrap: ${horizontal ? 'nowrap' : 'wrap'};
+          width: fit-content;
+          min-width: 0;
+          gap: 0;
+          border-radius: 0;
         }
         button {
           display: grid;
@@ -76,15 +90,18 @@ export class MvxRadioGroup extends MvxElement {
           gap: 9px;
           align-items: start;
           min-block-size: 34px;
-          border: 1px solid var(--mvx-border);
-          border-radius: var(--mvx-radius-sm);
-          background: var(--mvx-control-glaze), var(--mvx-bg-inset);
+          border: 0;
+          border-radius: 0;
+          background: transparent;
           color: var(--mvx-fg);
           cursor: pointer;
-          box-shadow: var(--mvx-control-shadow);
           padding: 8px 10px;
           text-align: start;
-          transition: background var(--mvx-duration), border-color var(--mvx-duration), box-shadow var(--mvx-duration), transform var(--mvx-duration-fast);
+          transition: background var(--mvx-duration), color var(--mvx-duration), transform var(--mvx-duration-fast);
+        }
+        .options button:not(:first-child) {
+          border-inline-start: ${horizontal ? '1px solid var(--mvx-border)' : '0'};
+          border-top: ${horizontal ? '0' : '1px solid var(--mvx-border)'};
         }
         .dot {
           display: grid;
@@ -108,11 +125,10 @@ export class MvxRadioGroup extends MvxElement {
           transition: opacity var(--mvx-duration-fast), transform var(--mvx-duration-fast);
         }
         button[aria-checked="true"] {
-          border-color: color-mix(in srgb, var(--mvx-accent) 58%, var(--mvx-border));
           background:
             linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 14%, transparent), transparent),
             color-mix(in srgb, var(--mvx-accent) 14%, var(--mvx-bg-inset));
-          box-shadow: var(--mvx-control-shadow), 0 8px 18px color-mix(in srgb, var(--mvx-accent) 14%, transparent);
+          color: var(--mvx-radio-selected-fg);
         }
         button[aria-checked="true"] .dot {
           border-color: var(--mvx-accent);
@@ -127,39 +143,76 @@ export class MvxRadioGroup extends MvxElement {
           opacity: 1;
           transform: scale(1);
         }
+        button[aria-checked="true"] .item-label {
+          color: var(--mvx-radio-selected-fg);
+          font-weight: 800;
+        }
+        button[aria-checked="true"] .description {
+          color: color-mix(in srgb, var(--mvx-radio-selected-fg) 78%, var(--mvx-subtle) 22%);
+        }
         button:focus-visible {
           outline: none;
-          box-shadow: var(--mvx-focus), var(--mvx-control-shadow);
+          box-shadow: var(--mvx-focus);
         }
         button:hover:not(:disabled) {
-          border-color: color-mix(in srgb, var(--mvx-accent) 42%, var(--mvx-border-strong));
           transform: translateY(var(--mvx-hover-lift));
         }
         button:disabled {
           cursor: not-allowed;
-          opacity: 0.55;
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          color: var(--mvx-disabled-fg);
+          box-shadow: var(--mvx-disabled-shadow);
+          transform: none;
+          filter: saturate(0.88);
+        }
+        button:disabled .dot {
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          box-shadow: var(--mvx-disabled-shadow);
+        }
+        button:disabled .description {
+          color: var(--mvx-disabled-fg);
+        }
+        :host([orientation='horizontal']) .options button:first-child {
+          border-start-start-radius: var(--mvx-radius-md);
+          border-end-start-radius: var(--mvx-radius-md);
+        }
+        :host([orientation='horizontal']) .options button:last-child {
+          border-start-end-radius: var(--mvx-radius-md);
+          border-end-end-radius: var(--mvx-radius-md);
+        }
+        :host(:not([orientation='horizontal'])) .options button:first-child {
+          border-start-start-radius: var(--mvx-radius-md);
+          border-start-end-radius: var(--mvx-radius-md);
+        }
+        :host(:not([orientation='horizontal'])) .options button:last-child {
+          border-end-start-radius: var(--mvx-radius-md);
+          border-end-end-radius: var(--mvx-radius-md);
         }
         .copy { display: grid; gap: 2px; }
-        .label { font-size: 13px; font-weight: 700; }
+        .item-label { font-size: 13px; font-weight: 700; }
         .description { color: var(--mvx-subtle); font-size: 12px; line-height: 1.35; }
-      </style>
-      <fieldset part="group" role="radiogroup" aria-label="${htmlEscape(label)}" aria-required="${this.hasAttribute('required')}">
-        ${label ? `<legend>${htmlEscape(label)}</legend>` : ''}
-        <div class="options">
-          ${options.map((option, index) => {
-            const selected = String(option.value) === String(this.value);
-            return `
-              <button role="radio" aria-checked="${selected}" tabindex="${selected || (!this.value && index === 0) ? '0' : '-1'}" data-value="${htmlEscape(option.value)}" ${disabled || option.disabled ? 'disabled' : ''}>
-                <span class="dot" aria-hidden="true"></span>
-                <span class="copy">
-                  <span class="label">${htmlEscape(option.label)}</span>
-                  ${option.description ? `<span class="description">${htmlEscape(option.description)}</span>` : ''}
-                </span>
-              </button>
-            `;
-          }).join('')}
-        </div>
-      </fieldset>
+        </style>
+      <div class="group-wrap">
+        ${label ? `<div class="group-label">${htmlEscape(label)}</div>` : ''}
+        <fieldset part="group" role="radiogroup" aria-label="${htmlEscape(label)}" aria-required="${this.hasAttribute('required')}">
+          <div class="options ${horizontal ? 'is-horizontal' : 'is-vertical'}">
+            ${options.map((option, index) => {
+              const selected = String(option.value) === String(this.value);
+              return `
+                <button role="radio" aria-checked="${selected}" tabindex="${selected || (!this.value && index === 0) ? '0' : '-1'}" data-value="${htmlEscape(option.value)}" ${disabled || option.disabled ? 'disabled' : ''}>
+                  <span class="dot" aria-hidden="true"></span>
+                  <span class="copy">
+                    <span class="item-label">${htmlEscape(option.label)}</span>
+                    ${option.description ? `<span class="description">${htmlEscape(option.description)}</span>` : ''}
+                  </span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </fieldset>
+      </div>
     `;
     const buttons = [...this.shadowRoot.querySelectorAll('button')];
     buttons.forEach((button, index) => {

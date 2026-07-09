@@ -57,9 +57,22 @@ export class MvxPagination extends MvxElement {
           background: color-mix(in srgb, var(--mvx-accent) 18%, var(--mvx-bg-inset));
           color: var(--mvx-fg);
         }
+        button:disabled {
+          cursor: not-allowed;
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          color: var(--mvx-disabled-fg);
+          box-shadow: var(--mvx-disabled-shadow);
+          filter: saturate(0.88);
+        }
         :host([component-style="clean"]) button:hover:not(:disabled) {
           background: color-mix(in srgb, var(--mvx-accent) 8%, transparent);
           color: var(--mvx-fg);
+        }
+        :host([component-style="clean"]) button:disabled {
+          border-color: transparent;
+          background: transparent;
+          box-shadow: none;
         }
         :host([component-style="clean"]) button[aria-current="page"] {
           border-color: transparent;

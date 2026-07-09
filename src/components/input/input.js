@@ -1,7 +1,7 @@
 import { baseStyles, MvxElement, htmlEscape } from '../../core.js';
 
 export class MvxInput extends MvxElement {
-  static observedAttributes = ['label', 'placeholder', 'value', 'type', 'helper', 'invalid', 'multiline'];
+  static observedAttributes = ['label', 'placeholder', 'value', 'type', 'helper', 'invalid', 'multiline', 'disabled'];
 
   get value() {
     return this._value ?? this.getAttribute('value') ?? '';
@@ -23,7 +23,8 @@ export class MvxInput extends MvxElement {
     const helperId = helper ? `${id}-helper` : '';
     const controlLabel = label || placeholder || this.t('input', 'Input');
     const ariaAttrs = `aria-label="${htmlEscape(controlLabel)}" ${helperId ? `aria-describedby="${helperId}"` : ''} aria-invalid="${this.hasAttribute('invalid')}"`;
-    const attrs = tag === 'input' ? `type="${htmlEscape(type)}" ${ariaAttrs}` : `rows="4" ${ariaAttrs}`;
+    const stateAttrs = this.hasAttribute('disabled') ? 'disabled' : '';
+    const attrs = tag === 'input' ? `type="${htmlEscape(type)}" ${ariaAttrs} ${stateAttrs}` : `rows="4" ${ariaAttrs} ${stateAttrs}`;
     this.shadowRoot.innerHTML = `
       <style>
         ${baseStyles}
@@ -53,6 +54,18 @@ export class MvxInput extends MvxElement {
         }
         :host([invalid]) input, :host([invalid]) textarea {
           border-color: var(--mvx-danger);
+        }
+        :host([disabled]) label,
+        :host([disabled]) .helper {
+          color: var(--mvx-disabled-fg);
+        }
+        input:disabled,
+        textarea:disabled {
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          color: var(--mvx-disabled-fg);
+          box-shadow: var(--mvx-disabled-shadow);
+          cursor: not-allowed;
         }
         .helper {
           color: var(--mvx-subtle);

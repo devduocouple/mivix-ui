@@ -235,9 +235,18 @@ export class MvxChatbot extends MvxElement {
           padding: 7px 9px;
           font-size: 12px;
         }
-        .suggestions button:hover, .header-actions button:hover, .composer button:hover {
+        .suggestions button:hover:not(:disabled), .header-actions button:hover:not(:disabled), .composer button:hover:not(:disabled) {
           transform: translateY(-1px);
           border-color: var(--mvx-accent);
+        }
+        .suggestions button:disabled, .header-actions button:disabled, .composer button:disabled {
+          cursor: not-allowed;
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          color: var(--mvx-disabled-fg);
+          box-shadow: var(--mvx-disabled-shadow);
+          transform: none;
+          filter: saturate(0.88);
         }
         .composer {
           display: grid;
@@ -263,6 +272,12 @@ export class MvxChatbot extends MvxElement {
           background: var(--mvx-accent);
           color: white;
           font-weight: 800;
+        }
+        .composer button[type="submit"]:disabled {
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          color: var(--mvx-disabled-fg);
+          box-shadow: var(--mvx-disabled-shadow);
         }
         .meta {
           display: flex;

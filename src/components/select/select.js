@@ -89,9 +89,17 @@ export class MvxSelect extends MvxElement {
         :host([invalid]) select {
           border-color: var(--mvx-danger);
         }
+        :host([disabled]) label,
+        :host([disabled]) .helper {
+          color: var(--mvx-disabled-fg);
+        }
         select:disabled {
           cursor: not-allowed;
-          opacity: 0.6;
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          color: var(--mvx-disabled-fg);
+          box-shadow: var(--mvx-disabled-shadow);
+          filter: saturate(0.88);
         }
         .helper {
           color: var(--mvx-subtle);

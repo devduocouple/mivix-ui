@@ -244,6 +244,11 @@ export class MvxDataTable extends MvxElement {
           color: var(--mvx-muted);
           font-size: 13px;
         }
+        .column-menu label.disabled {
+          color: var(--mvx-disabled-fg);
+          cursor: not-allowed;
+          filter: saturate(0.88);
+        }
         .scroll {
           max-block-size: min(68vh, 720px);
           overflow: auto;
@@ -376,7 +381,7 @@ export class MvxDataTable extends MvxElement {
                 <summary>${htmlEscape(this.t('columns', 'Columns'))}</summary>
                 <div class="column-menu">
                   ${this.columns.map(column => `
-                    <label>
+                    <label class="${column.locked ? 'disabled' : ''}">
                       <input type="checkbox" data-column-toggle="${htmlEscape(column.key)}" ${this._hiddenColumns.has(column.key) || column.hidden ? '' : 'checked'} ${column.locked ? 'disabled' : ''} />
                       <span>${htmlEscape(column.label || column.key)}</span>
                     </label>

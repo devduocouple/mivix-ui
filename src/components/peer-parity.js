@@ -69,9 +69,14 @@ const sharedStyles = `
   button:disabled,
   input:disabled,
   select:disabled,
-  textarea:disabled {
+  textarea:disabled,
+  [aria-disabled="true"] {
     cursor: not-allowed;
-    opacity: 0.58;
+    border-color: var(--mvx-disabled-border);
+    background: var(--mvx-disabled-bg);
+    color: var(--mvx-disabled-fg);
+    box-shadow: var(--mvx-disabled-shadow);
+    filter: saturate(0.88);
   }
 `;
 
@@ -361,8 +366,31 @@ export class MvxAutocomplete extends MvxPeerElement {
 export class MvxCombobox extends MvxAutocomplete {}
 
 export class MvxButtonGroup extends MvxPeerElement {
+  select(item, index) {
+    if (this.hasAttribute('disabled') || item.disabled) return;
+    const value = String(item.value ?? optionLabel(item, index));
+    this.emit('mvx-select', { item, index, value });
+    this.emit('mvx-change', { item, index, value });
+  }
+
+  syncSlottedDisabled(slot) {
+    const disabled = this.hasAttribute('disabled');
+    slot?.assignedElements?.().forEach(element => {
+      if (element.localName !== 'mvx-button') return;
+      if (disabled) {
+        if (!element.hasAttribute('disabled')) element.dataset.mvxGroupDisabled = 'true';
+        element.setAttribute('disabled', '');
+      } else if (element.dataset.mvxGroupDisabled === 'true') {
+        element.removeAttribute('disabled');
+        delete element.dataset.mvxGroupDisabled;
+      }
+    });
+  }
+
   render() {
     const vertical = this.getAttribute('orientation') === 'vertical';
+    const items = this.items;
+    const hasItems = items.length > 0;
     this.shadowRoot.innerHTML = `
       <style>
         ${sharedStyles}
@@ -392,6 +420,45 @@ export class MvxButtonGroup extends MvxPeerElement {
         ::slotted(mvx-button:only-child) {
           --mvx-button-radius: var(--mvx-radius-sm);
         }
+        button.item {
+          min-block-size: 36px;
+          border-radius: 0;
+          padding: 0 14px;
+          white-space: nowrap;
+        }
+        button.item:first-child {
+          border-radius: ${vertical ? 'var(--mvx-radius-sm) var(--mvx-radius-sm) 0 0' : 'var(--mvx-radius-sm) 0 0 var(--mvx-radius-sm)'};
+        }
+        button.item:last-child {
+          border-radius: ${vertical ? '0 0 var(--mvx-radius-sm) var(--mvx-radius-sm)' : '0 var(--mvx-radius-sm) var(--mvx-radius-sm) 0'};
+        }
+        button.item:only-child {
+          border-radius: var(--mvx-radius-sm);
+        }
+        button.item:not(:first-child) {
+          margin-inline-start: ${vertical ? '0' : '-1px'};
+          margin-block-start: ${vertical ? '-1px' : '0'};
+        }
+        button.item.primary {
+          border-color: color-mix(in srgb, var(--mvx-accent) 70%, white);
+          background: var(--mvx-accent);
+          color: white;
+        }
+        button.item.danger {
+          border-color: color-mix(in srgb, var(--mvx-danger) 56%, var(--mvx-border));
+          background: color-mix(in srgb, var(--mvx-danger) 24%, var(--mvx-bg-panel));
+        }
+        button.item.ghost {
+          background: transparent;
+          box-shadow: none;
+        }
+        button.item:disabled {
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          color: var(--mvx-disabled-fg);
+          box-shadow: var(--mvx-disabled-shadow);
+          filter: saturate(0.88);
+        }
         ::slotted(:not(:first-child)) {
           margin-inline-start: ${vertical ? '0' : '-1px'} !important;
           margin-block-start: ${vertical ? '-1px' : '0'} !important;
@@ -402,9 +469,24 @@ export class MvxButtonGroup extends MvxPeerElement {
         }
       </style>
       <div class="group" part="group" role="group" aria-label="${htmlEscape(this.titleText('Button group'))}">
-        <slot></slot>
+        ${hasItems ? items.map((item, index) => {
+          const label = optionLabel(item, `Action ${index + 1}`);
+          const value = String(item.value ?? label);
+          const variant = String(item.variant || item.tone || '').trim();
+          const disabled = this.hasAttribute('disabled') || Boolean(item.disabled);
+          return `<button type="button" class="item ${htmlEscape(variant)}" data-index="${index}" data-value="${escapeAttr(value)}" ${disabled ? 'disabled' : ''}>${htmlEscape(label)}</button>`;
+        }).join('') : '<slot></slot>'}
       </div>
     `;
+    if (hasItems) {
+      this.shadowRoot.querySelectorAll('button.item').forEach(button => {
+        button.addEventListener('click', () => this.select(items[Number(button.dataset.index)], Number(button.dataset.index)));
+      });
+      return;
+    }
+    const slot = this.shadowRoot.querySelector('slot');
+    slot?.addEventListener('slotchange', () => this.syncSlottedDisabled(slot));
+    this.syncSlottedDisabled(slot);
   }
 }
 

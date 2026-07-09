@@ -56,6 +56,22 @@ export class MvxSwitch extends MvxElement {
         button[aria-checked="true"] .thumb {
           transform: translate(18px, -50%);
         }
+        button:disabled {
+          cursor: not-allowed;
+          filter: saturate(0.88);
+        }
+        button:disabled .track {
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          box-shadow: var(--mvx-disabled-shadow);
+        }
+        button:disabled .thumb {
+          background: color-mix(in srgb, var(--mvx-disabled-fg) 34%, var(--mvx-bg-panel));
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+        }
+        button:disabled .label {
+          color: var(--mvx-disabled-fg);
+        }
         button:focus-visible {
           outline: none;
         }

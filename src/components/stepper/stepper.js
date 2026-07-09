@@ -120,7 +120,27 @@ export class MvxStepper extends MvxElement {
         .label { font-size: 13px; font-weight: 750; }
         .description { color: var(--mvx-subtle); font-size: 12px; line-height: 1.35; }
         button:focus-visible { outline: none; box-shadow: var(--mvx-focus); }
-        button:disabled { cursor: not-allowed; opacity: 0.55; }
+        button:disabled {
+          cursor: not-allowed;
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          color: var(--mvx-disabled-fg);
+          box-shadow: var(--mvx-disabled-shadow);
+          filter: saturate(0.88);
+        }
+        button:disabled .index {
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          color: var(--mvx-disabled-fg);
+        }
+        button:disabled .description {
+          color: var(--mvx-disabled-fg);
+        }
+        :host([component-style="clean"]) button:disabled {
+          border-color: transparent;
+          background: transparent;
+          box-shadow: none;
+        }
       </style>
       <ol part="stepper" aria-label="${htmlEscape(this.t('steps', 'Steps'))}">
         ${steps.map((step, index) => {

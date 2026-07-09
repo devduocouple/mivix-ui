@@ -48,6 +48,14 @@ export class MvxPopover extends MvxElement {
           outline: none;
           box-shadow: var(--mvx-focus);
         }
+        .trigger:disabled {
+          cursor: not-allowed;
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          color: var(--mvx-disabled-fg);
+          box-shadow: var(--mvx-disabled-shadow);
+          filter: saturate(0.88);
+        }
       </style>
       <button class="trigger" part="trigger" aria-haspopup="dialog" aria-expanded="${this.hasAttribute('open')}" ${this.hasAttribute('disabled') ? 'disabled' : ''}>
         <slot name="trigger">${htmlEscape(label)}</slot>

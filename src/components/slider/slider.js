@@ -77,7 +77,11 @@ export class MvxSlider extends MvxElement {
         }
         input:disabled {
           cursor: not-allowed;
-          opacity: 0.55;
+          filter: grayscale(0.18) saturate(0.82);
+        }
+        :host([disabled]) .head,
+        :host([disabled]) .value {
+          color: var(--mvx-disabled-fg);
         }
       </style>
       <div class="wrap" part="slider">

@@ -1182,6 +1182,7 @@
       ];
       let activeFilter = 'all';
       let query = '';
+      let catalogTotalMatches = 0;
       let activeApiRows = [];
       let activeSnippetName = 'Component';
       const chartGalleryState = { query: '', page: 1, pageSize: 3 };
@@ -7385,18 +7386,21 @@ render(() => <App />, document.getElementById('root')!);`
       }
 
       function updateCatalog() {
-        let visible = 0;
         const normalized = query.trim().toLowerCase();
+        let matchedCards = 0;
         cards.forEach(card => {
           const categoryMatch = activeFilter === 'all' || card.dataset.category === activeFilter;
           const text = `${card.getAttribute('title')} ${card.getAttribute('eyebrow')} ${card.dataset.search}`.toLowerCase();
           const searchMatch = !normalized || text.includes(normalized);
           const show = categoryMatch && searchMatch;
+          card.dataset.match = show ? '1' : '0';
+          if (show) matchedCards += 1;
           card.hidden = !show;
-          if (show) visible += 1;
         });
-        count.textContent = String(visible);
-        emptyState.hidden = document.body.classList.contains('component-page') || visible !== 0;
+        catalogTotalMatches = matchedCards;
+        updateSidebarNavigationFilter();
+        count.textContent = String(catalogTotalMatches);
+        emptyState.hidden = document.body.classList.contains('component-page') || catalogTotalMatches !== 0;
       }
 
       function openAncestorDetails(element) {
@@ -7405,6 +7409,96 @@ render(() => <App />, document.getElementById('root')!);`
           if (node.tagName === 'DETAILS') node.setAttribute('open', '');
           node = node.parentElement;
         }
+      }
+
+      function getSidebarMatchText(node) {
+        const label = (node.textContent || '').trim().toLowerCase();
+        const title = (node.getAttribute('title') || '').toLowerCase();
+        const dataParts = [
+          node.dataset.filter,
+          node.dataset.guide,
+          node.dataset.component,
+          node.dataset.template,
+          node.dataset.agentFeature,
+          node.dataset.chartDemo
+        ].filter(Boolean).map(value => value.toLowerCase().replaceAll('-', ' '));
+        return `${label} ${title} ${dataParts.join(' ')}`.trim();
+      }
+
+      function clearSidebarSearchFilter() {
+        guideLinks.forEach(item => {
+          item.hidden = false;
+        });
+        componentLinks.forEach(item => {
+          item.hidden = false;
+        });
+        templateLinks.forEach(item => {
+          item.hidden = false;
+        });
+        agentFeatureLinks.forEach(item => {
+          item.hidden = false;
+        });
+        chartDemoLinks.forEach(item => {
+          item.hidden = false;
+        });
+        document.querySelectorAll('.tree-nav details').forEach(group => {
+          group.hidden = false;
+        });
+      }
+
+      function updateSidebarNavigationFilter() {
+        const normalized = query.trim().toLowerCase();
+        if (!normalized) {
+          clearSidebarSearchFilter();
+          return;
+        }
+
+        const visibleComponents = new Set();
+        cards.forEach(card => {
+          if (card.dataset.match === '1') {
+            const name = card.dataset.tagName || card.getAttribute('title');
+            if (name) visibleComponents.add(name);
+          }
+        });
+
+        guideLinks.forEach(item => {
+          item.hidden = !getSidebarMatchText(item).includes(normalized);
+        });
+        componentLinks.forEach(item => {
+          const name = item.dataset.component;
+          const match = getSidebarMatchText(item).includes(normalized);
+          const isVisible = visibleComponents.has(name);
+          item.hidden = !(match && isVisible);
+        });
+        templateLinks.forEach(item => {
+          item.hidden = !getSidebarMatchText(item).includes(normalized);
+        });
+        agentFeatureLinks.forEach(item => {
+          item.hidden = !getSidebarMatchText(item).includes(normalized);
+        });
+        chartDemoLinks.forEach(item => {
+          item.hidden = !getSidebarMatchText(item).includes(normalized);
+        });
+
+        function syncDetailsVisibility(node) {
+          const children = [...node.children];
+          let hasVisibleChild = false;
+
+          children.forEach(child => {
+            if (child.tagName === 'DETAILS') {
+              syncDetailsVisibility(child);
+              if (!child.hidden) hasVisibleChild = true;
+            }
+            if ((child.tagName === 'BUTTON' || child.tagName === 'SUMMARY') && !child.hidden) {
+              hasVisibleChild = true;
+            }
+          });
+
+          node.hidden = !hasVisibleChild;
+          if (hasVisibleChild) node.setAttribute('open', '');
+        }
+
+        document.querySelectorAll('.tree-nav > details.tree-root').forEach(syncDetailsVisibility);
       }
 
       function clearActiveNavigation() {
@@ -7567,6 +7661,10 @@ render(() => <App />, document.getElementById('root')!);`
 
       search.addEventListener('input', event => {
         query = event.target.value;
+        if (query.trim()) {
+          activeFilter = 'all';
+          groupLinks.forEach(filter => filter.classList.remove('active'));
+        }
         setComponentPage(false);
         clearRoute();
         clearActiveNavigation();
