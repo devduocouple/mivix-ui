@@ -1,7 +1,7 @@
 import { baseStyles, MvxElement, parseData, htmlEscape } from '../../core.js';
 
 export class MvxTimeline extends MvxElement {
-  static observedAttributes = ['items', 'variant'];
+  static observedAttributes = ['items', 'type'];
 
   set items(value) {
     this._items = value;
@@ -13,8 +13,8 @@ export class MvxTimeline extends MvxElement {
   }
 
   render() {
-    const variant = this.getAttribute('variant') || 'default';
-    const compact = variant === 'compact';
+    const type = this.getAttribute('type') || 'default';
+    const compact = type === 'compact';
     const label = this.getAttribute('label') || this.t('timeline', 'Timeline');
     this.shadowRoot.innerHTML = `
       <style>

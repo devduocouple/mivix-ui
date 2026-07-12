@@ -7,7 +7,7 @@ import 'mivix-ui/styles';
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
-    <mvx-button variant="primary">Deploy</mvx-button>
+    <mvx-button type="solid" tone="primary">Deploy</mvx-button>
     <mvx-input label="Project" placeholder="mivix-ui"></mvx-input>
     <mvx-alert tone="success" title="Ready">Web Components work directly in Angular.</mvx-alert>
   `

@@ -27,6 +27,8 @@
         try {
           const theme = localStorage.getItem('mivix-ui:theme');
           if (theme) document.documentElement.setAttribute('data-mvx-theme', theme);
+          const variant = localStorage.getItem('mivix-ui:variant');
+          if (variant) document.documentElement.setAttribute('data-mvx-variant', variant);
         } catch {}
       })();
     </script>
@@ -51,6 +53,7 @@
         <span class="mobile-shell-mark">M</span>
         <strong>Mivix UI</strong>
       </div>
+      <mvx-variant-switcher></mvx-variant-switcher>
       <mvx-theme-switcher></mvx-theme-switcher>
     </header>
     <button class="mobile-nav-backdrop" id="mobile-nav-backdrop" type="button" aria-label="Close navigation" hidden></button>
@@ -62,6 +65,7 @@
             <strong>Mivix UI</strong>
           </div>
           <div class="rail-actions">
+            <mvx-variant-switcher></mvx-variant-switcher>
             <mvx-theme-switcher></mvx-theme-switcher>
             <mvx-icon-button id="open-command" label="Command">⌘</mvx-icon-button>
           </div>
@@ -70,7 +74,7 @@
           <span>Search</span>
           <input id="component-search" type="search" placeholder="button, timeline, tabs..." autocomplete="off" />
         </label>
-        <span id="component-count" class="sr-only">136</span>
+        <span id="component-count" class="sr-only">137</span>
         <nav class="tree-nav" aria-label="Component tree">
           <details class="tree-root guide-root" open>
             <summary data-guide="install">Get started <small>14</small></summary>
@@ -89,7 +93,7 @@
             <button data-guide="dotnet">.NET / Blazor</button>
           </details>
           <details class="tree-root" open>
-            <summary class="active" data-filter="all">All components <small>136</small></summary>
+            <summary class="active" data-filter="all">All components <small>137</small></summary>
             <details open>
               <summary data-filter="actions">Actions <small>9</small></summary>
               <button data-component="mvx-button">mvx-button</button>
@@ -163,11 +167,12 @@
               <button data-component="mvx-chatbot">mvx-chatbot</button>
             </details>
             <details>
-              <summary data-filter="layout">Layout & themes <small>25</small></summary>
+              <summary data-filter="layout">Layout & themes <small>26</small></summary>
               <button data-component="mvx-app-shell">mvx-app-shell</button>
               <button data-component="mvx-card">mvx-card</button>
               <button data-component="mvx-divider">mvx-divider</button>
               <button data-component="mvx-theme-switcher">mvx-theme-switcher</button>
+              <button data-component="mvx-variant-switcher">mvx-variant-switcher</button>
             </details>
           </details>
           <details class="tree-root template-root" open>
@@ -233,7 +238,7 @@
             <h1>Build AI-ready apps with framework-neutral Web Components.</h1>
             <p>Mivix UI gives product teams a component ecosystem for dashboards, admin tools, assistant workspaces, and dense product UI across JavaScript, TypeScript, Next.js, React, Angular, Vue, Blazor, and plain HTML.</p>
             <div class="hero-actions">
-              <mvx-button variant="primary" id="hero-search">Browse components</mvx-button>
+              <mvx-button type="solid" tone="primary" id="hero-search">Browse components</mvx-button>
               <mvx-button id="copy-install">Copy install</mvx-button>
               <mvx-button id="open-drawer">Theme tokens</mvx-button>
             </div>
@@ -242,7 +247,7 @@
               <code>npm install mivix-ui@alpha</code>
             </div>
             <div class="hero-proof" aria-label="Mivix UI proof points">
-              <span><strong>136</strong> component folders</span>
+              <span><strong>137</strong> component folders</span>
               <span><strong>0</strong> runtime dependencies</span>
               <span><strong>8</strong> supported app stacks</span>
               <span><strong>SSR</strong> JSON helpers</span>
@@ -466,15 +471,19 @@
         </section>
 
         <section class="component-grid" id="catalog">
-          <mvx-card class="component-card" title="mvx-button" eyebrow="Actions" data-category="actions" data-search="button action primary loading danger ghost">
+          <mvx-card class="component-card" title="mvx-button" eyebrow="Actions" data-category="actions" data-search="button action solid outline dashed dotted subtle plain link primary loading danger ghost">
             <div class="variants" aria-label="Related versions">
               <span>button</span><span>icon</span><span>group</span><span>fab</span>
             </div>
             <div class="cluster">
-              <mvx-button variant="primary">Primary</mvx-button>
-              <mvx-button>Neutral</mvx-button>
-              <mvx-button variant="ghost">Ghost</mvx-button>
-              <mvx-button variant="danger">Danger</mvx-button>
+              <mvx-button type="solid" tone="primary">Solid</mvx-button>
+              <mvx-button type="outline" tone="primary">Outline</mvx-button>
+              <mvx-button type="dashed" tone="secondary">Dashed</mvx-button>
+              <mvx-button type="dotted" tone="info">Dotted</mvx-button>
+              <mvx-button type="subtle" tone="success">Subtle</mvx-button>
+              <mvx-button type="ghost">Ghost</mvx-button>
+              <mvx-button type="link" tone="info">Link</mvx-button>
+              <mvx-button type="solid" tone="danger">Danger</mvx-button>
               <mvx-button loading>Syncing</mvx-button>
             </div>
           </mvx-card>
@@ -674,7 +683,7 @@
               label="Workspace"
               items='[
                 {"label":"Overview","icon":"O","active":true},
-                {"label":"Components","icon":"C","badge":"136"},
+                {"label":"Components","icon":"C","badge":"137"},
                 {"label":"Settings","icon":"S"}
               ]'
             ></mvx-sidebar>
@@ -700,7 +709,7 @@
             </div>
             <div class="stack">
               <p class="demo-copy">Focused dialog surface with backdrop close and Escape handling.</p>
-              <mvx-button id="open-modal" variant="primary">Open modal</mvx-button>
+              <mvx-button id="open-modal" type="solid" tone="primary">Open modal</mvx-button>
             </div>
           </mvx-card>
 
@@ -735,7 +744,7 @@
             <div class="variants" aria-label="Related versions">
               <span>skeleton</span><span>placeholder</span><span>loading</span>
             </div>
-            <mvx-skeleton lines="4"></mvx-skeleton>
+            <mvx-skeleton lines="4" width="280px" height="120px"></mvx-skeleton>
           </mvx-card>
 
           <mvx-card class="component-card" title="mvx-spinner" eyebrow="Feedback" data-category="feedback" data-search="spinner loading progress busy dots ring">
@@ -744,7 +753,7 @@
             </div>
             <div class="cluster">
               <mvx-spinner label="Loading"></mvx-spinner>
-              <mvx-spinner variant="dots" tone="success" label=""></mvx-spinner>
+              <mvx-spinner type="dots" tone="success" label=""></mvx-spinner>
             </div>
           </mvx-card>
 
@@ -917,6 +926,16 @@
               <mvx-theme-switcher></mvx-theme-switcher>
             </div>
           </mvx-card>
+
+          <mvx-card class="component-card" title="mvx-variant-switcher" eyebrow="Layout" data-category="layout" data-search="variant switcher shape radius material">
+            <div class="variants" aria-label="Related versions">
+              <span>variant</span><span>shape</span><span>material</span>
+            </div>
+            <div class="stack">
+              <p class="demo-copy">Variant state is stored on `data-mvx-variant`.</p>
+              <mvx-variant-switcher></mvx-variant-switcher>
+            </div>
+          </mvx-card>
         </section>
 
         <section class="empty-state" id="empty-state" hidden>
@@ -932,7 +951,7 @@
         <mvx-alert tone="info" title="Contract">Mivix components emit DOM events and expose CSS parts.</mvx-alert>
         <div class="cluster end">
           <mvx-button id="close-modal">Cancel</mvx-button>
-          <mvx-button variant="primary">Create</mvx-button>
+          <mvx-button type="solid" tone="primary">Create</mvx-button>
         </div>
       </div>
     </mvx-modal>
@@ -1108,6 +1127,9 @@
       ];
       const palette = document.querySelector('#palette');
       palette.items = commandItems;
+      document.addEventListener('mvx-control-open', event => {
+        if (event.detail?.type !== 'command') palette.removeAttribute('open');
+      });
       const shortcuts = document.querySelector('#docs-shortcuts');
       shortcuts.items = [
         { label: 'Open commands', shortcut: 'Mod+K', command: 'open-command-palette', allowInput: true },
@@ -1121,6 +1143,7 @@
       const agentFeatureLinks = [...document.querySelectorAll('[data-agent-feature]')];
       const chartDemoLinks = [...document.querySelectorAll('[data-chart-demo]')];
       const templateLinks = [...document.querySelectorAll('[data-template]')];
+      const docsRail = document.querySelector('#docs-rail');
       const mobileNavToggle = document.querySelector('#mobile-nav-toggle');
       const mobileNavBackdrop = document.querySelector('#mobile-nav-backdrop');
       const mobileNavMedia = window.matchMedia('(max-width: 860px)');
@@ -1467,6 +1490,7 @@
         const showToast = options.toast !== false;
         const actions = {
           'open-command-palette': () => {
+            document.dispatchEvent(new CustomEvent('mvx-control-open', { detail: { source: palette, type: 'command' } }));
             palette.setAttribute('open', '');
             return 'Command palette opened.';
           },
@@ -2503,13 +2527,14 @@
 
       const globalApi = [
         { name: 'theme', type: 'dark | light | graphite | aurora | terminal', default: 'inherit', description: 'Color scheme only. Use dark/light for plain schemes or named themes for richer palettes.' },
-            { name: 'component-style', type: 'console | clean | minimal | glass | dashboard | group', default: 'console', description: 'Structural style: changes component layout, surface treatment, density, and animation without changing color tokens.', options: ['console', 'clean', 'minimal', 'glass', 'dashboard', 'group'] },
+        { name: 'component-style', type: 'console | clean | minimal | glass | dashboard | group', default: 'console', description: 'Structural style: changes component layout, surface treatment, density, and animation without changing color tokens.', options: ['console', 'clean', 'minimal', 'glass', 'dashboard', 'group'] },
+        { name: 'variant', type: 'mivix | material', default: 'inherit', description: 'Visual family. Use material to opt a component into Material shape and motion without changing its API behavior.', options: ['mivix', 'material'] },
         { name: 'font', type: 'system | mono | serif | rounded | humanist | geometric | devanagari | CSS font stack', default: 'inherit', description: 'Typography family preset or custom font stack. External web fonts should be loaded by the app first.', options: ['system', 'mono', 'serif', 'rounded', 'humanist', 'geometric', 'devanagari'] },
         { name: 'radius', type: 'number | CSS length | square | rounded', default: 'inherit', description: 'Controls corners from square edges to a specific rounding amount.' },
         { name: 'dir', type: 'ltr | rtl | auto', default: 'inherit', description: 'Direction-aware layout for bidirectional interfaces.' },
         { name: 'lang', type: 'BCP 47 tag', default: 'document lang', description: 'Language metadata for assistive technology and globalization. The playground lists standard ISO 639 language tags.' },
         { name: 'locale', type: 'BCP 47 locale', default: 'document lang', description: 'Locale used by comparison/format-aware components such as date formatting and data table sorting.' },
-        { name: 'skeleton', type: 'boolean attribute | text | card | chart | table | avatar | button | input', default: 'false', description: 'Renders a component-shaped loading placeholder and marks the host aria-busy.' },
+        { name: 'skeleton', type: 'boolean attribute | text | card | chart | table | avatar | button | input | icon | media | circle', default: 'false', description: 'Renders a loading placeholder sized to the component and marks the host aria-busy.' },
         { name: 'skeleton-lines', type: 'number', default: '3', description: 'Number of placeholder rows for the global skeleton state.' },
         { name: 'i18n', type: 'JSON object', default: '{}', description: 'Overrides built-in component labels such as close, previous, next, and empty states.' }
       ];
@@ -2517,17 +2542,18 @@
       const docs = {
         'mvx-button': {
           family: 'Actions',
-          description: 'Action button with primary, neutral, ghost, danger, loading, and size variants.',
+          description: 'Action button with solid, outline, dashed, dotted, ghost, subtle, plain, and link treatments plus semantic tones.',
           usage: 'Use for explicit product actions like create, save, deploy, approve, cancel, and destructive commands.',
           features: ['Native button semantics', 'Cursor-reactive hover light and tilt', 'Intent-aware click motion for primary and danger actions', 'Loading state with aria-busy', 'Reduced-motion support'],
           api: [
-            { name: 'variant', type: 'neutral | primary | ghost | danger', default: 'neutral', description: 'Visual intent of the action.' },
+            { name: 'type', type: 'solid | outline | dashed | dotted | ghost | subtle | plain | link', default: 'solid', description: 'Visual treatment and emphasis.', options: ['solid', 'outline', 'dashed', 'dotted', 'ghost', 'subtle', 'plain', 'link'] },
+            { name: 'tone', type: 'neutral | primary | secondary | success | warning | danger | info', default: 'neutral', description: 'Semantic color intent.', options: ['neutral', 'primary', 'secondary', 'success', 'warning', 'danger', 'info'] },
             { name: 'size', type: 'sm | md | lg', default: 'md', description: 'Button density.' },
             { name: 'motion', type: 'subtle | none', default: 'subtle', description: 'Controls pointer-reactive hover and press animation.' },
             { name: 'loading', type: 'boolean attribute', default: 'false', description: 'Disables the action and shows a spinner.' },
             { name: 'disabled', type: 'boolean attribute', default: 'false', description: 'Prevents interaction.' }
           ],
-          demo: '<mvx-button data-playground-target variant="primary">Deploy</mvx-button>'
+          demo: '<mvx-button data-playground-target type="solid" tone="primary">Deploy</mvx-button>'
         },
         'mvx-icon-button': {
           family: 'Actions',
@@ -2808,7 +2834,7 @@
   label="Workspace"
   items='[
     {"label":"Overview","icon":"O","active":true},
-    {"label":"Components","icon":"C","badge":"136"},
+    {"label":"Components","icon":"C","badge":"137"},
     {"label":"Settings","icon":"S"}
   ]'
 ></mvx-sidebar>`
@@ -2942,25 +2968,27 @@
           family: 'Feedback',
           description: 'Loading placeholder for content that has not arrived yet.',
           usage: 'Use in cards, lists, tables, and assistant responses while data is loading.',
-          features: ['Configurable line count', 'Reduced motion support', 'Accessible loading status', 'Graphite shimmer'],
+          features: ['Configurable line count', 'Explicit width and height support', 'Reduced motion support', 'Accessible loading status', 'Graphite shimmer'],
           api: [
             { name: 'lines', type: 'number', default: '3', description: 'Number of placeholder rows.' },
+            { name: 'width', type: 'CSS length', default: '-', description: 'Optional explicit host width.' },
+            { name: 'height', type: 'CSS length', default: '-', description: 'Optional explicit host height.' },
             { name: 'label', type: 'string', default: 'Loading', description: 'Accessible loading status label.' }
           ],
-          demo: '<mvx-skeleton data-playground-target lines="4"></mvx-skeleton>'
+          demo: '<mvx-skeleton data-playground-target lines="4" width="320px" height="180px"></mvx-skeleton>'
         },
         'mvx-spinner': {
           family: 'Feedback',
-          description: 'Compact busy indicator with ring or dots variants, semantic status labeling, sizes, and tones.',
+          description: 'Compact busy indicator with ring or dots types, semantic status labeling, sizes, and tones.',
           usage: 'Use for inline loading, button-adjacent work, route transitions, and background task status.',
-          features: ['role=status label', 'Ring and dots variants', 'Small/medium/large sizes', 'Semantic tone colors', 'Reduced-motion support'],
+          features: ['role=status label', 'Ring and dots types', 'Small/medium/large sizes', 'Semantic tone colors', 'Reduced-motion support'],
           api: [
             { name: 'label', type: 'string', default: 'Loading', description: 'Accessible status label and optional visible label.' },
             { name: 'size', type: 'sm | md | lg', default: 'md', description: 'Spinner size.', options: ['sm', 'md', 'lg'] },
-            { name: 'variant', type: 'ring | dots', default: 'ring', description: 'Animation style.', options: ['ring', 'dots'] },
+            { name: 'type', type: 'ring | dots', default: 'ring', description: 'Animation style.', options: ['ring', 'dots'] },
             { name: 'tone', type: 'accent | success | warning | danger', default: 'accent', description: 'Semantic color.', options: ['accent', 'success', 'warning', 'danger'] }
           ],
-          demo: '<mvx-spinner data-playground-target label="Loading components" variant="ring" tone="accent"></mvx-spinner>'
+          demo: '<mvx-spinner data-playground-target label="Loading components" type="ring" tone="accent"></mvx-spinner>'
         },
         'mvx-avatar': {
           family: 'Data & workflow',
@@ -3109,7 +3137,7 @@
             { name: 'responsive', type: 'auto-fit | false', default: 'breakpoints', description: 'Use auto-fit to flow charts by available width.', options: ['auto-fit', 'false'] },
             { name: 'gap', type: 'CSS length', default: '14px', description: 'Spacing between the group header and chart panel.' },
             { name: 'density', type: 'comfortable | compact', default: 'comfortable', description: 'Adjusts internal group padding and spacing.', options: ['comfortable', 'compact'] },
-            { name: 'variant', type: 'default | plain', default: 'default', description: 'Plain removes the group surface while keeping the chart grid.', options: ['default', 'plain'] },
+            { name: 'type', type: 'default | plain', default: 'default', description: 'Plain removes the group surface while keeping the chart grid.', options: ['default', 'plain'] },
             { name: 'chart-card', type: 'card | flat', default: 'card', description: 'Controls child chart card shell; choose card for bordered charts, flat for plain chart canvases.', options: ['card', 'flat'] },
             { name: 'chart-height', type: 'number', default: '-', description: 'Default height applied to slotted charts that do not set their own height.' },
             { name: 'slot="actions"', type: 'slot', default: '-', description: 'Toolbar actions, filters, badges, or export buttons.' }
@@ -3161,7 +3189,7 @@
     ]'
   ></mvx-shortcuts>
   <mvx-input id="shortcut-demo-search" label="Search" placeholder="Press S to focus"></mvx-input>
-  <mvx-button id="shortcut-demo-action" variant="primary">Primary action</mvx-button>
+  <mvx-button id="shortcut-demo-action" type="solid" tone="primary">Primary action</mvx-button>
 </div>`
         },
         'mvx-ai-panel': {
@@ -3223,10 +3251,10 @@
           family: 'Data & workflow',
           description: 'Chronological activity and milestone display.',
           usage: 'Use for release history, audit events, assistant steps, and process milestones.',
-          features: ['Default and compact variants', 'Time labels', 'Icon markers', 'Ordered timeline semantics'],
+          features: ['Default and compact types', 'Time labels', 'Icon markers', 'Ordered timeline semantics'],
           api: [
             { name: 'items', type: 'array | JSON', default: '[]', description: 'Items with time, title, description, and icon.' },
-            { name: 'variant', type: 'default | compact', default: 'default', description: 'Timeline density.' },
+            { name: 'type', type: 'default | compact', default: 'default', description: 'Timeline density.', options: ['default', 'compact'] },
             { name: 'label', type: 'string', default: 'Timeline', description: 'Accessible timeline label.' }
           ],
           demo: '<mvx-timeline data-playground-target id="play-timeline"></mvx-timeline>'
@@ -3241,6 +3269,17 @@
             { name: 'open', type: 'boolean attribute', default: 'false', description: 'Controls dropdown state.' }
           ],
           demo: '<mvx-theme-switcher data-playground-target></mvx-theme-switcher>'
+        },
+        'mvx-variant-switcher': {
+          family: 'Layout',
+          description: 'Single-icon variant menu for app-wide component styling.',
+          usage: 'Use beside theme controls when users should switch component geometry and motion without changing component APIs.',
+          features: ['Shape trigger', 'Menuitemradio options', 'Named presets', 'Updates data-mvx-variant'],
+          api: [
+            { name: 'variants', type: 'comma-separated string', default: 'mivix,material', description: 'Variant IDs to show.' },
+            { name: 'open', type: 'boolean attribute', default: 'false', description: 'Controls dropdown state.' }
+          ],
+          demo: '<mvx-variant-switcher data-playground-target></mvx-variant-switcher>'
         }
       };
 
@@ -3250,7 +3289,7 @@
       };
 
       const componentExamples = {
-        'mvx-button': '<mvx-button variant="primary" size="lg">Create project</mvx-button>',
+        'mvx-button': '<mvx-button type="solid" tone="primary" size="lg">Create project</mvx-button>',
         'mvx-icon-button': '<mvx-icon-button label="Open settings">⚙</mvx-icon-button>',
         'mvx-input': '<mvx-input label="Repository" placeholder="owner/project" helper="Paste a GitHub repository path"></mvx-input>',
         'mvx-switch': '<mvx-switch checked label="Enable live reload"></mvx-switch>',
@@ -3262,7 +3301,7 @@
         'mvx-date-picker': '<mvx-date-picker label="Release window" range value="2026-07-02,2026-07-09"></mvx-date-picker>',
         'mvx-alert': '<mvx-alert tone="success" title="Deployment complete" closable>Your production build is live.</mvx-alert>',
         'mvx-badge': '<mvx-badge tone="success">Production</mvx-badge>',
-        'mvx-card': '<mvx-card title="Release health" eyebrow="Dashboard" interactive>All checks passed across 136 components.</mvx-card>',
+        'mvx-card': '<mvx-card title="Release health" eyebrow="Dashboard" interactive>All checks passed across 137 components.</mvx-card>',
         'mvx-accordion': `<mvx-accordion
   multiple
   items='[
@@ -3318,11 +3357,11 @@
         'mvx-stepper': '<mvx-stepper component-style="clean" id="release-stepper" active="1"></mvx-stepper>',
         'mvx-modal': `<mvx-modal open label="Delete project">
   <p>This action cannot be undone.</p>
-  <mvx-button variant="danger">Delete project</mvx-button>
+  <mvx-button type="solid" tone="danger">Delete project</mvx-button>
 </mvx-modal>`,
         'mvx-drawer': `<mvx-drawer open side="right" label="Filters">
   <mvx-switch checked label="Only show active workflows"></mvx-switch>
-  <mvx-button variant="primary">Apply filters</mvx-button>
+  <mvx-button type="solid" tone="primary">Apply filters</mvx-button>
 </mvx-drawer>`,
         'mvx-tooltip': '<mvx-tooltip placement="auto" content="Saves the <strong>current workspace</strong>"><mvx-button>Save</mvx-button></mvx-tooltip>',
         'mvx-dropdown-menu': '<mvx-dropdown-menu id="actions-menu" label="Actions" placement="end"></mvx-dropdown-menu>',
@@ -3331,14 +3370,14 @@
 </mvx-popover>`,
         'mvx-toast': '<mvx-toast open tone="success" duration="2400">Settings saved.</mvx-toast>',
         'mvx-progress': '<mvx-progress value="72" label="Migration progress" animated striped></mvx-progress>',
-        'mvx-skeleton': '<mvx-skeleton lines="4"></mvx-skeleton>',
-        'mvx-spinner': '<mvx-spinner label="Loading components" variant="ring" tone="accent"></mvx-spinner>',
+        'mvx-skeleton': '<mvx-skeleton lines="4" width="320px" height="160px"></mvx-skeleton>',
+        'mvx-spinner': '<mvx-spinner label="Loading components" type="ring" tone="accent"></mvx-spinner>',
         'mvx-avatar': '<mvx-avatar initials="SB" label="Saurya Bhoi" size="48"></mvx-avatar>',
         'mvx-list': '<mvx-list id="workflow-list" selectable value="build"></mvx-list>',
         'mvx-app-shell': `<mvx-app-shell style="--mvx-rail-width: 280px">
   <nav slot="rail">
     <strong>Mivix Console</strong>
-    <mvx-button variant="ghost">Dashboard</mvx-button>
+    <mvx-button type="ghost">Dashboard</mvx-button>
   </nav>
   <main>
     <h1>Workspace</h1>
@@ -3456,7 +3495,7 @@
   ]'
 ></mvx-shortcuts>`,
         'mvx-ai-panel': `<mvx-ai-panel name="Review Agent" status="Ready">
-  <mvx-button slot="actions" size="sm" variant="primary">Run review</mvx-button>
+  <mvx-button slot="actions" size="sm" type="solid" tone="primary">Run review</mvx-button>
   <p slot="message">I can inspect this component and suggest safer defaults.</p>
 </mvx-ai-panel>`,
         'mvx-chatbot': `<mvx-chatbot
@@ -3517,7 +3556,8 @@
     }
   ]'
 ></mvx-timeline>`,
-        'mvx-theme-switcher': '<mvx-theme-switcher themes="dark,light,graphite,aurora,terminal"></mvx-theme-switcher>'
+        'mvx-theme-switcher': '<mvx-theme-switcher themes="dark,light,graphite,aurora,terminal"></mvx-theme-switcher>',
+        'mvx-variant-switcher': '<mvx-variant-switcher variants="mivix,material"></mvx-variant-switcher>'
       };
 
       Object.entries(componentExamples).forEach(([name, code]) => {
@@ -3584,7 +3624,7 @@ navbar.items = [
           setup: `const sidebar = document.querySelector('#workspace-sidebar');
 sidebar.items = [
   { label: 'Overview', icon: 'O', active: true },
-  { label: 'Components', icon: 'C', badge: '136' },
+  { label: 'Components', icon: 'C', badge: '137' },
   { label: 'Settings', icon: 'S' }
 ];`
         },
@@ -3712,6 +3752,7 @@ timeline.items = [
         gap: { name: 'gap', type: 'CSS length', default: 'component default', description: 'Spacing between child items.' },
         headers: { name: 'headers', type: 'JSON object', default: '{}', description: 'Optional backend request headers for trusted same-origin gateways.' },
         height: { name: 'height', type: 'CSS length', default: 'component default', description: 'Visible height or viewport height.' },
+        width: { name: 'width', type: 'CSS length', default: 'component default', description: 'Visible width or matching container width.' },
         href: { name: 'href', type: 'URL', default: '#', description: 'Navigation target.' },
         inline: { name: 'inline', type: 'boolean attribute', default: 'false', description: 'Renders overlay-like components inline for demos and embedded layouts.' },
         items: { name: 'items', type: 'JSON array', default: '[]', description: 'Structured items with label, value, href, icon, description, children, disabled, or metadata.' },
@@ -3743,9 +3784,10 @@ timeline.items = [
         themes: { name: 'themes', type: 'comma-separated list', default: 'dark,light,graphite,aurora,terminal', description: 'Theme names shown by the theme controller.' },
         thickness: { name: 'thickness', type: 'hairline | ultralight | thin | light | normal | medium | semibold | bold | bolder | 50-1000', default: 'light', description: 'Alias for icon visual weight.', options: ['hairline', 'ultralight', 'thin', 'light', 'normal', 'medium', 'semibold', 'bold', 'bolder', '900'] },
         tone: { name: 'tone', type: 'neutral | primary | secondary | ghost | info | success | warning | danger', default: 'neutral', description: 'Semantic color intent.', options: ['neutral', 'primary', 'secondary', 'ghost', 'info', 'success', 'warning', 'danger'] },
+        typographyType: { name: 'type', type: 'h1 | h2 | h3 | h4 | body | caption | overline', default: 'body', description: 'Text display style.', options: ['h1', 'h2', 'h3', 'h4', 'body', 'caption', 'overline'] },
         uiSchema: { name: 'ui-schema', type: 'JSON object', default: '{}', description: 'UI schema hints for field order, widgets, labels, and helper text.' },
         value: { name: 'value', type: 'string | number', default: "''", description: 'Current value.' },
-        variant: { name: 'variant', type: 'string', default: 'default', description: 'Component-specific visual variant.' },
+        type: { name: 'type', type: 'string', default: 'default', description: 'Component-specific behavior or visual type.' },
         weight: { name: 'weight', type: 'hairline | ultralight | thin | light | normal | medium | semibold | bold | bolder | 50-1000', default: 'light', description: 'Icon font weight or thickness.', options: ['hairline', 'ultralight', 'thin', 'light', 'normal', 'medium', 'semibold', 'bold', 'bolder', '900'] },
         wide: { name: 'wide', type: 'boolean attribute', default: 'false', description: 'Uses the wider 1920px container target for dashboard and 4K layouts.' }
       };
@@ -3805,7 +3847,7 @@ autocomplete.options = [
           demo: `<mvx-button-group label="Editor actions">
   <mvx-button>Draft</mvx-button>
   <mvx-button>Preview</mvx-button>
-  <mvx-button variant="primary">Publish</mvx-button>
+  <mvx-button type="solid" tone="primary">Publish</mvx-button>
 </mvx-button-group>`
         },
         {
@@ -3919,7 +3961,7 @@ autocomplete.options = [
           usage: 'Use when search, filters, lists, dashboards, or workflows have no results yet.',
           tags: ['empty', 'placeholder', 'no results'],
           api: ['label'],
-          demo: '<mvx-empty-state title="No workflows" description="Create one to get started."><mvx-button slot="action" variant="primary">Create</mvx-button></mvx-empty-state>'
+          demo: '<mvx-empty-state title="No workflows" description="Create one to get started."><mvx-button slot="action" type="solid" tone="primary">Create</mvx-button></mvx-empty-state>'
         },
         {
           name: 'mvx-tree-view',
@@ -4174,11 +4216,11 @@ autocomplete.options = [
           name: 'mvx-typography',
           family: 'Content',
           category: 'data',
-          description: 'Text primitive with semantic element and display variants.',
+          description: 'Text primitive with semantic element and display types.',
           usage: 'Use for consistent headings, captions, labels, and body copy.',
           tags: ['typography', 'text', 'heading'],
-          api: ['variant', 'label'],
-          demo: '<mvx-typography as="h3" variant="h3">Readable component title</mvx-typography>'
+          api: ['typographyType', 'label'],
+          demo: '<mvx-typography as="h3" type="h3">Readable component title</mvx-typography>'
         },
         {
           name: 'mvx-link',
@@ -4218,7 +4260,7 @@ autocomplete.options = [
           usage: 'Use for KPI panels, dashboard metrics, and compact summaries.',
           tags: ['stat', 'metric', 'kpi'],
           api: ['value', 'label'],
-          demo: '<mvx-stat label="Coverage" value="136" delta="+94"></mvx-stat>'
+          demo: '<mvx-stat label="Coverage" value="137" delta="+94"></mvx-stat>'
         },
         {
           name: 'mvx-status',
@@ -4268,7 +4310,7 @@ autocomplete.options = [
           usage: 'Use for product sections, docs headers, and empty onboarding states.',
           tags: ['hero', 'header', 'section'],
           api: ['label'],
-          demo: '<mvx-hero title="Mivix UI" description="Peer-parity Web Components."><mvx-button variant="primary">Start</mvx-button></mvx-hero>'
+          demo: '<mvx-hero title="Mivix UI" description="Peer-parity Web Components."><mvx-button type="solid" tone="primary">Start</mvx-button></mvx-hero>'
         },
         {
           name: 'mvx-diff',
@@ -4564,7 +4606,7 @@ autocomplete.options = [
           usage: 'Use for list rows, menu-like content, cards inside panels, and object summaries.',
           tags: ['item', 'row', 'list item'],
           api: ['label'],
-          demo: '<mvx-item title="Component audit" description="136 components covered"><mvx-badge slot="actions" tone="success">Done</mvx-badge></mvx-item>'
+          demo: '<mvx-item title="Component audit" description="137 components covered"><mvx-badge slot="actions" tone="success">Done</mvx-badge></mvx-item>'
         },
         {
           name: 'mvx-icon',
@@ -4657,8 +4699,8 @@ autocomplete.options = [
           description: 'Placeholder alias backed by the skeleton loading implementation.',
           usage: 'Use for Bootstrap-style placeholders and loading states before content arrives.',
           tags: ['placeholder', 'skeleton', 'loading'],
-          api: ['lines'],
-          demo: '<mvx-placeholder lines="4"></mvx-placeholder>'
+          api: ['lines', 'width', 'height'],
+          demo: '<mvx-placeholder lines="4" width="320px" height="160px"></mvx-placeholder>'
         },
         {
           name: 'mvx-figure',
@@ -4744,7 +4786,7 @@ renderer.config = {
   attrs: { title: 'JSON configured', eyebrow: 'Renderer' },
   children: [
     { tag: 'p', text: 'Rendered from JSON config.' },
-    { tag: 'mvx-button', attrs: { variant: 'primary' }, text: 'Open' }
+    { tag: 'mvx-button', attrs: { type: 'solid', tone: 'primary' }, text: 'Open' }
   ]
 };`
         },
@@ -4961,7 +5003,7 @@ define('mvx-button', MvxButton);`
             ['6. Pass data', 'Set simple values as attributes and assign arrays or objects through JavaScript properties.'],
             ['7. Handle events', 'Use addEventListener for custom events such as mvx-click, mvx-change, and mvx-select.']
           ],
-          demo: '<mvx-button data-playground-target variant="primary">Deploy</mvx-button>',
+          demo: '<mvx-button data-playground-target type="solid" tone="primary">Deploy</mvx-button>',
           code: `<link rel="stylesheet" href="/node_modules/mivix-ui/src/styles/tokens.css" />
 <script type="module">
   import 'mivix-ui/auto';
@@ -4970,7 +5012,7 @@ define('mvx-button', MvxButton);`
     ?.addEventListener('mvx-click', event => console.log(event.detail));
 <\/script>
 
-<mvx-button variant="primary">Deploy</mvx-button>`
+<mvx-button type="solid" tone="primary">Deploy</mvx-button>`
         },
         typescript: {
           family: 'Get started',
@@ -5026,7 +5068,7 @@ import 'mivix-ui/auto';
 
 document.querySelector('#app')!.innerHTML = \`
   <mvx-card title="Vite setup" eyebrow="Mivix UI">
-    <mvx-button variant="primary">Create release</mvx-button>
+    <mvx-button type="solid" tone="primary">Create release</mvx-button>
   </mvx-card>
 \`;`
         },
@@ -5067,7 +5109,7 @@ export default function Page() {
     void import('mivix-ui/auto');
   }, []);
 
-  return <mvx-button variant="primary">Deploy</mvx-button>;
+  return <mvx-button type="solid" tone="primary">Deploy</mvx-button>;
 }`
         },
         react: {
@@ -5083,7 +5125,7 @@ export default function Page() {
             ['2. Import styles', 'Import mivix-ui/styles once in main.tsx, main.jsx, or App.tsx.'],
             ['3. Register elements', 'Import mivix-ui/auto for fast setup or define specific components in a setup file.'],
             ['4. Add JSX types', 'Import type {} from mivix-ui in TypeScript React projects.'],
-            ['5. Render JSX', 'Use mvx-* elements directly in JSX with attributes such as variant, label, title, tone, and component-style.'],
+            ['5. Render JSX', 'Use mvx-* elements directly in JSX with attributes such as type, variant, label, title, tone, and component-style.'],
             ['6. Use refs', 'Use React refs when setting complex properties or reading element APIs.'],
             ['7. Handle events', 'Attach custom DOM event listeners inside useEffect and remove them during cleanup.']
           ],
@@ -5108,7 +5150,7 @@ export function Toolbar() {
 
   return (
     <main>
-      <mvx-button ref={buttonRef} variant="primary">Deploy</mvx-button>
+      <mvx-button ref={buttonRef} type="solid" tone="primary">Deploy</mvx-button>
       <mvx-input label="Project" placeholder="mivix-ui" />
     </main>
   );
@@ -5144,7 +5186,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: \`
-    <mvx-button variant="primary" (mvx-click)="deploy()">Deploy</mvx-button>
+    <mvx-button type="solid" tone="primary" (mvx-click)="deploy()">Deploy</mvx-button>
     <mvx-input label="Project" placeholder="mivix-ui"></mvx-input>
   \`
 })
@@ -5193,7 +5235,7 @@ import 'mivix-ui/auto';
 
 // App.vue
 <template>
-  <mvx-button variant="primary" @mvx-click="deploy">Deploy</mvx-button>
+  <mvx-button type="solid" tone="primary" @mvx-click="deploy">Deploy</mvx-button>
   <mvx-input label="Project" placeholder="mivix-ui" />
 </template>`
         },
@@ -5230,7 +5272,7 @@ import 'mivix-ui/auto';
 
 // app.vue
 <template>
-  <mvx-button variant="primary">Deploy</mvx-button>
+  <mvx-button type="solid" tone="primary">Deploy</mvx-button>
 </template>`
         },
         svelte: {
@@ -5260,7 +5302,7 @@ import 'mivix-ui/auto';
 <slot />
 
 <!-- src/routes/+page.svelte -->
-<mvx-button variant="primary" on:mvx-click={() => console.log('Deploy')}>
+<mvx-button type="solid" tone="primary" on:mvx-click={() => console.log('Deploy')}>
   Deploy
 </mvx-button>
 <mvx-input label="Project" placeholder="mivix-ui" />`
@@ -5298,7 +5340,7 @@ import 'mivix-ui/styles';
 </html>
 
 <!-- src/pages/index.astro -->
-<mvx-button variant="primary">Deploy</mvx-button>`
+<mvx-button type="solid" tone="primary">Deploy</mvx-button>`
         },
         solid: {
           family: 'Get started',
@@ -5317,7 +5359,7 @@ import 'mivix-ui/styles';
             ['6. Handle events', 'Attach native DOM listeners through refs, queueMicrotask, onMount, or Solid effects.'],
             ['7. Pass data', 'Feed Solid signals into attributes for simple values and element properties for arrays or objects.']
           ],
-          demo: '<mvx-button data-playground-target variant="primary">Solid deploy</mvx-button>',
+          demo: '<mvx-button data-playground-target type="solid" tone="primary">Solid deploy</mvx-button>',
           code: `// src/main.tsx
 import 'mivix-ui/styles';
 import 'mivix-ui/auto';
@@ -5332,7 +5374,7 @@ function App() {
 
   return (
     <main>
-      <mvx-button ref={button} variant="primary">Deploy</mvx-button>
+      <mvx-button ref={button} type="solid" tone="primary">Deploy</mvx-button>
       <mvx-input label="Project" placeholder="mivix-ui" />
     </main>
   );
@@ -5365,7 +5407,7 @@ render(() => <App />, document.getElementById('root')!);`
 <\/script>
 
 <!-- Any Razor component -->
-<mvx-button variant="primary">Deploy</mvx-button>
+<mvx-button type="solid" tone="primary">Deploy</mvx-button>
 <mvx-alert tone="success" title="Ready">Mivix UI is loaded.</mvx-alert>`
         }
       };
@@ -5379,10 +5421,10 @@ render(() => <App />, document.getElementById('root')!);`
           features: ['Machine-readable APIs through attributes and properties', 'DOM event contract for automation loops', 'Workflow-first surfaces for commands, data, decisions, and feedback', 'Runtime theming, localization, direction, and accessibility hooks'],
           proof: [
             ['Agent-readable', 'Every component exposes predictable attributes, JSON props, and CSS parts.'],
-            ['Agent-controllable', 'Agents can update open states, variants, data, columns, items, themes, radius, and localized labels.'],
+            ['Agent-controllable', 'Agents can update open states, types, variants, data, columns, items, themes, radius, and localized labels.'],
             ['Agent-observable', 'Components emit DOM events such as mvx-change, mvx-select, mvx-submit, and mvx-close.']
           ],
-          demo: '<mvx-ai-panel data-playground-target name="Mivix Agent" status="Ready to compose UI"><mvx-button slot="actions" size="sm" variant="primary">Run</mvx-button><p slot="message">Inspect component APIs, adjust state, and react to DOM events.</p></mvx-ai-panel>',
+          demo: '<mvx-ai-panel data-playground-target name="Mivix Agent" status="Ready to compose UI"><mvx-button slot="actions" size="sm" type="solid" tone="primary">Run</mvx-button><p slot="message">Inspect component APIs, adjust state, and react to DOM events.</p></mvx-ai-panel>',
           code: '<mvx-ai-panel name="Mivix Agent" status="Ready to compose UI"></mvx-ai-panel>'
         },
         'agent-apis': {
@@ -5393,7 +5435,7 @@ render(() => <App />, document.getElementById('root')!);`
           features: ['Structured DOM attributes for simple state changes', 'JSON data props for complex generated interfaces', 'Live playground controls that prove every option is automatable'],
           proof: [
             ['Inspect', 'Agents can read component state from attributes, properties, ARIA, and slots.'],
-            ['Change', 'Agents can update variant, data, open state, localization, theme, and radius at runtime.'],
+            ['Change', 'Agents can update type, variant, data, open state, localization, theme, and radius at runtime.'],
             ['Generate', 'The docs produce working code from the same API surface shown in the playground.']
           ],
           demo: '<mvx-card data-playground-target title="Readable API" eyebrow="Agent contract"><mvx-badge tone="success">inspectable</mvx-badge><mvx-badge tone="info">controllable</mvx-badge><mvx-badge tone="warning">portable</mvx-badge></mvx-card>',
@@ -5424,7 +5466,7 @@ render(() => <App />, document.getElementById('root')!);`
             ['Explain', 'Timeline and overlays make agent decisions visible.'],
             ['Act', 'Command and workflow components turn AI suggestions into approved UI actions.']
           ],
-          demo: '<mvx-ai-panel data-playground-target name="Workflow Agent" status="Awaiting approval"><mvx-button slot="actions" size="sm" variant="primary">Approve</mvx-button><p slot="message">I found 3 generated UI changes ready for review.</p></mvx-ai-panel>',
+          demo: '<mvx-ai-panel data-playground-target name="Workflow Agent" status="Awaiting approval"><mvx-button slot="actions" size="sm" type="solid" tone="primary">Approve</mvx-button><p slot="message">I found 3 generated UI changes ready for review.</p></mvx-ai-panel>',
           code: '<mvx-ai-panel name="Workflow Agent" status="Awaiting approval"></mvx-ai-panel>'
         },
         'structured-attributes': {
@@ -5432,10 +5474,10 @@ render(() => <App />, document.getElementById('root')!);`
           title: 'Structured Attributes',
           description: 'Component state is exposed as stable attributes instead of hidden framework internals.',
           usage: 'Agents can inspect and change UI state with simple DOM operations such as setAttribute, removeAttribute, and property assignment.',
-          features: ['Predictable names like variant, tone, open, checked, page, side, size, theme, radius', 'Works across JavaScript, TypeScript, Next.js, React, Angular, Vue, Blazor, and plain HTML', 'No framework-specific runtime required'],
-          proof: [['Example', 'button.setAttribute("variant", "danger")'], ['Result', 'The same element updates visually and keeps accessibility semantics.']],
-          demo: '<mvx-button data-playground-target variant="primary">Deploy</mvx-button>',
-          code: '<mvx-button variant="primary">Deploy</mvx-button>'
+          features: ['Predictable names like type, variant, tone, open, checked, page, side, size, theme, radius', 'Works across JavaScript, TypeScript, Next.js, React, Angular, Vue, Blazor, and plain HTML', 'No framework-specific runtime required'],
+          proof: [['Example', 'button.setAttribute("tone", "danger")'], ['Result', 'The same element updates visually and keeps accessibility semantics.']],
+          demo: '<mvx-button data-playground-target type="solid" tone="primary">Deploy</mvx-button>',
+          code: '<mvx-button type="solid" tone="primary">Deploy</mvx-button>'
         },
         'json-props': {
           family: 'Agent-readable APIs',
@@ -5554,7 +5596,7 @@ render(() => <App />, document.getElementById('root')!);`
           usage: 'Use this for white-label apps, enterprise theming, dense dashboards, and personalized AI workspaces.',
           features: ['Per-component theme override', 'Named font presets and custom font stacks', 'Square-to-rounded radius API', 'CSS token foundation', 'No rebuild required'],
           proof: [['Runtime', 'An agent can switch a single component to terminal theme, humanist typography, or square edges based on context.']],
-          demo: '<mvx-button data-playground-target theme="terminal" font="humanist" radius="0" variant="primary">Apply change</mvx-button>',
+          demo: '<mvx-button data-playground-target theme="terminal" font="humanist" radius="0" type="solid" tone="primary">Apply change</mvx-button>',
           code: '<mvx-button theme="terminal" font="humanist" radius="0">Apply change</mvx-button>'
         },
         'framework-neutral': {
@@ -5639,7 +5681,7 @@ render(() => <App />, document.getElementById('root')!);`
           ],
           demo: `<mvx-stack gap="12px">
   <mvx-hero title="Build agent-ready apps faster" description="Composable Web Components for dashboards, workflows, AI surfaces, and product UI.">
-    <mvx-button variant="primary">Get started</mvx-button>
+    <mvx-button type="solid" tone="primary">Get started</mvx-button>
     <mvx-button>View templates</mvx-button>
   </mvx-hero>
   <mvx-grid columns="3">
@@ -5671,7 +5713,7 @@ render(() => <App />, document.getElementById('root')!);`
     </mvx-grid>
     <mvx-switch checked label="Require approval for generated changes"></mvx-switch>
   </mvx-fieldset>
-  <mvx-button-group><mvx-button>Cancel</mvx-button><mvx-button variant="primary">Save settings</mvx-button></mvx-button-group>
+  <mvx-button-group><mvx-button>Cancel</mvx-button><mvx-button type="solid" tone="primary">Save settings</mvx-button></mvx-button-group>
 </mvx-stack>`
         },
         'analytics-report': {
@@ -5775,7 +5817,7 @@ render(() => <App />, document.getElementById('root')!);`
   <mvx-stack gap="12px">
     <mvx-attachment title="brief.md" meta="Context file"></mvx-attachment>
     <mvx-rich-text-editor endpoint="/api/llm/editor" provider="ollama" model="llama3.1" value="&lt;p&gt;Draft a concise product update.&lt;/p&gt;"></mvx-rich-text-editor>
-    <mvx-ai-panel name="Approval agent" status="Waiting for review"><mvx-button slot="actions" variant="primary">Approve draft</mvx-button><p slot="message">Review generated copy before publishing.</p></mvx-ai-panel>
+    <mvx-ai-panel name="Approval agent" status="Waiting for review"><mvx-button slot="actions" type="solid" tone="primary">Approve draft</mvx-button><p slot="message">Review generated copy before publishing.</p></mvx-ai-panel>
   </mvx-stack>
 </mvx-grid>`
         },
@@ -6227,7 +6269,6 @@ render(() => <App />, document.getElementById('root')!);`
         ['model', 15],
         ['headers', 16],
         ['response-mode', 16],
-        ['variant', 20],
         ['size', 20],
         ['tone', 20],
         ['density', 20],
@@ -6299,11 +6340,12 @@ render(() => <App />, document.getElementById('root')!);`
         ['CSS parts', 90],
         ['theme', 100],
         ['component-style', 101],
-        ['radius', 102],
-        ['dir', 103],
-        ['lang', 104],
-        ['locale', 105],
-        ['i18n', 106]
+        ['variant', 102],
+        ['radius', 103],
+        ['dir', 104],
+        ['lang', 105],
+        ['locale', 106],
+        ['i18n', 107]
       ]);
 
       function apiRowRank(row, sourceIndex, originalIndex) {
@@ -6374,7 +6416,7 @@ render(() => <App />, document.getElementById('root')!);`
 
       function chartApiGroupForRow(row) {
         const name = normalizeControlName(row.name);
-        if (['theme', 'component-style', 'font', 'font-family', 'radius', 'dir', 'lang', 'locale', 'i18n', 'type', 'title', 'subtitle', 'series', 'data', 'height', 'empty', 'watermark', 'no-watermark', 'chart-only'].includes(name)) return 'common';
+        if (['theme', 'component-style', 'variant', 'font', 'font-family', 'radius', 'dir', 'lang', 'locale', 'i18n', 'type', 'title', 'subtitle', 'series', 'data', 'height', 'empty', 'watermark', 'no-watermark', 'chart-only'].includes(name)) return 'common';
         if (['legend', 'labels', 'hover-animation', 'cursor-focus', 'cursor-focus-size'].includes(name)) return 'presentation';
         if (['categories', 'grid', 'thresholds'].includes(name)) return 'cartesian';
         if (['axes', 'no-axes'].includes(name)) return 'axes';
@@ -6511,6 +6553,7 @@ render(() => <App />, document.getElementById('root')!);`
       const playgroundOptionSets = {
         theme: ['dark', 'light', 'graphite', 'aurora', 'terminal'],
         'component-style': ['console', 'clean', 'minimal', 'glass', 'dashboard', 'group'],
+        variant: ['mivix', 'material'],
         font: ['system', 'mono', 'serif', 'rounded', 'humanist', 'geometric', 'devanagari'],
         radius: ['0', '2px', '4px', '6px', '8px', '12px', '16px', '24px', '999px', 'square', 'rounded'],
         dir: ['ltr', 'rtl', 'auto'],
@@ -7126,7 +7169,7 @@ render(() => <App />, document.getElementById('root')!);`
               </span>
               <mvx-navigation-menu component-style="clean" slot="actions" items='${escapeHtml(JSON.stringify(navItems))}'></mvx-navigation-menu>
               <mvx-badge slot="actions" tone="${key.includes('ai') ? 'accent' : key.includes('ecommerce') ? 'warning' : 'success'}">Live template</mvx-badge>
-              <mvx-button slot="actions" variant="primary">${key === 'saas-marketing' ? 'Start trial' : 'Create'}</mvx-button>
+              <mvx-button slot="actions" type="solid" tone="primary">${key === 'saas-marketing' ? 'Start trial' : 'Create'}</mvx-button>
             </mvx-navbar>
             <main class="template-site-main">
               ${doc.demo}
@@ -7446,6 +7489,13 @@ render(() => <App />, document.getElementById('root')!);`
         });
       }
 
+      function isExpandableNavItem(node) {
+        if (!node || !node.matches || node.tagName !== 'SUMMARY') return false;
+        const details = node.parentElement;
+        if (!details || details.tagName !== 'DETAILS') return false;
+        return [...details.children].some(child => child !== node && (child.tagName === 'SUMMARY' || child.tagName === 'DETAILS' || child.tagName === 'BUTTON'));
+      }
+
       function updateSidebarNavigationFilter() {
         const normalized = query.trim().toLowerCase();
         if (!normalized) {
@@ -7527,8 +7577,8 @@ render(() => <App />, document.getElementById('root')!);`
         const link = componentLinks.find(item => item.dataset.component === name);
         setComponentPage(true);
         activeFilter = 'all';
-        query = componentDisplayName(name);
-        search.value = query;
+        query = '';
+        search.value = '';
         groupLinks.forEach(item => item.classList.remove('active'));
         guideLinks.forEach(item => item.classList.remove('active'));
         componentLinks.forEach(item => item.classList.toggle('active', item === link));
@@ -7591,8 +7641,8 @@ render(() => <App />, document.getElementById('root')!);`
         const doc = templateDocs[key] || templateDocs.overview;
         setComponentPage(true);
         activeFilter = 'all';
-        query = doc.title;
-        search.value = query;
+        query = '';
+        search.value = '';
         groupLinks.forEach(item => item.classList.remove('active'));
         guideLinks.forEach(item => item.classList.remove('active'));
         componentLinks.forEach(item => item.classList.remove('active'));
@@ -7682,12 +7732,12 @@ render(() => <App />, document.getElementById('root')!);`
           clearActiveNavigation();
           filter.classList.add('active');
           updateCatalog();
-          closeMobileNav();
         });
       });
 
       guideLinks.forEach(link => {
         link.addEventListener('click', () => {
+          if (isExpandableNavItem(link)) return;
           selectGuide(link.dataset.guide);
         });
       });
@@ -7706,6 +7756,7 @@ render(() => <App />, document.getElementById('root')!);`
 
       agentFeatureLinks.forEach(link => {
         link.addEventListener('click', () => {
+          if (isExpandableNavItem(link)) return;
           selectAgentFeature(link.dataset.agentFeature);
         });
       });
@@ -7726,6 +7777,20 @@ render(() => <App />, document.getElementById('root')!);`
         setMobileNav(!document.body.classList.contains('mobile-nav-open'));
       });
       mobileNavBackdrop?.addEventListener('click', closeMobileNav);
+      document.addEventListener('click', event => {
+        if (!document.body.classList.contains('mobile-nav-open') || !docsRail) return;
+        const path = event.composedPath?.() || [];
+        const target = event.target;
+        const containsNode = candidate =>
+          candidate &&
+          (candidate === target ||
+          (candidate instanceof Element && docsRail ? docsRail.contains(candidate) : false) ||
+          (candidate instanceof Element && mobileNavBackdrop ? mobileNavBackdrop.contains(candidate) : false) ||
+          (candidate instanceof Element && mobileNavToggle ? mobileNavToggle.contains(candidate) : false));
+
+        if (path.some(containsNode)) return;
+        closeMobileNav();
+      });
       if (mobileNavMedia.addEventListener) {
         mobileNavMedia.addEventListener('change', event => {
           if (!event.matches) closeMobileNav();

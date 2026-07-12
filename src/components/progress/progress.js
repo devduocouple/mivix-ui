@@ -38,6 +38,9 @@ export class MvxProgress extends MvxElement {
           overflow: hidden;
           transition: inline-size var(--mvx-duration, 180ms) ease;
         }
+        :host-context([data-mvx-variant="material"]) .bar {
+          transition: inline-size var(--mvx-motion-duration-medium) var(--mvx-motion-easing-standard);
+        }
         :host([striped]) .bar {
           background:
             repeating-linear-gradient(
@@ -57,6 +60,12 @@ export class MvxProgress extends MvxElement {
           background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.42), transparent);
           animation: mvx-progress-shine 1.4s ease-in-out infinite;
         }
+        :host-context([data-mvx-variant="material"]):host([animated]) .bar::after {
+          display: none;
+        }
+        :host-context([data-mvx-variant="material"]):host([animated][striped]) .bar {
+          animation: none;
+        }
         :host([animated][striped]) .bar {
           animation: mvx-progress-stripes 850ms linear infinite;
         }
@@ -65,10 +74,19 @@ export class MvxProgress extends MvxElement {
           min-inline-size: 38%;
           animation: mvx-progress-indeterminate 1.2s ease-in-out infinite;
         }
+        :host-context([data-mvx-variant="material"]):host([indeterminate]) .bar {
+          animation: mvx-material-progress-indeterminate 1.6s var(--mvx-motion-easing-standard) infinite;
+        }
         :host([indeterminate][striped]) .bar {
           animation:
             mvx-progress-indeterminate 1.2s ease-in-out infinite,
             mvx-progress-stripes 850ms linear infinite;
+        }
+        :host-context([data-mvx-variant="material"]):host([animated][striped]) .bar {
+          animation: none;
+        }
+        :host-context([data-mvx-variant="material"]):host([indeterminate][striped]) .bar {
+          animation: mvx-material-progress-indeterminate 1.6s var(--mvx-motion-easing-standard) infinite;
         }
         @keyframes mvx-progress-shine {
           to { inset-inline-start: 108%; }
@@ -80,6 +98,11 @@ export class MvxProgress extends MvxElement {
           0% { transform: translateX(-110%); }
           48% { transform: translateX(82%); }
           100% { transform: translateX(260%); }
+        }
+        @keyframes mvx-material-progress-indeterminate {
+          0% { transform: translateX(-130%) scaleX(0.35); }
+          50% { transform: translateX(45%) scaleX(0.72); }
+          100% { transform: translateX(260%) scaleX(0.35); }
         }
         @media (prefers-reduced-motion: reduce) {
           .bar,

@@ -217,6 +217,71 @@ export const baseStyles = `
     --mvx-hover-lift: -1px;
   }
 
+  :host-context([data-mvx-variant="material"]) {
+    --mvx-radius-xs: 4px;
+    --mvx-radius-sm: 8px;
+    --mvx-radius-md: 12px;
+    --mvx-radius-lg: 16px;
+    --mvx-radius-xl: 28px;
+    --mvx-radius-full: 9999px;
+    --mvx-space-3: 12px;
+    --mvx-space-4: 16px;
+    --mvx-space-5: 24px;
+    --mvx-space-6: 32px;
+    --mvx-surface-glaze: linear-gradient(180deg, transparent, transparent);
+    --mvx-surface-backdrop: none;
+    --mvx-control-glaze: linear-gradient(180deg, transparent, transparent);
+    --mvx-control-shadow: none;
+    --mvx-button-radius: var(--mvx-radius-full);
+    --mvx-button-shadow: none;
+    --mvx-hover-lift: 0px;
+    --mvx-duration-fast: 100ms;
+    --mvx-duration: 200ms;
+    --mvx-motion-duration-short: 100ms;
+    --mvx-motion-duration-medium: 200ms;
+    --mvx-motion-duration-long: 300ms;
+    --mvx-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+    --mvx-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+    --mvx-shadow-raised: 0 12px 24px rgba(0, 0, 0, 0.24);
+    --mvx-shadow-soft: 0 3px 8px rgba(0, 0, 0, 0.16);
+    --mvx-state-layer-hover: color-mix(in srgb, var(--mvx-accent) 8%, transparent);
+    --mvx-state-layer-pressed: color-mix(in srgb, var(--mvx-accent) 12%, transparent);
+    --mvx-material-field-radius: 4px 4px 0 0;
+    --mvx-material-field-bg: color-mix(in srgb, var(--mvx-fg) 7%, var(--mvx-bg-panel));
+  }
+
+  :host-context([data-mvx-variant="material"]) *,
+  :host-context([data-mvx-variant="material"]) *::before,
+  :host-context([data-mvx-variant="material"]) *::after {
+    transition-timing-function: var(--mvx-motion-easing-standard) !important;
+    animation-timing-function: var(--mvx-motion-easing-standard) !important;
+  }
+
+  :host-context([data-mvx-variant="material"]) .edge {
+    background: var(--mvx-bg-panel);
+    box-shadow: var(--mvx-shadow-soft);
+  }
+
+  :host-context([data-mvx-variant="material"]) button:not([role="checkbox"]),
+  :host-context([data-mvx-variant="material"]) .option {
+    border-radius: var(--mvx-button-radius) !important;
+  }
+
+  :host-context([data-mvx-variant="material"]) input,
+  :host-context([data-mvx-variant="material"]) select,
+  :host-context([data-mvx-variant="material"]) textarea {
+    border-radius: var(--mvx-material-field-radius) !important;
+    background: var(--mvx-material-field-bg);
+    box-shadow: none;
+  }
+
+  :host-context([data-mvx-variant="material"]) button:hover:not(:disabled),
+  :host-context([data-mvx-variant="material"]) [role="button"]:hover:not([aria-disabled="true"]),
+  :host-context([data-mvx-variant="material"]) .option:hover,
+  :host-context([data-mvx-variant="material"]) .task:hover {
+    transform: none !important;
+  }
+
   *, *::before, *::after {
     box-sizing: border-box;
   }
@@ -329,6 +394,7 @@ export const toneMap = {
 };
 
 export const themeStorageKey = 'mivix-ui:theme';
+export const variantStorageKey = 'mivix-ui:variant';
 
 export const fontStacks = {
   system: 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
@@ -377,6 +443,43 @@ export function applyDocumentTheme(theme, options = {}) {
 export function restoreDocumentTheme(options = {}) {
   const theme = readStoredTheme(options.storageKey);
   return theme ? applyDocumentTheme(theme, options) : '';
+}
+
+export function readStoredVariant(storageKey = variantStorageKey) {
+  try {
+    return globalThis.localStorage?.getItem(storageKey) || '';
+  } catch {
+    return '';
+  }
+}
+
+export function writeStoredVariant(variant, storageKey = variantStorageKey) {
+  try {
+    if (variant) {
+      globalThis.localStorage?.setItem(storageKey, variant);
+    } else {
+      globalThis.localStorage?.removeItem(storageKey);
+    }
+  } catch {
+    // Storage may be disabled; variant still applies for the current page.
+  }
+}
+
+export function applyDocumentVariant(variant, options = {}) {
+  if (!variant || typeof document === 'undefined') return '';
+  document.documentElement.setAttribute('data-mvx-variant', variant);
+  if (options.persist) writeStoredVariant(variant, options.storageKey);
+  document.dispatchEvent(new CustomEvent('mvx-variant-change', {
+    detail: { variant },
+    bubbles: true,
+    composed: true
+  }));
+  return variant;
+}
+
+export function restoreDocumentVariant(options = {}) {
+  const variant = readStoredVariant(options.storageKey);
+  return variant ? applyDocumentVariant(variant, options) : '';
 }
 
 export function define(name, component) {
@@ -429,7 +532,7 @@ export function parseData(value, fallback = []) {
 const HTMLElementBase = globalThis.HTMLElement || class {};
 
 export class MvxElement extends HTMLElementBase {
-  static globalAttributes = ['theme', 'component-style', 'font', 'font-family', 'radius', 'dir', 'lang', 'locale', 'i18n', 'skeleton', 'skeleton-lines'];
+  static globalAttributes = ['theme', 'component-style', 'variant', 'font', 'font-family', 'radius', 'dir', 'lang', 'locale', 'i18n', 'skeleton', 'skeleton-lines'];
 
   constructor() {
     super();
@@ -445,9 +548,21 @@ export class MvxElement extends HTMLElementBase {
   disconnectedCallback() {
     this._globalObserver?.disconnect();
     this._globalObserver = null;
+    this.disconnectSkeletonResizeObserver();
+    this.clearSkeletonMeasureFallback();
   }
 
-  attributeChangedCallback() {
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name === 'skeleton' && oldValue !== newValue && this.isConnected) {
+      if (newValue !== null && !this._mvxLastMeasuredBox) {
+        this._mvxLastMeasuredBox = this.captureSkeletonBox({ force: true, preferChildSize: true });
+      }
+      if (newValue !== null) {
+        this._mvxSkeletonHostBox = this.captureHostBox();
+      } else {
+        this._mvxSkeletonHostBox = undefined;
+      }
+    }
     if (this.isConnected) this.renderCurrentState();
   }
 
@@ -473,6 +588,13 @@ export class MvxElement extends HTMLElementBase {
       this.style.setProperty('--mvx-font-sans', this.normalizeFont(font));
     }
 
+    const variant = this.getAttribute('variant');
+    if (variant === null || variant === '' || variant === 'mivix' || variant === 'default') {
+      this.removeAttribute('data-mvx-variant');
+    } else {
+      this.setAttribute('data-mvx-variant', variant);
+    }
+
     const radius = this.getAttribute('radius');
     if (radius === null) {
       ['--mvx-radius-xs', '--mvx-radius-sm', '--mvx-radius-md', '--mvx-radius-lg'].forEach(token => this.style.removeProperty(token));
@@ -484,68 +606,280 @@ export class MvxElement extends HTMLElementBase {
 
   renderCurrentState() {
     if (this.hasAttribute('skeleton')) {
+      this._mvxSkeletonBox = undefined;
+      this._mvxSkeletonHostBox = this.captureHostBox();
+      this._mvxSkeletonMeasureAttempts = 0;
+      this.ensureSkeletonResizeObserver();
+      this.measureSkeletonBoxFromComponent();
       this.renderSkeleton();
+      this.scheduleSkeletonMeasureFallback();
       return;
     }
     if (this._mvxSkeletonBusy) {
       this.removeAttribute('aria-busy');
       this._mvxSkeletonBusy = false;
     }
+    this.disconnectSkeletonResizeObserver();
+    this.clearSkeletonMeasureFallback();
     this.render();
+    const measured = this.captureSkeletonBox({ force: true });
+    if (measured) {
+      this._mvxLastMeasuredBox = measured;
+    }
+  }
+
+  ensureSkeletonResizeObserver() {
+    if (typeof ResizeObserver === 'undefined' || this._mvxSkeletonResizeObserver) return;
+    this._mvxSkeletonResizeObserver = new ResizeObserver(() => {
+      if (!this.hasAttribute('skeleton') || !this.isConnected) return;
+      const measured = this.captureSkeletonBox({ force: true });
+      if (measured?.width || measured?.height) {
+        this.renderSkeleton();
+      }
+    });
+    this._mvxSkeletonResizeObserver.observe(this);
+  }
+
+  disconnectSkeletonResizeObserver() {
+    if (!this._mvxSkeletonResizeObserver) return;
+    this._mvxSkeletonResizeObserver.disconnect();
+    this._mvxSkeletonResizeObserver = null;
+  }
+
+  measureSkeletonBoxFromComponent() {
+    this._mvxSkeletonHostBox = this.captureHostBox();
+    if (typeof this.render !== 'function') {
+      this.captureSkeletonBox();
+      return;
+    }
+    const previousMeasured = this._mvxLastMeasuredBox;
+    const profile = this.skeletonProfile();
+    const explicitHostWidth = this.hasAttribute('width') || Boolean(this.style.width);
+    const explicitHostHeight = this.hasAttribute('height') || this.hasAttribute('chart-height') || Boolean(this.style.height);
+    const preferChildSize = profile.hostDisplay?.startsWith('inline') && !explicitHostWidth && !explicitHostHeight;
+    const previousBusy = this._mvxSkeletonBusy;
+    const previousVisibility = this.style.visibility;
+    const previousPointerEvents = this.style.pointerEvents;
+    this._mvxSkeletonBusy = false;
+    this.style.visibility = 'hidden';
+    this.style.pointerEvents = 'none';
+    try {
+      this.render();
+      this.captureSkeletonBox({ force: true, preferChildSize });
+    } catch {
+      this.captureSkeletonBox({ force: true, preferChildSize });
+    } finally {
+      this.style.visibility = previousVisibility;
+      this.style.pointerEvents = previousPointerEvents;
+      this._mvxSkeletonBusy = previousBusy;
+    }
+    if (previousMeasured) {
+      const fallbackBox = {
+        width: this._mvxSkeletonBox?.width || previousMeasured.width,
+        height: this._mvxSkeletonBox?.height || previousMeasured.height,
+        display: previousMeasured.display || this._mvxSkeletonBox?.display
+      };
+      if (fallbackBox.width || fallbackBox.height) {
+        this._mvxSkeletonBox = fallbackBox;
+      }
+    }
+  }
+
+  scheduleSkeletonMeasureFallback() {
+    if (typeof requestAnimationFrame !== 'function') return;
+    if (!this.hasAttribute('skeleton') || !this.isConnected) return;
+    if (this._mvxSkeletonBox?.width && this._mvxSkeletonBox?.height) return;
+    if (this._mvxSkeletonMeasureAttempts >= 10) return;
+    if (this._mvxSkeletonMeasureFrame) return;
+    this._mvxSkeletonMeasureAttempts += 1;
+    this._mvxSkeletonMeasureFrame = requestAnimationFrame(() => {
+      this._mvxSkeletonMeasureFrame = 0;
+      if (!this.hasAttribute('skeleton') || !this.isConnected) return;
+      this.measureSkeletonBoxFromComponent();
+      this.renderSkeleton();
+      this.scheduleSkeletonMeasureFallback();
+    });
+  }
+
+  clearSkeletonMeasureFallback() {
+    if (this._mvxSkeletonMeasureFrame) {
+      cancelAnimationFrame(this._mvxSkeletonMeasureFrame);
+      this._mvxSkeletonMeasureFrame = 0;
+    }
+    this._mvxSkeletonMeasureAttempts = 0;
+  }
+
+  applySkeletonHostLock() {
+    if (!this._mvxSkeletonBox || !this._mvxSkeletonHostBox) return;
+    if (!this._mvxSkeletonHostBox.width && !this._mvxSkeletonHostBox.height) {
+      return;
+    }
+    if (this._mvxSkeletonHostBox.width) {
+      this._mvxSkeletonBox.width = Math.min(this._mvxSkeletonBox.width, this._mvxSkeletonHostBox.width);
+    }
+    if (this._mvxSkeletonHostBox.height) {
+      this._mvxSkeletonBox.height = Math.min(this._mvxSkeletonBox.height, this._mvxSkeletonHostBox.height);
+    }
+  }
+
+  captureSkeletonBox({ force = false, preferChildSize = false } = {}) {
+    if (!force && this._mvxSkeletonBusy) return;
+    if (typeof this.getBoundingClientRect !== 'function') return;
+    const rect = this.getBoundingClientRect();
+    const computed = globalThis.getComputedStyle?.(this);
+    const hostBox = this._mvxSkeletonHostBox || this.captureHostBox();
+    const rectWidth = rect.width || 0;
+    const rectHeight = rect.height || 0;
+    const parsedComputedWidth = computed?.width && /^\d+(\.\d+)?px$/i.test(computed.width.trim())
+      ? Number.parseFloat(computed.width)
+      : 0;
+    const parsedComputedHeight = computed?.height && /^\d+(\.\d+)?px$/i.test(computed.height.trim())
+      ? Number.parseFloat(computed.height)
+      : 0;
+    const widthCandidates = [
+      rectWidth,
+      this.offsetWidth || 0,
+      this.clientWidth || 0,
+      this.scrollWidth || 0,
+      parsedComputedWidth
+    ];
+    const heightCandidates = [
+      rectHeight,
+      this.offsetHeight || 0,
+      this.clientHeight || 0,
+      this.scrollHeight || 0,
+      parsedComputedHeight
+    ];
+    if (hostBox?.width) widthCandidates.push(hostBox.width);
+    if (hostBox?.height) heightCandidates.push(hostBox.height);
+    if (preferChildSize) {
+      const measuredNodes = [];
+      const addNodeRect = node => {
+        if (!node || !(node instanceof Element)) return;
+        const rect = node.getBoundingClientRect();
+        if (!rect) return;
+        const width = Math.max(0, Math.round(rect.width || node.offsetWidth || node.scrollWidth || 0));
+        const height = Math.max(0, Math.round(rect.height || node.offsetHeight || node.scrollHeight || 0));
+        if (width) widthCandidates.unshift(width);
+        if (height) heightCandidates.unshift(height);
+        measuredNodes.push({ width, height, left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom });
+      };
+      const primaryChild = this.shadowRoot?.children
+        ? Array.from(this.shadowRoot.children).find(node => node.tagName && node.tagName.toLowerCase() !== 'style')
+        : null;
+      if (primaryChild && !this.hasAttribute('width') && !this.hasAttribute('height') && !this.hasAttribute('chart-height')) {
+        addNodeRect(primaryChild);
+      }
+      const slotNodes = this.shadowRoot
+        ? Array.from(this.shadowRoot.querySelectorAll('slot')).flatMap(slot => {
+          if (!slot.assignedElements) return [];
+          return slot.assignedElements({ flatten: true });
+        })
+        : [];
+      slotNodes.forEach(addNodeRect);
+      if (!slotNodes.length) {
+        Array.from(this.children || []).forEach(addNodeRect);
+      }
+      if (measuredNodes.length > 1) {
+        const left = measuredNodes.reduce((value, node) => Math.min(value, node.left), Number.POSITIVE_INFINITY);
+        const right = measuredNodes.reduce((value, node) => Math.max(value, node.right), Number.NEGATIVE_INFINITY);
+        const top = measuredNodes.reduce((value, node) => Math.min(value, node.top), Number.POSITIVE_INFINITY);
+        const bottom = measuredNodes.reduce((value, node) => Math.max(value, node.bottom), Number.NEGATIVE_INFINITY);
+        const unionWidth = Math.round(Math.max(0, right - left));
+        const unionHeight = Math.round(Math.max(0, bottom - top));
+        if (unionWidth) widthCandidates.unshift(unionWidth);
+        if (unionHeight) heightCandidates.unshift(unionHeight);
+      }
+    }
+    const width = widthCandidates.find(value => value > 0);
+    const height = heightCandidates.find(value => value > 0);
+    const fallbackWidth = width || hostBox?.width || this._mvxLastMeasuredBox?.width || 0;
+    const fallbackHeight = height || hostBox?.height || this._mvxLastMeasuredBox?.height || 0;
+    const box = {};
+    if (fallbackWidth > 0) box.width = Math.round(fallbackWidth);
+    if (fallbackHeight > 0) box.height = Math.round(fallbackHeight);
+    if (computed?.display && computed.display !== 'none' && computed.display !== 'contents') box.display = computed.display;
+    if (box.width || box.height) {
+      this._mvxSkeletonBox = box;
+      this.applySkeletonHostLock();
+      return box;
+    }
   }
 
   renderSkeleton() {
-    const lines = Math.max(1, Number(this.getAttribute('skeleton-lines') || this.getAttribute('lines') || 3));
+    const explicitLines = this.getAttribute('skeleton-lines') || this.getAttribute('lines');
     const label = this.getAttribute('aria-label') || this.getAttribute('label') || this.t('loading', 'Loading');
-    const variant = this.getAttribute('skeleton') || 'text';
-    const isBlock = ['card', 'chart', 'table', 'media', 'panel'].includes(variant);
-    const isAvatar = ['avatar', 'circle'].includes(variant);
+    const profile = this.skeletonProfile();
+    const lines = Math.max(1, Number(explicitLines || profile.lines || 3));
+    const box = this._mvxSkeletonBox || this._mvxLastMeasuredBox || {};
+    const hostBox = this._mvxSkeletonBox || this.captureHostBox() || this._mvxSkeletonHostBox || this._mvxLastMeasuredBox || {};
+    const resolvedHostWidth = hostBox.width || box.width;
+    const resolvedHostHeight = hostBox.height || box.height;
+    const hostInlineSize = resolvedHostWidth ? `${resolvedHostWidth}px` : profile.hostInlineSize;
+    const hostBlockSize = resolvedHostHeight ? `${resolvedHostHeight}px` : profile.hostBlockSize;
+    const fallbackHostInline = resolvedHostWidth ? `${resolvedHostWidth}px` : '';
+    const fallbackHostBlock = resolvedHostHeight ? `${resolvedHostHeight}px` : '';
+    const skeletonInlineSize = box.width
+      ? '100%'
+      : profile.hostDisplay?.startsWith('inline')
+        ? 'auto'
+        : profile.inlineSize;
+    const skeletonBlockSize = box.height ? '100%' : profile.blockSize;
+    const skeletonMinBlockSize = box.height ? `${box.height}px` : profile.minBlockSize;
     this.setAttribute('aria-busy', 'true');
     this._mvxSkeletonBusy = true;
     this.shadowRoot.innerHTML = `
       <style>
         ${baseStyles}
         :host {
-          display: block;
+          display: ${box.display || profile.hostDisplay};
+          ${fallbackHostInline ? `width: ${fallbackHostInline};` : ''}
+          ${fallbackHostInline ? `inline-size: ${fallbackHostInline};` : ''}
+          ${fallbackHostBlock ? `height: ${fallbackHostBlock};` : ''}
+          ${fallbackHostBlock ? `block-size: ${fallbackHostBlock};` : ''}
           min-inline-size: 0;
+          min-block-size: 0;
+          ${hostInlineSize ? `inline-size: ${hostInlineSize};` : ''}
+          ${hostBlockSize ? `block-size: ${hostBlockSize};` : ''}
+          ${hostInlineSize ? `max-inline-size: ${hostInlineSize};` : ''}
+          ${hostBlockSize ? `max-block-size: ${hostBlockSize};` : ''}
         }
         .skeleton {
-          display: ${isAvatar ? 'inline-grid' : 'grid'};
-          gap: 9px;
-          inline-size: ${isAvatar ? 'var(--mvx-skeleton-size, 40px)' : '100%'};
-          min-block-size: ${isBlock ? 'var(--mvx-skeleton-block-size, 132px)' : 'auto'};
-          padding: ${isBlock ? '14px' : '2px 0'};
-          border-radius: ${isAvatar ? '999px' : 'var(--mvx-radius-md)'};
-          background: ${isBlock ? 'var(--mvx-bg-panel)' : 'transparent'};
-          border: ${isBlock ? '1px solid var(--mvx-border)' : '0'};
+          display: grid;
+          align-content: ${profile.alignContent};
+          gap: ${profile.gap};
+          inline-size: ${skeletonInlineSize};
+          block-size: ${skeletonBlockSize};
+          min-block-size: ${skeletonMinBlockSize};
+          padding: ${profile.padding};
+          border-radius: ${profile.radius};
+          background: ${profile.background};
+          border: ${profile.border};
+          overflow: hidden;
         }
         .line {
           display: block;
-          block-size: ${isAvatar ? 'var(--mvx-skeleton-size, 40px)' : '12px'};
-          inline-size: ${isAvatar ? 'var(--mvx-skeleton-size, 40px)' : '100%'};
-          border-radius: ${isAvatar ? '999px' : '999px'};
+          block-size: ${profile.lineBlockSize};
+          inline-size: 100%;
+          border-radius: ${profile.lineRadius};
           background: linear-gradient(90deg, var(--mvx-bg-inset), color-mix(in srgb, var(--mvx-border) 56%, var(--mvx-bg-panel)), var(--mvx-bg-inset));
           background-size: 220% 100%;
           animation: mvx-skeleton-pulse 1.4s ease-in-out infinite;
         }
-        .line:nth-child(2n) { inline-size: 86%; }
-        .line:last-child { inline-size: ${isAvatar ? 'var(--mvx-skeleton-size, 40px)' : '68%'}; }
-        :host([skeleton="button"]) .line {
-          inline-size: min(160px, 100%);
-          block-size: var(--mvx-touch-target, 44px);
-          border-radius: var(--mvx-radius-sm);
+        .line:first-child {
+          block-size: ${profile.firstLineBlockSize || profile.lineBlockSize};
         }
-        :host([skeleton="input"]) .line {
-          block-size: var(--mvx-touch-target, 44px);
-          border-radius: var(--mvx-radius-sm);
+        .line:last-child {
+          block-size: ${profile.lastLineBlockSize || profile.lineBlockSize};
         }
-        :host([skeleton="chart"]) .skeleton,
-        :host([skeleton="media"]) .skeleton {
-          min-block-size: var(--mvx-skeleton-block-size, 220px);
+        .line:nth-child(2n) { inline-size: ${profile.evenInlineSize}; }
+        .line:last-child { inline-size: ${profile.lastInlineSize}; }
+        .line:first-child:nth-last-child(1) {
+          inline-size: 100%;
         }
-        :host([skeleton="table"]) .line {
-          block-size: 28px;
-          border-radius: var(--mvx-radius-xs);
+        .shape {
+          block-size: ${profile.shapeBlockSize};
+          border-radius: ${profile.shapeRadius};
         }
         @keyframes mvx-skeleton-pulse {
           0% { background-position: 100% 0; }
@@ -556,10 +890,89 @@ export class MvxElement extends HTMLElementBase {
         }
       </style>
       <div class="skeleton" part="skeleton" aria-hidden="true">
-        ${Array.from({ length: isAvatar ? 1 : lines }, () => '<span class="line"></span>').join('')}
+        ${Array.from({ length: profile.singleShape ? 1 : lines }, (_, index) => `<span class="line${index === 0 && profile.firstShape ? ' shape' : ''}"></span>`).join('')}
       </div>
       <span class="sr-only">${htmlEscape(label)}</span>
     `;
+  }
+
+  captureHostBox() {
+    if (typeof this.getBoundingClientRect !== 'function') return;
+    const rect = this.getBoundingClientRect();
+    const hostBox = {};
+    if (rect.width > 0) hostBox.width = Math.round(rect.width);
+    if (rect.height > 0) hostBox.height = Math.round(rect.height);
+    return hostBox;
+  }
+
+  skeletonLength(value) {
+    const raw = String(value ?? '').trim();
+    if (!raw) return '';
+    if (['auto', 'inherit', 'initial', 'unset'].includes(raw)) return '';
+    if (/^-?\d+(\.\d+)?$/.test(raw)) return `${Math.max(0, Number(raw))}px`;
+    return raw;
+  }
+
+  skeletonProfile() {
+    const explicit = String(this.getAttribute('skeleton') || '').trim();
+    const inferred = !explicit || explicit === 'true' ? this.inferSkeletonVariant() : explicit;
+    const size = this.getAttribute('size') || '';
+    const explicitWidth = this.skeletonLength(this.getAttribute('width') || this.style?.width);
+    const explicitHeight = this.skeletonLength(this.getAttribute('height') || this.getAttribute('chart-height') || this.style?.height);
+    const textLength = Math.max(4, (this.textContent || this.getAttribute('label') || this.getAttribute('title') || '').trim().length);
+    const textWidth = `${Math.min(240, Math.max(72, textLength * 8 + 28))}px`;
+    const buttonHeight = size === 'sm' ? '30px' : size === 'lg' ? '44px' : '36px';
+    const maskSize = this.skeletonLength(this.getAttribute('width')) || this.skeletonLength(this.getAttribute('height')) || '96px';
+    const avatarSize = this.skeletonLength(size) || 'var(--mvx-skeleton-size, 40px)';
+    const toggleGroupItems = parseData(this.getAttribute('items'), []);
+    const toggleGroupLabelLength = Math.max(
+      20,
+      ...(Array.isArray(toggleGroupItems) ? toggleGroupItems.map(item => {
+        const label = item?.label ?? item?.value ?? item?.name ?? '';
+        return String(label).trim().length * 8;
+      }) : [20])
+    );
+    const toggleGroupWidthHint = `${Math.min(360, Math.max(120, 16 + toggleGroupLabelLength + (toggleGroupItems.length * 14))) }px`;
+    const profiles = {
+      text: { hostDisplay: 'block', hostInlineSize: explicitWidth, hostBlockSize: explicitHeight, inlineSize: '100%', blockSize: explicitHeight ? '100%' : 'auto', minBlockSize: 'auto', padding: '2px 0', gap: '9px', radius: 'var(--mvx-radius-md)', background: 'transparent', border: '0', lineBlockSize: '12px', lineRadius: '999px', shapeBlockSize: '12px', shapeRadius: '999px', evenInlineSize: '86%', lastInlineSize: '68%', alignContent: 'start', lines: 3 },
+      button: { hostDisplay: 'inline-flex', hostInlineSize: explicitWidth || textWidth, hostBlockSize: explicitHeight || buttonHeight, inlineSize: '100%', blockSize: '100%', minBlockSize: explicitHeight || buttonHeight, padding: '0', gap: '0', radius: 'var(--mvx-button-radius, var(--mvx-radius-sm))', background: 'transparent', border: '0', lineBlockSize: '100%', lineRadius: 'var(--mvx-button-radius, var(--mvx-radius-sm))', shapeBlockSize: '100%', shapeRadius: 'var(--mvx-button-radius, var(--mvx-radius-sm))', evenInlineSize: '100%', lastInlineSize: '100%', alignContent: 'stretch', lines: 1, singleShape: true },
+      swap: { hostDisplay: 'inline-flex', hostInlineSize: explicitWidth || '72px', hostBlockSize: explicitHeight || '36px', inlineSize: '100%', blockSize: '100%', minBlockSize: explicitHeight || '36px', padding: '0', gap: '0', radius: 'var(--mvx-button-radius, var(--mvx-radius-sm))', background: 'transparent', border: '0', lineBlockSize: '100%', lineRadius: 'var(--mvx-button-radius, var(--mvx-radius-sm))', shapeBlockSize: '100%', shapeRadius: 'var(--mvx-button-radius, var(--mvx-radius-sm))', evenInlineSize: '100%', lastInlineSize: '100%', alignContent: 'stretch', lines: 1, singleShape: true },
+      toast: { hostDisplay: 'block', hostInlineSize: explicitWidth || (this.hasAttribute('inline') ? '100%' : 'min(380px, calc(100vw - 40px))'), hostBlockSize: explicitHeight || 'auto', inlineSize: '100%', blockSize: explicitHeight ? '100%' : 'auto', minBlockSize: explicitHeight || '44px', padding: '0', gap: '0', radius: 'var(--mvx-radius-md)', background: 'transparent', border: '0', lineBlockSize: explicitHeight || '44px', lineRadius: 'var(--mvx-radius-md)', shapeBlockSize: explicitHeight || '44px', shapeRadius: 'var(--mvx-radius-md)', evenInlineSize: '100%', lastInlineSize: '100%', alignContent: 'start', lines: 1, singleShape: true },
+      'toggle-group': { hostDisplay: 'inline-flex', hostInlineSize: explicitWidth || toggleGroupWidthHint, hostBlockSize: explicitHeight || '34px', inlineSize: '100%', blockSize: '100%', minBlockSize: explicitHeight || '34px', padding: '0', gap: '0', radius: 'var(--mvx-radius-sm)', background: 'transparent', border: '0', lineBlockSize: '100%', lineRadius: 'var(--mvx-radius-sm)', shapeBlockSize: '100%', shapeRadius: 'var(--mvx-radius-sm)', evenInlineSize: '100%', lastInlineSize: '100%', alignContent: 'stretch', lines: 1, singleShape: true },
+      mask: { hostDisplay: 'inline-flex', hostInlineSize: explicitWidth || maskSize, hostBlockSize: explicitHeight || maskSize, inlineSize: '100%', blockSize: '100%', minBlockSize: explicitHeight || maskSize, padding: '0', gap: '0', radius: '999px', background: 'transparent', border: '0', lineBlockSize: '100%', lineRadius: '999px', shapeBlockSize: '100%', shapeRadius: '999px', evenInlineSize: '100%', lastInlineSize: '100%', alignContent: 'stretch', lines: 1, singleShape: true },
+      icon: { hostDisplay: 'inline-flex', hostInlineSize: explicitWidth || '36px', hostBlockSize: explicitHeight || '36px', inlineSize: '100%', blockSize: '100%', minBlockSize: explicitHeight || '36px', padding: '0', gap: '0', radius: 'var(--mvx-radius-sm)', background: 'transparent', border: '0', lineBlockSize: '100%', lineRadius: 'var(--mvx-radius-sm)', shapeBlockSize: '100%', shapeRadius: 'var(--mvx-radius-sm)', evenInlineSize: '100%', lastInlineSize: '100%', alignContent: 'stretch', lines: 1, singleShape: true },
+      avatar: { hostDisplay: 'inline-flex', hostInlineSize: explicitWidth || avatarSize, hostBlockSize: explicitHeight || avatarSize, inlineSize: '100%', blockSize: '100%', minBlockSize: explicitHeight || avatarSize, padding: '0', gap: '0', radius: '999px', background: 'transparent', border: '0', lineBlockSize: '100%', lineRadius: '999px', shapeBlockSize: '100%', shapeRadius: '999px', evenInlineSize: '100%', lastInlineSize: '100%', alignContent: 'stretch', lines: 1, singleShape: true },
+      field: { hostDisplay: 'block', hostInlineSize: explicitWidth, hostBlockSize: explicitHeight, inlineSize: '100%', blockSize: explicitHeight ? '100%' : 'auto', minBlockSize: explicitHeight || 'var(--mvx-skeleton-field-size, 44px)', padding: this.hasAttribute('label') ? '0' : '2px 0', gap: '8px', radius: 'var(--mvx-radius-sm)', background: 'transparent', border: '0', lineBlockSize: explicitHeight && !this.hasAttribute('label') ? '100%' : 'var(--mvx-skeleton-field-size, 44px)', firstLineBlockSize: this.hasAttribute('label') ? '12px' : (explicitHeight || 'var(--mvx-skeleton-field-size, 44px)'), lastLineBlockSize: explicitHeight && this.hasAttribute('label') ? `calc(${explicitHeight} - 20px)` : (explicitHeight || 'var(--mvx-skeleton-field-size, 44px)'), lineRadius: 'var(--mvx-radius-sm)', shapeBlockSize: 'var(--mvx-skeleton-field-size, 44px)', shapeRadius: 'var(--mvx-radius-sm)', evenInlineSize: '100%', lastInlineSize: '100%', alignContent: 'stretch', lines: this.hasAttribute('label') ? 2 : 1 },
+      card: { hostDisplay: 'block', hostInlineSize: explicitWidth, hostBlockSize: explicitHeight, inlineSize: '100%', blockSize: '100%', minBlockSize: explicitHeight || 'var(--mvx-skeleton-block-size, 132px)', padding: '14px', gap: '10px', radius: 'var(--mvx-radius-md)', background: 'var(--mvx-bg-panel)', border: '1px solid var(--mvx-border)', lineBlockSize: '12px', lineRadius: '999px', shapeBlockSize: '64px', shapeRadius: 'var(--mvx-radius-sm)', evenInlineSize: '86%', lastInlineSize: '68%', alignContent: 'start', lines: 4, firstShape: true },
+      chart: { hostDisplay: 'block', hostInlineSize: explicitWidth, hostBlockSize: explicitHeight, inlineSize: '100%', blockSize: '100%', minBlockSize: explicitHeight || 'var(--mvx-skeleton-block-size, 220px)', padding: '14px', gap: '12px', radius: 'var(--mvx-radius-md)', background: 'var(--mvx-bg-panel)', border: '1px solid var(--mvx-border)', lineBlockSize: '12px', lineRadius: '999px', shapeBlockSize: 'min(160px, 70%)', shapeRadius: 'var(--mvx-radius-sm)', evenInlineSize: '78%', lastInlineSize: '52%', alignContent: 'end', lines: 4, firstShape: true },
+      table: { hostDisplay: 'block', hostInlineSize: explicitWidth, hostBlockSize: explicitHeight, inlineSize: '100%', blockSize: explicitHeight ? '100%' : 'auto', minBlockSize: explicitHeight || 'var(--mvx-skeleton-block-size, 168px)', padding: '12px', gap: '8px', radius: 'var(--mvx-radius-md)', background: 'var(--mvx-bg-panel)', border: '1px solid var(--mvx-border)', lineBlockSize: '28px', lineRadius: 'var(--mvx-radius-xs)', shapeBlockSize: '28px', shapeRadius: 'var(--mvx-radius-xs)', evenInlineSize: '100%', lastInlineSize: '100%', alignContent: 'start', lines: 5 },
+      progress: { hostDisplay: 'block', hostInlineSize: explicitWidth, hostBlockSize: explicitHeight, inlineSize: '100%', blockSize: explicitHeight ? '100%' : 'auto', minBlockSize: explicitHeight || '8px', padding: '2px 0', gap: '0', radius: '999px', background: 'transparent', border: '0', lineBlockSize: explicitHeight || '8px', lineRadius: '999px', shapeBlockSize: explicitHeight || '8px', shapeRadius: '999px', evenInlineSize: '100%', lastInlineSize: '100%', alignContent: 'stretch', lines: 1, singleShape: true }
+    };
+    const aliases = {
+      circle: 'avatar',
+      input: 'field',
+      media: 'card',
+      panel: 'card'
+    };
+    return profiles[aliases[inferred] || inferred] || profiles.text;
+  }
+
+  inferSkeletonVariant() {
+    const name = this.localName || '';
+    if (['mvx-avatar'].includes(name)) return 'avatar';
+    if (['mvx-icon', 'mvx-icon-button', 'mvx-close-button', 'mvx-marker', 'mvx-spinner', 'mvx-theme-switcher', 'mvx-variant-switcher'].includes(name)) return 'icon';
+    if (['mvx-badge', 'mvx-button', 'mvx-button-group', 'mvx-chip', 'mvx-join', 'mvx-fab', 'mvx-indicator', 'mvx-kbd', 'mvx-link', 'mvx-status', 'mvx-toggle'].includes(name)) return 'button';
+    if (['mvx-swap'].includes(name)) return 'swap';
+    if (['mvx-toggle-group'].includes(name)) return 'toggle-group';
+    if (['mvx-mask'].includes(name)) return 'mask';
+    if (['mvx-label', 'mvx-placeholder', 'mvx-skeleton', 'mvx-text-rotate', 'mvx-tooltip', 'mvx-typography'].includes(name)) return 'text';
+    if (['mvx-autocomplete', 'mvx-checkbox', 'mvx-combobox', 'mvx-date-picker', 'mvx-field', 'mvx-file-input', 'mvx-filter', 'mvx-floating-label', 'mvx-input', 'mvx-input-group', 'mvx-native-select', 'mvx-number-field', 'mvx-otp-input', 'mvx-radio-group', 'mvx-rating', 'mvx-rich-text-editor', 'mvx-select', 'mvx-slider', 'mvx-switch', 'mvx-textarea', 'mvx-validator'].includes(name)) return 'field';
+    if (['mvx-chart', 'mvx-chart-group'].includes(name)) return 'chart';
+    if (['mvx-accordion', 'mvx-bottom-navigation', 'mvx-breadcrumbs', 'mvx-command-palette', 'mvx-context-menu', 'mvx-data-table', 'mvx-dock', 'mvx-dropdown-menu', 'mvx-kanban', 'mvx-list', 'mvx-mega-menu', 'mvx-menubar', 'mvx-menu', 'mvx-navigation-menu', 'mvx-pagination', 'mvx-scrollspy', 'mvx-shortcuts', 'mvx-sidebar-dropdown', 'mvx-stepper', 'mvx-table', 'mvx-tabs', 'mvx-timeline', 'mvx-transfer-list', 'mvx-tree-view'].includes(name)) return 'table';
+    if (['mvx-countdown', 'mvx-divider', 'mvx-progress', 'mvx-radial-progress', 'mvx-separator'].includes(name)) return 'progress';
+    if (['mvx-ai-panel', 'mvx-alert', 'mvx-alert-dialog', 'mvx-app-shell', 'mvx-aspect-ratio', 'mvx-attachment', 'mvx-aura', 'mvx-backdrop', 'mvx-bubble', 'mvx-box', 'mvx-browser-mockup', 'mvx-calendar', 'mvx-card', 'mvx-carousel', 'mvx-chat-bubble', 'mvx-chatbot', 'mvx-code-block', 'mvx-collapse', 'mvx-container', 'mvx-dialog', 'mvx-diff', 'mvx-drawer', 'mvx-empty-state', 'mvx-fieldset', 'mvx-figure', 'mvx-footer', 'mvx-grid', 'mvx-hero', 'mvx-hover-3d-card', 'mvx-hover-card', 'mvx-hover-gallery', 'mvx-image', 'mvx-image-list', 'mvx-icons', 'mvx-item', 'mvx-json-renderer', 'mvx-json-schema-form', 'mvx-masonry', 'mvx-message', 'mvx-message-scroller', 'mvx-modal', 'mvx-navbar', 'mvx-offcanvas', 'mvx-paper', 'mvx-phone-mockup', 'mvx-popover', 'mvx-resizable', 'mvx-schema-form', 'mvx-scroll-area', 'mvx-sheet', 'mvx-sonner', 'mvx-sidebar', 'mvx-speed-dial', 'mvx-stack', 'mvx-stat', 'mvx-theme-controller', 'mvx-window-mockup'].includes(name)) return 'card';
+    if (['mvx-toast'].includes(name)) return 'toast';
+    return 'text';
   }
 
   normalizeRadius(value) {
@@ -596,6 +1009,7 @@ export class MvxElement extends HTMLElementBase {
 
   wirePointerMotion(target, options = {}) {
     if (!target || this.getAttribute('motion') === 'none') return;
+    const isMaterialVariant = () => this.getAttribute('data-mvx-variant') === 'material' || globalThis.document?.documentElement?.getAttribute('data-mvx-variant') === 'material';
     const isDisabled = () => options.disabled?.() || target.disabled || target.getAttribute('aria-disabled') === 'true';
     const update = event => {
       if (isDisabled()) return;
@@ -604,6 +1018,11 @@ export class MvxElement extends HTMLElementBase {
       const y = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
       target.style.setProperty('--mx', `${x * 100}%`);
       target.style.setProperty('--my', `${y * 100}%`);
+      if (isMaterialVariant()) {
+        target.style.removeProperty('--tilt-x');
+        target.style.removeProperty('--tilt-y');
+        return;
+      }
       target.style.setProperty('--tilt-x', `${(x - 0.5) * 7}deg`);
       target.style.setProperty('--tilt-y', `${(0.5 - y) * 5}deg`);
     };

@@ -1,18 +1,29 @@
 import { baseStyles, MvxElement, htmlEscape } from '../../core.js';
 
 export class MvxSkeleton extends MvxElement {
-  static observedAttributes = ['lines', 'label'];
+  static observedAttributes = ['lines', 'label', 'width', 'height'];
 
   render() {
     const lines = Math.max(1, Number(this.getAttribute('lines') || 3));
     const label = this.getAttribute('label') || this.t('loading', 'Loading');
+    const width = this.skeletonLength(this.getAttribute('width'));
+    const height = this.skeletonLength(this.getAttribute('height'));
     this.shadowRoot.innerHTML = `
       <style>
         ${baseStyles}
-        :host { display: block; }
+        :host {
+          display: block;
+          min-inline-size: 0;
+          ${width ? `inline-size: ${width};` : ''}
+          ${height ? `block-size: ${height};` : ''}
+          ${width ? `overflow-x: hidden;` : ''}
+          ${height ? `overflow-y: hidden;` : ''}
+        }
         .skeleton {
           display: grid;
           gap: 9px;
+          inline-size: 100%;
+          block-size: 100%;
           padding: 2px 0;
         }
         span {

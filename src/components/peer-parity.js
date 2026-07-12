@@ -53,6 +53,22 @@ const sharedStyles = `
     border-color: var(--mvx-border-strong);
     background: color-mix(in srgb, var(--mvx-accent) 10%, var(--mvx-bg-inset));
   }
+  :host-context([data-mvx-variant="material"]) button {
+    transition:
+      background var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard),
+      border-color var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard),
+      color var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard),
+      box-shadow var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard);
+  }
+  :host-context([data-mvx-variant="material"]) button:hover:not(:disabled) {
+    border-color: var(--mvx-border);
+    background: var(--mvx-state-layer-hover);
+    box-shadow: none;
+    transform: none;
+  }
+  :host-context([data-mvx-variant="material"]) button:active:not(:disabled) {
+    background: var(--mvx-state-layer-pressed);
+  }
   :host([component-style="clean"]) button:hover:not(:disabled) {
     border-color: transparent;
     background: color-mix(in srgb, var(--mvx-accent) 8%, transparent);
@@ -222,7 +238,7 @@ function sanitizeRichHtml(value) {
 class MvxPeerElement extends MvxElement {
   static observedAttributes = [
     'items', 'value', 'label', 'title', 'description', 'helper', 'open', 'active', 'disabled', 'multiple',
-    'tone', 'variant', 'size', 'orientation', 'href', 'src', 'alt', 'ratio', 'columns', 'gap', 'max', 'min',
+    'tone', 'type', 'size', 'orientation', 'href', 'src', 'alt', 'ratio', 'columns', 'gap', 'max', 'min',
     'step', 'placeholder', 'to', 'duration', 'shape', 'for', 'as', 'level', 'selected', 'checked', 'compact',
     'align', 'justify', 'max-width', 'min-column-width', 'padding', 'responsive', 'fluid', 'wide', 'width'
   ];
@@ -1966,10 +1982,10 @@ export class MvxPaper extends MvxPeerElement {
 export class MvxTypography extends MvxPeerElement {
   render() {
     const as = this.getAttribute('as') || 'p';
-    const variant = this.getAttribute('variant') || 'body';
+    const type = this.getAttribute('type') || 'body';
     const sizes = { h1: '32px', h2: '26px', h3: '21px', h4: '18px', body: '14px', caption: '12px', overline: '11px' };
     this.shadowRoot.innerHTML = `
-      <style>${sharedStyles}.text{margin:0;color:${variant === 'caption' || variant === 'overline' ? 'var(--mvx-subtle)' : 'var(--mvx-fg)'};font-size:${sizes[variant] || sizes.body};font-weight:${variant.startsWith('h') ? '850' : variant === 'overline' ? '800' : '500'};text-transform:${variant === 'overline' ? 'uppercase' : 'none'};line-height:1.35;}</style>
+      <style>${sharedStyles}.text{margin:0;color:${type === 'caption' || type === 'overline' ? 'var(--mvx-subtle)' : 'var(--mvx-fg)'};font-size:${sizes[type] || sizes.body};font-weight:${type.startsWith('h') ? '850' : type === 'overline' ? '800' : '500'};text-transform:${type === 'overline' ? 'uppercase' : 'none'};line-height:1.35;}</style>
       <${as} class="text" part="text"><slot>${htmlEscape(this.textContent || this.titleText('Text'))}</slot></${as}>
     `;
   }

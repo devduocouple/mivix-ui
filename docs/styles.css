@@ -75,7 +75,9 @@ mvx-app-shell {
 }
 
 .mobile-shell-bar mvx-theme-switcher::part(button),
+.mobile-shell-bar mvx-variant-switcher::part(button),
 .rail-actions mvx-theme-switcher::part(button),
+.rail-actions mvx-variant-switcher::part(button),
 .rail-actions mvx-icon-button::part(button) {
   inline-size: var(--docs-nav-control-size);
   block-size: var(--docs-nav-control-size);
@@ -152,8 +154,12 @@ mvx-app-shell {
 
 .mobile-shell-bar mvx-theme-switcher::part(button):hover,
 .mobile-shell-bar mvx-theme-switcher[open]::part(button),
+.mobile-shell-bar mvx-variant-switcher::part(button):hover,
+.mobile-shell-bar mvx-variant-switcher[open]::part(button),
 .rail-actions mvx-theme-switcher::part(button):hover,
 .rail-actions mvx-theme-switcher[open]::part(button),
+.rail-actions mvx-variant-switcher::part(button):hover,
+.rail-actions mvx-variant-switcher[open]::part(button),
 .rail-actions mvx-icon-button::part(button):hover {
   border-color: color-mix(in srgb, var(--mvx-accent) 54%, var(--mvx-border));
   background:
@@ -297,6 +303,7 @@ body.mobile-nav-open .mobile-nav-toggle span:nth-child(3) {
 }
 
 .rail-actions mvx-theme-switcher,
+.rail-actions mvx-variant-switcher,
 .rail-actions mvx-icon-button {
   flex: 0 0 auto;
 }
@@ -1202,6 +1209,8 @@ body.component-page .component-detail {
   position: relative;
   z-index: 1;
   display: grid;
+  justify-items: start;
+  align-items: start;
   gap: 12px;
   min-block-size: 170px;
   align-content: center;
@@ -1212,7 +1221,7 @@ body.component-page .component-detail {
   overflow: visible;
 }
 
-.playground-surface:has(mvx-dropdown-menu[open], mvx-popover[open], mvx-date-picker[open], mvx-theme-switcher[open]) {
+.playground-surface:has(mvx-dropdown-menu[open], mvx-popover[open], mvx-date-picker[open], mvx-theme-switcher[open], mvx-variant-switcher[open]) {
   z-index: 10;
 }
 
@@ -1988,7 +1997,7 @@ body.component-page .component-detail {
   min-inline-size: 0;
 }
 
-.component-card:has(mvx-dropdown-menu[open], mvx-popover[open], mvx-date-picker[open], mvx-theme-switcher[open]) {
+.component-card:has(mvx-dropdown-menu[open], mvx-popover[open], mvx-date-picker[open], mvx-theme-switcher[open], mvx-variant-switcher[open]) {
   z-index: 20;
 }
 
@@ -2087,12 +2096,16 @@ body.component-page .component-detail {
 @media (max-width: 860px) {
   .mobile-shell-bar {
     display: grid;
-    grid-template-columns: var(--docs-nav-control-size) minmax(0, 1fr) var(--docs-nav-control-size);
+    grid-template-columns: var(--docs-nav-control-size) minmax(0, 1fr) var(--docs-nav-control-size) var(--docs-nav-control-size);
     align-items: center;
     gap: 12px;
   }
 
   .mobile-shell-bar mvx-theme-switcher {
+    justify-self: end;
+  }
+
+  .mobile-shell-bar mvx-variant-switcher {
     justify-self: end;
   }
 

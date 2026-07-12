@@ -1,10 +1,13 @@
 import { baseStyles, MvxElement, htmlEscape } from '../../core.js';
 
 export class MvxButton extends MvxElement {
-  static observedAttributes = ['variant', 'size', 'disabled', 'loading', 'motion'];
+  static observedAttributes = ['type', 'tone', 'size', 'disabled', 'loading', 'motion'];
 
   render() {
-    const variant = this.getAttribute('variant') || 'neutral';
+    const rawType = this.getAttribute('type') || 'solid';
+    const legacyTones = new Set(['neutral', 'primary', 'secondary', 'success', 'warning', 'danger', 'info']);
+    const type = legacyTones.has(rawType) ? 'solid' : rawType;
+    const tone = this.getAttribute('tone') || (legacyTones.has(rawType) ? rawType : 'neutral');
     const size = this.getAttribute('size') || 'md';
     const disabled = this.hasAttribute('disabled') || this.hasAttribute('loading');
     this.shadowRoot.innerHTML = `
@@ -15,6 +18,11 @@ export class MvxButton extends MvxElement {
           --button-bg: var(--mvx-bg-panel);
           --button-fg: var(--mvx-fg);
           --button-border: var(--mvx-border);
+          --button-tone: var(--mvx-fg);
+          --button-on-tone: var(--mvx-bg);
+          --button-solid-bg: var(--mvx-bg-panel);
+          --button-solid-fg: var(--mvx-fg);
+          --button-solid-border: var(--mvx-border);
           --button-glow: var(--mvx-accent-2);
           position: relative;
           isolation: isolate;
@@ -103,29 +111,160 @@ export class MvxButton extends MvxElement {
         button:disabled::after {
           display: none;
         }
-        .primary {
-          --button-bg: var(--mvx-accent);
-          --button-fg: white;
-          --button-border: color-mix(in srgb, var(--mvx-accent) 70%, white);
+        :host-context([data-mvx-variant="material"]) button {
+          min-block-size: 40px;
+          border-color: var(--button-border);
+          border-radius: var(--mvx-button-radius);
+          background: var(--button-bg);
+          box-shadow: none;
+          transform: none;
+        }
+        :host-context([data-mvx-variant="material"]) button::before {
+          inset: 0;
+          background: currentColor;
+          opacity: 0;
+          transform: none;
+          transition: opacity var(--mvx-duration-fast);
+        }
+        :host-context([data-mvx-variant="material"]) button:hover:not(:disabled)::before {
+          opacity: 0.08;
+        }
+        :host-context([data-mvx-variant="material"]) button:active:not(:disabled)::before {
+          opacity: 0.12;
+        }
+        :host-context([data-mvx-variant="material"]) button:hover:not(:disabled),
+        :host-context([data-mvx-variant="material"]) button:active:not(:disabled) {
+          transform: none;
+          box-shadow: none;
+        }
+        .tone-neutral {
+          --button-tone: var(--mvx-fg);
+          --button-on-tone: var(--mvx-bg);
+          --button-solid-bg: var(--mvx-bg-panel);
+          --button-solid-fg: var(--mvx-fg);
+          --button-solid-border: var(--mvx-border);
           --button-glow: var(--mvx-accent-2);
         }
-        .primary.mvx-pressed:not(:disabled) {
-          animation: mvx-confirm 420ms cubic-bezier(0.18, 0.82, 0.22, 1);
+        .tone-primary {
+          --button-tone: var(--mvx-accent);
+          --button-on-tone: white;
+          --button-glow: var(--mvx-accent-2);
         }
-        .danger {
-          --button-bg: color-mix(in srgb, var(--mvx-danger) 24%, var(--mvx-bg-panel));
-          --button-border: color-mix(in srgb, var(--mvx-danger) 56%, var(--mvx-border));
+        .tone-secondary {
+          --button-tone: var(--mvx-accent-2);
+          --button-on-tone: var(--mvx-bg);
+          --button-glow: var(--mvx-accent-2);
+        }
+        .tone-success {
+          --button-tone: var(--mvx-success);
+          --button-on-tone: white;
+          --button-glow: var(--mvx-success);
+        }
+        .tone-warning {
+          --button-tone: var(--mvx-warning);
+          --button-on-tone: #14171b;
+          --button-glow: var(--mvx-warning);
+        }
+        .tone-danger {
+          --button-tone: var(--mvx-danger);
+          --button-on-tone: white;
           --button-glow: var(--mvx-danger);
         }
-        .danger.mvx-pressed:not(:disabled) {
-          animation: mvx-danger 520ms cubic-bezier(0.2, 0.8, 0.2, 1);
+        .tone-info {
+          --button-tone: var(--mvx-info);
+          --button-on-tone: white;
+          --button-glow: var(--mvx-info);
         }
+        .tone-primary,
+        .tone-secondary,
+        .tone-success,
+        .tone-warning,
+        .tone-danger,
+        .tone-info {
+          --button-solid-bg: var(--button-tone);
+          --button-solid-fg: var(--button-on-tone);
+          --button-solid-border: color-mix(in srgb, var(--button-tone) 72%, white);
+        }
+        .solid {
+          --button-bg: var(--button-solid-bg);
+          --button-fg: var(--button-solid-fg);
+          --button-border: var(--button-solid-border);
+        }
+        .outline {
+          --button-bg: transparent;
+          --button-fg: var(--button-tone);
+          --button-border: color-mix(in srgb, var(--button-tone) 58%, var(--mvx-border));
+          box-shadow: none;
+        }
+        .dashed,
+        .dotted {
+          --button-bg: transparent;
+          --button-fg: var(--button-tone);
+          --button-border: color-mix(in srgb, var(--button-tone) 62%, var(--mvx-border));
+          box-shadow: none;
+        }
+        .dashed { border-style: dashed; }
+        .dotted { border-style: dotted; }
         .ghost {
           --button-bg: transparent;
+          --button-fg: var(--button-tone);
+          --button-border: transparent;
           box-shadow: none;
+        }
+        .subtle {
+          --button-bg: color-mix(in srgb, var(--button-tone) 14%, var(--mvx-bg-panel));
+          --button-fg: var(--button-tone);
+          --button-border: color-mix(in srgb, var(--button-tone) 24%, transparent);
+          box-shadow: none;
+        }
+        .plain,
+        .link {
+          --button-bg: transparent;
+          --button-fg: var(--button-tone);
+          --button-border: transparent;
+          box-shadow: none;
+        }
+        .plain,
+        .link {
+          min-block-size: 30px;
+          padding-inline: 6px;
+        }
+        .link {
+          text-decoration: underline;
+          text-underline-offset: 4px;
+        }
+        .tone-primary.solid.mvx-pressed:not(:disabled),
+        .tone-success.solid.mvx-pressed:not(:disabled) {
+          animation: mvx-confirm 420ms cubic-bezier(0.18, 0.82, 0.22, 1);
+        }
+        .tone-danger.mvx-pressed:not(:disabled) {
+          animation: mvx-danger 520ms cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        :host-context([data-mvx-variant="material"]) .tone-primary.solid.mvx-pressed:not(:disabled),
+        :host-context([data-mvx-variant="material"]) .tone-success.solid.mvx-pressed:not(:disabled),
+        :host-context([data-mvx-variant="material"]) .tone-danger.mvx-pressed:not(:disabled) {
+          animation: none;
+        }
+        :host-context([data-mvx-variant="material"]) button.mvx-pressed:not(:disabled)::after {
+          animation: mvx-material-ripple var(--mvx-motion-duration-medium) var(--mvx-motion-easing-standard);
+        }
+        :host-context([data-mvx-variant="material"]) .tone-neutral.solid {
+          --button-bg: transparent;
+          --button-fg: var(--mvx-accent);
+          --button-border: var(--mvx-border);
+        }
+        :host-context([data-mvx-variant="material"]) .solid:not(.tone-neutral) {
+          --button-border: transparent;
+        }
+        :host-context([data-mvx-variant="material"]) .ghost,
+        :host-context([data-mvx-variant="material"]) .plain,
+        :host-context([data-mvx-variant="material"]) .link {
+          --button-border: transparent;
         }
         .sm { min-block-size: 30px; padding: 0 10px; font-size: 13px; }
         .lg { min-block-size: 44px; padding: 0 18px; font-size: 15px; }
+        :host-context([data-mvx-variant="material"]) .sm { min-block-size: 32px; padding: 0 12px; }
+        :host-context([data-mvx-variant="material"]) .lg { min-block-size: 48px; padding: 0 24px; }
         .spinner {
           inline-size: 14px;
           block-size: 14px;
@@ -139,6 +278,10 @@ export class MvxButton extends MvxElement {
           0% { opacity: 0.42; transform: translate(-50%, -50%) scale(0); }
           78% { opacity: 0.14; }
           100% { opacity: 0; transform: translate(-50%, -50%) scale(13); }
+        }
+        @keyframes mvx-material-ripple {
+          0% { opacity: 0.12; transform: translate(-50%, -50%) scale(0); }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(9); }
         }
         @keyframes mvx-confirm {
           0% { transform: perspective(720px) translateY(-1px) scale(1); }
@@ -174,7 +317,7 @@ export class MvxButton extends MvxElement {
           }
         }
       </style>
-      <button part="button" class="${htmlEscape(variant)} ${htmlEscape(size)}" aria-busy="${this.hasAttribute('loading')}">
+      <button type="button" part="button" class="${htmlEscape(type)} tone-${htmlEscape(tone)} ${htmlEscape(size)}" aria-busy="${this.hasAttribute('loading')}">
         ${this.hasAttribute('loading') ? '<span class="spinner" aria-hidden="true"></span>' : '<slot name="prefix"></slot>'}
         <slot></slot>
         <slot name="suffix"></slot>

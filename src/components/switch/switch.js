@@ -37,6 +37,12 @@ export class MvxSwitch extends MvxElement {
           box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.34);
           transition: background var(--mvx-duration), border-color var(--mvx-duration);
         }
+        :host-context([data-mvx-variant="material"]) .track {
+          box-shadow: none;
+          transition:
+            background var(--mvx-motion-duration-medium) var(--mvx-motion-easing-standard),
+            border-color var(--mvx-motion-duration-medium) var(--mvx-motion-easing-standard);
+        }
         .thumb {
           position: absolute;
           inset-block-start: 50%;
@@ -48,6 +54,19 @@ export class MvxSwitch extends MvxElement {
           box-shadow: 0 2px 7px rgba(0, 0, 0, 0.4);
           transform: translateY(-50%);
           transition: transform var(--mvx-duration);
+        }
+        :host-context([data-mvx-variant="material"]) .thumb {
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+          transition:
+            transform var(--mvx-motion-duration-medium) var(--mvx-motion-easing-emphasized),
+            inline-size var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard);
+        }
+        :host-context([data-mvx-variant="material"]) button:hover:not(:disabled) .thumb {
+          box-shadow: 0 0 0 10px var(--mvx-state-layer-hover), 0 1px 3px rgba(0, 0, 0, 0.28);
+        }
+        :host-context([data-mvx-variant="material"]) button:active:not(:disabled) .thumb {
+          inline-size: 24px;
+          box-shadow: 0 0 0 10px var(--mvx-state-layer-pressed), 0 1px 3px rgba(0, 0, 0, 0.28);
         }
         button[aria-checked="true"] .track {
           border-color: color-mix(in srgb, var(--mvx-accent) 62%, var(--mvx-border));

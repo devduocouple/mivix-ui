@@ -21,7 +21,7 @@ export default function Page() {
 
   return (
     <main>
-      <mvx-button variant="primary">Deploy</mvx-button>
+      <mvx-button type="solid" tone="primary">Deploy</mvx-button>
       <mvx-input label="Project" placeholder="mivix-ui" />
       <mvx-chart ref={chartRef} type="combo" title="Next.js analytics" legend grid />
     </main>

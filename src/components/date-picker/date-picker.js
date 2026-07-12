@@ -253,6 +253,16 @@ export class MvxDatePicker extends MvxElement {
           border-color: var(--mvx-border-strong);
           transform: translateY(var(--mvx-hover-lift));
         }
+        :host-context([data-mvx-variant="material"]) .trigger {
+          transition:
+            border-color var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard),
+            background var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard);
+        }
+        :host-context([data-mvx-variant="material"]) .trigger:hover:not(:disabled),
+        :host-context([data-mvx-variant="material"]) .trigger[aria-expanded="true"] {
+          background: var(--mvx-state-layer-hover);
+          transform: none;
+        }
         .trigger:focus-visible {
           outline: none;
           box-shadow: var(--mvx-focus), var(--mvx-control-shadow);
@@ -377,6 +387,10 @@ export class MvxDatePicker extends MvxElement {
           background: color-mix(in srgb, var(--mvx-accent) 12%, var(--mvx-bg-inset));
           color: var(--mvx-fg);
           transform: translateY(var(--mvx-hover-lift));
+        }
+        :host-context([data-mvx-variant="material"]) .day:hover:not(:disabled) {
+          background: var(--mvx-state-layer-hover);
+          transform: none;
         }
         .day:focus-visible {
           outline: none;

@@ -157,6 +157,32 @@ export class MvxRadioGroup extends MvxElement {
         button:hover:not(:disabled) {
           transform: translateY(var(--mvx-hover-lift));
         }
+        :host-context([data-mvx-variant="material"]) fieldset {
+          box-shadow: none;
+        }
+        :host-context([data-mvx-variant="material"]) button {
+          transition:
+            background var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard),
+            color var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard);
+        }
+        :host-context([data-mvx-variant="material"]) button:hover:not(:disabled) {
+          background: var(--mvx-state-layer-hover);
+          transform: none;
+        }
+        :host-context([data-mvx-variant="material"]) button:active:not(:disabled) {
+          background: var(--mvx-state-layer-pressed);
+        }
+        :host-context([data-mvx-variant="material"]) button[aria-checked="true"] {
+          background: color-mix(in srgb, var(--mvx-accent) 10%, transparent);
+        }
+        :host-context([data-mvx-variant="material"]) .dot,
+        :host-context([data-mvx-variant="material"]) .dot::after {
+          transition:
+            background var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard),
+            border-color var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard),
+            opacity var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard),
+            transform var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard);
+        }
         button:disabled {
           cursor: not-allowed;
           border-color: var(--mvx-disabled-border);

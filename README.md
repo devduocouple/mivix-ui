@@ -41,7 +41,7 @@ define('mvx-input', MvxInput);
 
 ```html
 <mvx-input label="Project name"></mvx-input>
-<mvx-button variant="primary">Create</mvx-button>
+<mvx-button type="solid" tone="primary">Create</mvx-button>
 ```
 
 ## Status

@@ -33,6 +33,7 @@ export { MvxAvatar } from './components/avatar/index.js';
 export { MvxTooltip } from './components/tooltip/index.js';
 export { MvxTimeline } from './components/timeline/index.js';
 export { MvxThemeSwitcher } from './components/theme-switcher/index.js';
+export { MvxVariantSwitcher } from './components/variant-switcher/index.js';
 export { MvxDropdownMenu } from './components/dropdown-menu/index.js';
 export { MvxPopover } from './components/popover/index.js';
 export { MvxNavbar } from './components/navbar/index.js';

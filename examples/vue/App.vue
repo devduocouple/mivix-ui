@@ -5,7 +5,7 @@ import 'mivix-ui/styles';
 
 <template>
   <main>
-    <mvx-button variant="primary">Deploy</mvx-button>
+    <mvx-button type="solid" tone="primary">Deploy</mvx-button>
     <mvx-input label="Project" placeholder="mivix-ui" />
     <mvx-alert tone="success" title="Ready">Web Components work directly in Vue.</mvx-alert>
   </main>

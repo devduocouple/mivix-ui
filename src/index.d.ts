@@ -35,6 +35,7 @@ export { MvxAvatar } from './components/avatar/index.js';
 export { MvxTooltip } from './components/tooltip/index.js';
 export { MvxTimeline } from './components/timeline/index.js';
 export { MvxThemeSwitcher } from './components/theme-switcher/index.js';
+export { MvxVariantSwitcher } from './components/variant-switcher/index.js';
 export { MvxDropdownMenu } from './components/dropdown-menu/index.js';
 export { MvxPopover } from './components/popover/index.js';
 export { MvxNavbar } from './components/navbar/index.js';
@@ -53,6 +54,7 @@ declare global {
       theme?: 'dark' | 'light' | 'graphite' | 'aurora' | 'terminal' | string;
       componentStyle?: 'console' | 'minimal' | 'glass' | 'dashboard' | 'group' | string;
       'component-style'?: 'console' | 'minimal' | 'glass' | 'dashboard' | 'group' | string;
+      variant?: 'mivix' | 'material' | string;
       font?: 'system' | 'inter' | 'mono' | 'monospace' | 'serif' | 'rounded' | 'humanist' | 'geometric' | 'devanagari' | string;
       fontFamily?: string;
       'font-family'?: string;
@@ -105,6 +107,7 @@ declare global {
       'mvx-tooltip': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-timeline': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-theme-switcher': MivixGlobalAttributes & Record<string, unknown>;
+      'mvx-variant-switcher': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-dropdown-menu': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-popover': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-navbar': MivixGlobalAttributes & Record<string, unknown>;

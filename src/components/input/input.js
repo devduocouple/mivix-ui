@@ -48,9 +48,31 @@ export class MvxInput extends MvxElement {
           outline: none;
           resize: vertical;
         }
+        :host-context([data-mvx-variant="material"]) label {
+          gap: 6px;
+          font-weight: 500;
+        }
+        :host-context([data-mvx-variant="material"]) input,
+        :host-context([data-mvx-variant="material"]) textarea {
+          min-block-size: 56px;
+          border-width: 0 0 1px;
+          border-radius: var(--mvx-material-field-radius);
+          background: var(--mvx-material-field-bg);
+          padding: 16px;
+          box-shadow: none;
+        }
+        :host-context([data-mvx-variant="material"]) input:hover:not(:disabled),
+        :host-context([data-mvx-variant="material"]) textarea:hover:not(:disabled) {
+          background: color-mix(in srgb, var(--mvx-fg) 9%, var(--mvx-bg-panel));
+        }
         input:focus, textarea:focus {
           border-color: var(--mvx-accent);
           box-shadow: var(--mvx-focus);
+        }
+        :host-context([data-mvx-variant="material"]) input:focus,
+        :host-context([data-mvx-variant="material"]) textarea:focus {
+          border-block-end-width: 2px;
+          box-shadow: none;
         }
         :host([invalid]) input, :host([invalid]) textarea {
           border-color: var(--mvx-danger);

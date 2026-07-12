@@ -1,13 +1,13 @@
 import { baseStyles, MvxElement, htmlEscape } from '../../core.js';
 
 export class MvxSpinner extends MvxElement {
-  static observedAttributes = ['label', 'size', 'tone', 'variant'];
+  static observedAttributes = ['label', 'size', 'tone', 'type'];
 
   render() {
     const label = this.getAttribute('label') || this.t('loading', 'Loading');
     const size = this.getAttribute('size') || 'md';
     const tone = this.getAttribute('tone') || 'accent';
-    const variant = this.getAttribute('variant') || 'ring';
+    const type = this.getAttribute('type') || 'ring';
     const px = size === 'sm' ? 18 : size === 'lg' ? 38 : 26;
     this.shadowRoot.innerHTML = `
       <style>
@@ -55,8 +55,8 @@ export class MvxSpinner extends MvxElement {
           .dots span { animation: none; }
         }
       </style>
-      <span class="spinner ${variant === 'dots' ? 'dots' : 'ring'}" part="spinner" role="status" aria-label="${htmlEscape(label)}">
-        ${variant === 'dots' ? '<span></span><span></span><span></span>' : ''}
+      <span class="spinner ${type === 'dots' ? 'dots' : 'ring'}" part="spinner" role="status" aria-label="${htmlEscape(label)}">
+        ${type === 'dots' ? '<span></span><span></span><span></span>' : ''}
       </span>
       ${label ? `<span class="label">${htmlEscape(label)}</span>` : ''}
     `;

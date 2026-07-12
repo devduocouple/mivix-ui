@@ -1,29 +1,26 @@
-import { applyDocumentTheme, baseStyles, MvxElement, htmlEscape, restoreDocumentTheme } from '../../core.js';
+import { applyDocumentVariant, baseStyles, MvxElement, htmlEscape, restoreDocumentVariant } from '../../core.js';
 
-export class MvxThemeSwitcher extends MvxElement {
-  static observedAttributes = ['themes', 'open'];
+export class MvxVariantSwitcher extends MvxElement {
+  static observedAttributes = ['variants', 'open'];
 
-  get themes() {
-    return (this.getAttribute('themes') || 'dark,light,graphite,aurora,terminal').split(',').map(theme => theme.trim()).filter(Boolean);
+  get variants() {
+    return (this.getAttribute('variants') || 'mivix,material').split(',').map(variant => variant.trim()).filter(Boolean);
   }
 
-  get themeLabels() {
+  get variantLabels() {
     return {
-      dark: 'Dark',
-      light: 'Light',
-      graphite: 'Graphite Forge',
-      aurora: 'Aurora Flux',
-      terminal: 'Terminal Bloom'
+      mivix: 'Mivix',
+      material: 'Material'
     };
   }
 
   connectedCallback() {
-    restoreDocumentTheme();
+    restoreDocumentVariant();
     super.connectedCallback();
     this._onDocumentClick = event => {
       if (!event.composedPath().includes(this)) this.removeAttribute('open');
     };
-    this._onThemeChange = () => {
+    this._onVariantChange = () => {
       if (this.isConnected) this.render();
     };
     this._onControlOpen = event => {
@@ -31,7 +28,7 @@ export class MvxThemeSwitcher extends MvxElement {
     };
     this._onViewportChange = () => this.updateMenuPosition();
     document.addEventListener('click', this._onDocumentClick);
-    document.addEventListener('mvx-theme-change', this._onThemeChange);
+    document.addEventListener('mvx-variant-change', this._onVariantChange);
     document.addEventListener('mvx-control-open', this._onControlOpen);
     window.addEventListener('resize', this._onViewportChange);
     window.addEventListener('scroll', this._onViewportChange, true);
@@ -40,7 +37,7 @@ export class MvxThemeSwitcher extends MvxElement {
   disconnectedCallback() {
     super.disconnectedCallback();
     document.removeEventListener('click', this._onDocumentClick);
-    document.removeEventListener('mvx-theme-change', this._onThemeChange);
+    document.removeEventListener('mvx-variant-change', this._onVariantChange);
     document.removeEventListener('mvx-control-open', this._onControlOpen);
     window.removeEventListener('resize', this._onViewportChange);
     window.removeEventListener('scroll', this._onViewportChange, true);
@@ -55,7 +52,7 @@ export class MvxThemeSwitcher extends MvxElement {
     const rect = trigger.getBoundingClientRect();
     const width = Math.min(220, Math.max(160, window.innerWidth - margin * 2));
     menu.style.setProperty('--menu-width', `${width}px`);
-    const height = menu.offsetHeight || 220;
+    const height = menu.offsetHeight || 110;
     const left = Math.min(Math.max(rect.right - width, margin), Math.max(margin, window.innerWidth - width - margin));
     const below = rect.bottom + margin;
     const top = below + height <= window.innerHeight - margin
@@ -66,8 +63,8 @@ export class MvxThemeSwitcher extends MvxElement {
   }
 
   render() {
-    const active = document.documentElement.getAttribute('data-mvx-theme') || 'graphite';
-    const selectTheme = this.t('selectTheme', 'Select theme');
+    const active = document.documentElement.getAttribute('data-mvx-variant') || 'mivix';
+    const selectVariant = this.t('selectVariant', 'Select variant');
     this.shadowRoot.innerHTML = `
       <style>
         ${baseStyles}
@@ -134,12 +131,13 @@ export class MvxThemeSwitcher extends MvxElement {
         .option[aria-current="true"] {
           background: color-mix(in srgb, var(--mvx-accent) 20%, var(--mvx-bg-panel));
         }
-        .swatch {
-          inline-size: 16px;
-          block-size: 16px;
+        .shape {
+          inline-size: 18px;
+          block-size: 18px;
           border: 1px solid var(--mvx-border-strong);
-          border-radius: 999px;
-          background: var(--swatch);
+          border-radius: var(--shape-radius);
+          background: color-mix(in srgb, var(--mvx-accent) 24%, var(--mvx-bg-inset));
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
         }
         .name {
           display: grid;
@@ -150,23 +148,20 @@ export class MvxThemeSwitcher extends MvxElement {
           font-size: 11px;
         }
       </style>
-      <button class="trigger" part="button" aria-label="${htmlEscape(selectTheme)}" aria-haspopup="menu" aria-expanded="${this.hasAttribute('open')}" title="${htmlEscape(selectTheme)}">
-        ◐
+      <button class="trigger" part="button" aria-label="${htmlEscape(selectVariant)}" aria-haspopup="menu" aria-expanded="${this.hasAttribute('open')}" title="${htmlEscape(selectVariant)}">
+        ◈
       </button>
       <div class="menu" part="menu" role="menu">
-        ${this.themes.map(theme => {
-          const swatch = {
-            dark: '#3377ff',
-            graphite: '#3377ff',
-            light: '#f6f7f9',
-            aurora: '#38d6b6',
-            terminal: '#37e878'
-          }[theme] || 'var(--mvx-accent)';
+        ${this.variants.map(variant => {
+          const shapeRadius = {
+            mivix: '6px',
+            material: '12px'
+          }[variant] || 'var(--mvx-radius-sm)';
           return `
-            <button class="option" role="menuitemradio" aria-checked="${theme === active}" aria-current="${theme === active}" data-theme="${htmlEscape(theme)}" style="--swatch: ${swatch}">
-              <span class="swatch" aria-hidden="true"></span>
-              <span class="name">${htmlEscape(this.themeLabels[theme] || theme)}<small>${htmlEscape(theme)}</small></span>
-              <span aria-hidden="true">${theme === active ? '✓' : ''}</span>
+            <button class="option" role="menuitemradio" aria-checked="${variant === active}" aria-current="${variant === active}" data-variant="${htmlEscape(variant)}" style="--shape-radius: ${shapeRadius}">
+              <span class="shape" aria-hidden="true"></span>
+              <span class="name">${htmlEscape(this.variantLabels[variant] || variant)}<small>${htmlEscape(variant)}</small></span>
+              <span aria-hidden="true">${variant === active ? '✓' : ''}</span>
             </button>
           `;
         }).join('')}
@@ -178,13 +173,13 @@ export class MvxThemeSwitcher extends MvxElement {
         this.removeAttribute('open');
         return;
       }
-      document.dispatchEvent(new CustomEvent('mvx-control-open', { detail: { source: this, type: 'theme' } }));
+      document.dispatchEvent(new CustomEvent('mvx-control-open', { detail: { source: this, type: 'variant' } }));
       this.setAttribute('open', '');
       requestAnimationFrame(() => this.updateMenuPosition());
     });
     this.shadowRoot.querySelectorAll('.option').forEach(button => {
       button.addEventListener('click', () => {
-        applyDocumentTheme(button.getAttribute('data-theme'), { persist: true });
+        applyDocumentVariant(button.getAttribute('data-variant'), { persist: true });
         this.removeAttribute('open');
         this.render();
       });

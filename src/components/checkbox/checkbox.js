@@ -60,6 +60,13 @@ export class MvxCheckbox extends MvxElement {
             inset 0 0 0 1px rgba(0, 0, 0, 0.08);
           transition: background var(--mvx-duration), border-color var(--mvx-duration), box-shadow var(--mvx-duration), transform var(--mvx-duration-fast);
         }
+        :host-context([data-mvx-variant="material"]) .box {
+          inline-size: 18px;
+          block-size: 18px;
+          border-radius: 2px;
+          background: transparent;
+          box-shadow: none;
+        }
         .mark {
           position: relative;
           z-index: 1;
@@ -83,11 +90,22 @@ export class MvxCheckbox extends MvxElement {
             inset 0 -1px 2px rgba(0, 0, 0, 0.28),
             inset 0 0 0 1px rgba(0, 0, 0, 0.12);
         }
+        :host-context([data-mvx-variant="material"]) button[aria-checked="true"] .box,
+        :host-context([data-mvx-variant="material"]) button[aria-checked="mixed"] .box {
+          border-color: var(--mvx-accent);
+          background: var(--mvx-accent);
+          box-shadow: none;
+        }
         button[aria-checked="true"] .mark,
         button[aria-checked="mixed"] .mark {
           color: #1f66ff;
           opacity: 1;
           transform: scale(1);
+        }
+        :host-context([data-mvx-variant="material"]) button[aria-checked="true"] .mark,
+        :host-context([data-mvx-variant="material"]) button[aria-checked="mixed"] .mark {
+          color: white;
+          text-shadow: none;
         }
         .copy {
           display: grid;
@@ -112,6 +130,10 @@ export class MvxCheckbox extends MvxElement {
             inset 0 -1px 2px rgba(0, 0, 0, 0.26),
             inset 0 0 0 1px rgba(0, 0, 0, 0.08);
           transform: translateY(-1px);
+        }
+        :host-context([data-mvx-variant="material"]) button:hover:not(:disabled) .box {
+          box-shadow: 0 0 0 10px var(--mvx-state-layer-hover);
+          transform: none;
         }
         button:focus-visible {
           outline: none;

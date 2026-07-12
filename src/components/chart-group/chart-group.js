@@ -19,7 +19,7 @@ function chartAttributeString(chart) {
 }
 
 export class MvxChartGroup extends MvxElement {
-  static observedAttributes = ['title', 'subtitle', 'eyebrow', 'charts', 'columns', 'min-column-width', 'gap', 'density', 'variant', 'chart-height', 'responsive', 'chart-card'];
+  static observedAttributes = ['title', 'subtitle', 'eyebrow', 'charts', 'columns', 'min-column-width', 'gap', 'density', 'type', 'chart-height', 'responsive', 'chart-card'];
 
   set charts(value) {
     this._charts = value;
@@ -68,7 +68,7 @@ export class MvxChartGroup extends MvxElement {
           box-shadow: var(--mvx-shadow-soft);
           padding: ${this.getAttribute('density') === 'compact' ? '12px' : '16px'};
         }
-        :host([variant="plain"]) .group {
+        :host([type="plain"]) .group {
           border: 0;
           background: transparent;
           box-shadow: none;
@@ -143,7 +143,7 @@ export class MvxChartGroup extends MvxElement {
         }
         @media (max-width: 640px) {
           .group {
-            padding: ${this.getAttribute('variant') === 'plain' ? '0' : '12px'};
+            padding: ${this.getAttribute('type') === 'plain' ? '0' : '12px'};
           }
           .charts {
             grid-template-columns: 1fr;

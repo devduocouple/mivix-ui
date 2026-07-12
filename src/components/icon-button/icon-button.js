@@ -167,6 +167,31 @@ export class MvxIconButton extends MvxElement {
           color: var(--mvx-accent-2);
           transform: perspective(640px) rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg)) translateY(var(--mvx-hover-lift));
         }
+        :host-context([data-mvx-variant="material"]) button {
+          border-radius: var(--mvx-radius-full);
+          box-shadow: none;
+          transform: none;
+          transition:
+            background var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard),
+            color var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard),
+            border-color var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard);
+        }
+        :host-context([data-mvx-variant="material"]) button::before {
+          background: currentColor;
+          transition: opacity var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard);
+        }
+        :host-context([data-mvx-variant="material"]) button:hover:not(:disabled),
+        :host-context([data-mvx-variant="material"]) button[aria-pressed="true"]:not(:disabled) {
+          transform: none;
+          box-shadow: none;
+        }
+        :host-context([data-mvx-variant="material"]) button:hover:not(:disabled)::before,
+        :host-context([data-mvx-variant="material"]) button[aria-pressed="true"]:not(:disabled)::before {
+          opacity: 0.08;
+        }
+        :host-context([data-mvx-variant="material"]) button:active:not(:disabled)::before {
+          opacity: 0.12;
+        }
         :host([border="none"]) button:hover:not(:disabled),
         :host([border="none"]) button[aria-pressed="true"]:not(:disabled) {
           border-color: transparent;
@@ -202,6 +227,9 @@ export class MvxIconButton extends MvxElement {
         button.mvx-pressed:not(:disabled)::after {
           animation: mvx-icon-ripple 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
         }
+        :host-context([data-mvx-variant="material"]) button.mvx-pressed:not(:disabled)::after {
+          animation: mvx-material-icon-ripple var(--mvx-motion-duration-medium) var(--mvx-motion-easing-standard);
+        }
         button:focus-visible {
           outline: none;
           box-shadow: var(--mvx-focus), var(--mvx-control-shadow);
@@ -212,6 +240,10 @@ export class MvxIconButton extends MvxElement {
         @keyframes mvx-icon-ripple {
           0% { opacity: 0.4; transform: translate(-50%, -50%) scale(0); }
           100% { opacity: 0; transform: translate(-50%, -50%) scale(8); }
+        }
+        @keyframes mvx-material-icon-ripple {
+          0% { opacity: 0.12; transform: translate(-50%, -50%) scale(0); }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(7); }
         }
         :host([motion="none"]) button {
           animation: none !important;

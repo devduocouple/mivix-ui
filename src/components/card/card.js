@@ -24,6 +24,15 @@ export class MvxCard extends MvxElement {
           background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 34%);
           opacity: 0.8;
         }
+        :host-context([data-mvx-variant="material"]) article {
+          overflow: hidden;
+          border-radius: var(--mvx-radius-md);
+          background: var(--mvx-bg-panel);
+          box-shadow: var(--mvx-shadow-soft);
+        }
+        :host-context([data-mvx-variant="material"]) article::before {
+          display: none;
+        }
         :host([interactive]) article {
           cursor: pointer;
           transition: transform var(--mvx-duration-fast), border-color var(--mvx-duration);
@@ -31,6 +40,10 @@ export class MvxCard extends MvxElement {
         :host([interactive]) article:hover {
           border-color: var(--mvx-border-strong);
           transform: translateY(-2px);
+        }
+        :host-context([data-mvx-variant="material"]):host([interactive]) article:hover {
+          transform: none;
+          box-shadow: var(--mvx-shadow-raised);
         }
         header {
           position: relative;
