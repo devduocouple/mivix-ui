@@ -843,7 +843,70 @@
             <div class="variants" aria-label="Related versions">
               <span>data grid</span><span>tree table</span><span>pinned</span>
             </div>
-            <mvx-data-table id="release-table" filterable selectable expandable tree column-toggle sticky-header pin-columns="1" pin-rows="1"></mvx-data-table>
+            <mvx-data-table
+              id="release-table"
+              searchable
+              filterable
+              selectable
+              expandable
+              tree
+              column-toggle
+              sticky-header
+              pin-columns="1"
+              pin-rows="1"
+              label="Component table"
+              columns='[
+                {"key":"component","label":"Component","pinned":true},
+                {"key":"status","label":"Status"},
+                {"key":"owner","label":"Owner"},
+                {"key":"accessibility","label":"A11y"}
+              ]'
+              data='[
+                {
+                  "id": "actions",
+                  "component": "Actions",
+                  "status": "Stable",
+                  "owner": "Core",
+                  "accessibility": "Keyboard",
+                  "expanded": true,
+                  "details": "Action components share pointer-reactive motion, pressed states, and keyboard focus.",
+                  "children": [
+                    {
+                      "id": "button",
+                      "component": "mvx-button",
+                      "status": "Stable",
+                      "owner": "Core",
+                      "accessibility": "Button"
+                    },
+                    {
+                      "id": "icon-button",
+                      "component": "mvx-icon-button",
+                      "status": "Stable",
+                      "owner": "Core",
+                      "accessibility": "Icon label"
+                    }
+                  ]
+                },
+                {
+                  "id": "data",
+                  "component": "Data workflows",
+                  "status": "Beta",
+                  "owner": "Platform",
+                  "accessibility": "Grid",
+                  "children": [
+                    { "id": "table", "component": "mvx-data-table", "status": "Beta", "owner": "Platform", "accessibility": "Grid" },
+                    { "id": "kanban", "component": "mvx-kanban", "status": "Alpha", "owner": "AI", "accessibility": "Selectable" }
+                  ]
+                },
+                {
+                  "id": "chatbot",
+                  "component": "mvx-chatbot",
+                  "status": "Alpha",
+                  "owner": "AI",
+                  "accessibility": "Live region"
+                }
+              ]'>
+            </mvx-data-table>
           </mvx-card>
 
           <mvx-card class="component-card wide" title="mvx-chart" eyebrow="Charts" data-category="charts" data-search="chart charts visualization graph line area bar column pie donut scatter bubble radar heatmap treemap funnel gauge candlestick ohlc boxplot histogram waterfall gantt">
@@ -1064,6 +1127,72 @@
         { component: 'mvx-kanban', status: 'Alpha', category: 'Workflow', a11y: 'Selectable' }
       ];
 
+      const demoDataTableColumns = [
+        { key: 'name', label: 'Component', width: '230px', pinned: true, locked: true },
+        { key: 'status', label: 'Status', width: '130px' },
+        { key: 'category', label: 'Category', width: '150px' },
+        { key: 'owner', label: 'Owner', width: '150px' },
+        { key: 'a11y', label: 'Accessibility', width: '170px' }
+      ];
+
+      const demoDataTableRows = [
+        {
+          id: 'actions',
+          name: 'Actions',
+          status: 'Stable',
+          category: 'Group',
+          owner: 'Core',
+          a11y: 'Keyboard',
+          expanded: true,
+          details: 'Action components share pressed states, keyboard focus, and command intent.',
+          children: [
+            { id: 'button', name: 'mvx-button', status: 'Stable', category: 'Action', owner: 'Core', a11y: 'Button' },
+            { id: 'icon-button', name: 'mvx-icon-button', status: 'Stable', category: 'Action', owner: 'Core', a11y: 'Icon label' },
+            { id: 'button-group', name: 'mvx-button-group', status: 'Stable', category: 'Action', owner: 'Core', a11y: 'Toolbar' }
+          ]
+        },
+        {
+          id: 'forms',
+          name: 'Forms',
+          status: 'Stable',
+          category: 'Group',
+          owner: 'Platform',
+          a11y: 'Label/controls',
+          details: 'Forms emphasize input semantics, validation clarity, and keyboard order.',
+          children: [
+            { id: 'input', name: 'mvx-input', status: 'Stable', category: 'Forms', owner: 'Platform', a11y: 'Label' },
+            { id: 'select', name: 'mvx-select', status: 'Stable', category: 'Forms', owner: 'Platform', a11y: 'Combobox' },
+            { id: 'switch', name: 'mvx-switch', status: 'Beta', category: 'Forms', owner: 'Platform', a11y: 'Switch' }
+          ]
+        },
+        {
+          id: 'data',
+          name: 'Data workflows',
+          status: 'Beta',
+          category: 'Group',
+          owner: 'Platform',
+          a11y: 'Grid',
+          details: 'Tree data, pagination, filtering, and inline detail rows for operational views.',
+          children: [
+            { id: 'table', name: 'mvx-data-table', status: 'Beta', category: 'Data', owner: 'Platform', a11y: 'Grid' },
+            { id: 'kanban', name: 'mvx-kanban', status: 'Alpha', category: 'Workflow', owner: 'AI', a11y: 'Selectable' },
+            { id: 'timeline', name: 'mvx-timeline', status: 'Beta', category: 'Workflow', owner: 'AI', a11y: 'Timeline' }
+          ]
+        },
+        { id: 'chatbot', name: 'mvx-chatbot', status: 'Alpha', category: 'AI', owner: 'AI', a11y: 'Live region' },
+        { id: 'chart', name: 'mvx-chart', status: 'Beta', category: 'Charts', owner: 'Analytics', a11y: 'SVG role img' },
+        { id: 'toast', name: 'mvx-toast', status: 'Beta', category: 'Feedback', owner: 'Notifications', a11y: 'Live region' },
+        { id: 'drawer', name: 'mvx-drawer', status: 'Stable', category: 'Overlays', owner: 'Product', a11y: 'Dialog' },
+        { id: 'skeleton', name: 'mvx-skeleton', status: 'Beta', category: 'Feedback', owner: 'Platform', a11y: 'Polite placeholder' },
+        { id: 'spinner', name: 'mvx-spinner', status: 'Stable', category: 'Feedback', owner: 'Platform', a11y: 'Indeterminate' },
+        { id: 'dropdown', name: 'mvx-dropdown-menu', status: 'Stable', category: 'Navigation', owner: 'Product', a11y: 'Menu' }
+      ];
+
+      const demoDataTableColumnsJson = JSON.stringify(demoDataTableColumns);
+      const demoDataTableRowsJson = JSON.stringify(demoDataTableRows);
+
+      const cloneDemoDataTableRows = () => JSON.parse(JSON.stringify(demoDataTableRows));
+
       const table = document.querySelector('#release-table');
       table.columns = [
         { key: 'component', label: 'Component', width: '210px', pinned: true, locked: true },
@@ -1144,6 +1273,7 @@
       const chartDemoLinks = [...document.querySelectorAll('[data-chart-demo]')];
       const templateLinks = [...document.querySelectorAll('[data-template]')];
       const docsRail = document.querySelector('#docs-rail');
+      const treeNav = document.querySelector('.tree-nav');
       const mobileNavToggle = document.querySelector('#mobile-nav-toggle');
       const mobileNavBackdrop = document.querySelector('#mobile-nav-backdrop');
       const mobileNavMedia = window.matchMedia('(max-width: 860px)');
@@ -3056,27 +3186,66 @@
           family: 'Data & workflow',
           description: 'Highly configurable data grid with tree rows, expandable details, pinned rows, pinned columns, column visibility, search, sort, and filters.',
           usage: 'Use for enterprise dashboards, audit logs, admin grids, component registries, AI task output, workflow queues, and nested operational data.',
-          features: ['Nested tree rows and expandable detail rows', 'Sticky header plus pinned/fixed rows and columns', 'Global search, per-column filters, and sortable headers', 'Collapsible/hidden columns through column visibility menu', 'Selectable rows with path-aware events'],
+          features: ['Nested tree rows and expandable detail rows', 'Sticky header plus pinned/fixed rows and columns', 'Global search, per-column filters, and sortable headers', 'Pagination with optional row-size control', 'Collapsible/hidden columns through column visibility menu', 'Selectable rows with path-aware events'],
           api: [
-            { name: 'columns', type: 'array | JSON', default: '[]', description: 'Column definitions with key, label, width, pinned, hidden, locked, and render.' },
-            { name: 'data', type: 'array | JSON', default: '[]', description: 'Rows keyed by column. Rows may include children, expanded, details, id, or key.' },
+            { name: 'columns', type: 'array | JSON', default: '[]', description: 'Column definitions with key, label, width, pinned, hidden, locked, and render.', structure: `[
+  {
+    "key": "string",
+    "label": "string",
+    "width": "230px",
+    "pinned": false,
+    "locked": false,
+    "hidden": false,
+    "align": "left"
+  }
+]` },
+            { name: 'data', type: 'array | JSON', default: '[]', description: 'Rows keyed by column. Rows may include children, expanded, details, id, or key.', structure: `[
+  {
+    "id": "row-id",
+    "name": "string",
+    "status": "string",
+    "category": "string",
+    "owner": "string",
+    "a11y": "string",
+    "expanded": false,
+    "details": "string",
+    "children": [
+      {
+        "id": "child-id",
+        "name": "child-name",
+        "status": "Stable | Beta | Alpha",
+        "category": "string",
+        "owner": "string",
+        "a11y": "string"
+      }
+    ]
+  }
+]` },
+            { name: 'searchable', type: 'boolean attribute', default: 'false', description: 'Shows the global search field.' },
             { name: 'filterable', type: 'boolean attribute', default: 'false', description: 'Shows table filter.' },
+            { name: 'label', type: 'string', default: 'Data table', description: 'Optional label shown above the table.' },
+            { name: 'highlight-color', type: 'string', default: 'var(--mvx-accent) with opacity', description: 'Background color used for highlighted search terms (uses accent by default).' },
             { name: 'selectable', type: 'boolean attribute', default: 'false', description: 'Emits row selection.' },
+            { name: 'selection-mode', type: 'single | multiple', default: 'single', description: 'Single selection by default; set to multiple to enable bulk selection.' },
+            { name: 'selected', type: 'string | array', default: '[]', description: 'Selected row IDs for syncing controlled selection.', options: ['id-1,id-2', '["id-1","id-2"]'] },
             { name: 'expandable', type: 'boolean attribute', default: 'false', description: 'Enables expandable child/detail controls.' },
             { name: 'tree', type: 'boolean attribute', default: 'false', description: 'Renders nested rows as an expanded tree.' },
             { name: 'column-toggle', type: 'boolean attribute', default: 'false', description: 'Shows a column visibility menu.' },
             { name: 'sticky-header', type: 'boolean attribute', default: 'false', description: 'Keeps headers fixed while scrolling.' },
             { name: 'pin-columns', type: 'number', default: '0', description: 'Pins the first N visible columns.' },
             { name: 'pin-rows', type: 'number', default: '0', description: 'Pins the first N visible rows.' },
+            { name: 'page', type: 'number', default: '1', description: 'Current one-based page for paginated view.' },
+            { name: 'page-size', type: 'number', default: '0', description: 'Set to 0 to disable pagination.' },
             { name: 'density', type: 'compact | comfortable | spacious', default: 'comfortable', description: 'Controls row padding.' },
             { name: 'caption', type: 'string', default: 'Data table', description: 'Accessible table caption.' },
             { name: 'mvx-select', type: 'CustomEvent', default: '-', description: 'Emitted with row, index, and path.' },
             { name: 'mvx-expand', type: 'CustomEvent', default: '-', description: 'Emitted when a nested or detail row expands/collapses.' },
             { name: 'mvx-sort', type: 'CustomEvent', default: '-', description: 'Emitted with sort key and direction.' },
             { name: 'mvx-filter', type: 'CustomEvent', default: '-', description: 'Emitted with global search and column filters.' },
+            { name: 'mvx-page', type: 'CustomEvent', default: '-', description: 'Emitted with page index and total pages when pagination changes.' },
             { name: 'mvx-column-toggle', type: 'CustomEvent', default: '-', description: 'Emitted when a column is hidden or shown.' }
           ],
-          demo: '<mvx-data-table data-playground-target id="play-table" filterable selectable expandable tree column-toggle sticky-header pin-columns="1" pin-rows="1" density="comfortable"></mvx-data-table>'
+          demo: '<mvx-data-table data-playground-target id="play-table" searchable filterable selectable selection-mode="multiple" page-size="5" expandable tree column-toggle sticky-header pin-columns="1" pin-rows="1" density="comfortable" label="Components"></mvx-data-table>'
         },
         'mvx-chart': {
           family: 'Charts',
@@ -3386,37 +3555,16 @@
 </mvx-app-shell>`,
         'mvx-divider': '<mvx-divider label="or"></mvx-divider>',
         'mvx-data-table': `<mvx-data-table
+  data-playground-target
+  searchable
   filterable
   selectable
+  selection-mode="multiple"
+  label="Component table"
   sticky-header
-  columns='[
-    {
-      "key": "component",
-      "label": "Component",
-      "pinned": true
-    },
-    {
-      "key": "status",
-      "label": "Status"
-    },
-    {
-      "key": "owner",
-      "label": "Owner"
-    }
-  ]'
-  data='[
-    {
-      "component": "mvx-chart",
-      "status": "Ready",
-      "owner": "Design systems"
-    },
-    {
-      "component": "mvx-data-table",
-      "status": "Review",
-      "owner": "Platform"
-    }
-  ]'
-></mvx-data-table>`,
+  page-size="5"
+  columns='[{"key":"name","label":"Component","width":"230px","pinned":true,"locked":true},{"key":"status","label":"Status","width":"130px"},{"key":"category","label":"Category","width":"150px"},{"key":"owner","label":"Owner","width":"150px"},{"key":"a11y","label":"Accessibility","width":"170px"}]'
+  data='[{"id":"actions","name":"Actions","status":"Stable","category":"Group","owner":"Core","a11y":"Keyboard","expanded":true,"details":"Action components share pressed states, keyboard focus, and command intent.","children":[{"id":"button","name":"mvx-button","status":"Stable","category":"Action","owner":"Core","a11y":"Button"},{"id":"icon-button","name":"mvx-icon-button","status":"Stable","category":"Action","owner":"Core","a11y":"Icon label"},{"id":"button-group","name":"mvx-button-group","status":"Stable","category":"Action","owner":"Core","a11y":"Toolbar"}]},{"id":"forms","name":"Forms","status":"Stable","category":"Group","owner":"Platform","a11y":"Label/controls","details":"Forms emphasize input semantics, validation clarity, and keyboard order.","children":[{"id":"input","name":"mvx-input","status":"Stable","category":"Forms","owner":"Platform","a11y":"Label"},{"id":"select","name":"mvx-select","status":"Stable","category":"Forms","owner":"Platform","a11y":"Combobox"},{"id":"switch","name":"mvx-switch","status":"Beta","category":"Forms","owner":"Platform","a11y":"Switch"}]},{"id":"data","name":"Data workflows","status":"Beta","category":"Group","owner":"Platform","a11y":"Grid","details":"Tree data, pagination, filtering, and inline detail rows for operational views.","children":[{"id":"table","name":"mvx-data-table","status":"Beta","category":"Data","owner":"Platform","a11y":"Grid"},{"id":"kanban","name":"mvx-kanban","status":"Alpha","category":"Workflow","owner":"AI","a11y":"Selectable"},{"id":"timeline","name":"mvx-timeline","status":"Beta","category":"Workflow","owner":"AI","a11y":"Timeline"}]},{"id":"chatbot","name":"mvx-chatbot","status":"Alpha","category":"AI","owner":"AI","a11y":"Live region"},{"id":"chart","name":"mvx-chart","status":"Beta","category":"Charts","owner":"Analytics","a11y":"SVG role img"},{"id":"toast","name":"mvx-toast","status":"Beta","category":"Feedback","owner":"Notifications","a11y":"Live region"},{"id":"drawer","name":"mvx-drawer","status":"Stable","category":"Overlays","owner":"Product","a11y":"Dialog"},{"id":"skeleton","name":"mvx-skeleton","status":"Beta","category":"Feedback","owner":"Platform","a11y":"Polite placeholder"},{"id":"spinner","name":"mvx-spinner","status":"Stable","category":"Feedback","owner":"Platform","a11y":"Indeterminate"},{"id":"dropdown","name":"mvx-dropdown-menu","status":"Stable","category":"Navigation","owner":"Product","a11y":"Menu"}]'></mvx-data-table>`,
         'mvx-chart': `<mvx-chart
   type="combo"
   title="Component adoption"
@@ -3648,17 +3796,12 @@ menu.items = [
 ];`
         },
         'mvx-data-table': {
-          markup: '<mvx-data-table id="component-table" filterable selectable sticky-header></mvx-data-table>',
+          markup: '<mvx-data-table id="component-table" data-playground-target searchable filterable selectable selection-mode="multiple" page-size="5" expandable tree sticky-header></mvx-data-table>',
           setup: `const table = document.querySelector('#component-table');
-table.columns = [
-  { key: 'component', label: 'Component', pinned: true },
-  { key: 'status', label: 'Status' },
-  { key: 'owner', label: 'Owner' }
-];
-table.data = [
-  { component: 'mvx-chart', status: 'Ready', owner: 'Design systems' },
-  { component: 'mvx-data-table', status: 'Review', owner: 'Platform' }
-];`
+table.label = 'Component table';
+table.columns = [...demoDataTableColumns];
+table.data = cloneDemoDataTableRows();
+table.selected = ['button'];`
         },
         'mvx-chart': {
           markup: '<mvx-chart id="adoption-chart" type="combo" title="Component adoption" legend grid labels></mvx-chart>',
@@ -5486,8 +5629,8 @@ render(() => <App />, document.getElementById('root')!);`
           usage: 'Use this for agent-generated dashboards, task boards, audit views, command menus, and documentation pages.',
           features: ['Data table columns and rows', 'Command palette items', 'Accordion and tabs content', 'Kanban and timeline models'],
           proof: [['Composable', 'Agents can create a table, then update its data without changing component code.'], ['Portable', 'The same data model works from any frontend framework.']],
-          demo: '<mvx-data-table data-playground-target id="agent-table" filterable selectable></mvx-data-table>',
-          code: '<mvx-data-table filterable selectable></mvx-data-table>'
+          demo: `<mvx-data-table data-playground-target id="agent-table" searchable filterable selectable selection-mode="multiple" page-size="4" label="JSON powered table" columns='[{"key":"name","label":"Component","width":"230px","pinned":true,"locked":true},{"key":"status","label":"Status","width":"130px"},{"key":"category","label":"Category","width":"150px"},{"key":"owner","label":"Owner","width":"150px"},{"key":"a11y","label":"Accessibility","width":"170px"}]' data='[{"id":"actions","name":"Actions","status":"Stable","category":"Group","owner":"Core","a11y":"Keyboard","expanded":true,"details":"Action components share pressed states, keyboard focus, and command intent.","children":[{"id":"button","name":"mvx-button","status":"Stable","category":"Action","owner":"Core","a11y":"Button"},{"id":"icon-button","name":"mvx-icon-button","status":"Stable","category":"Action","owner":"Core","a11y":"Icon label"},{"id":"button-group","name":"mvx-button-group","status":"Stable","category":"Action","owner":"Core","a11y":"Toolbar"}]},{"id":"forms","name":"Forms","status":"Stable","category":"Group","owner":"Platform","a11y":"Label/controls","details":"Forms emphasize input semantics, validation clarity, and keyboard order.","children":[{"id":"input","name":"mvx-input","status":"Stable","category":"Forms","owner":"Platform","a11y":"Label"},{"id":"select","name":"mvx-select","status":"Stable","category":"Forms","owner":"Platform","a11y":"Combobox"},{"id":"switch","name":"mvx-switch","status":"Beta","category":"Forms","owner":"Platform","a11y":"Switch"}]},{"id":"data","name":"Data workflows","status":"Beta","category":"Group","owner":"Platform","a11y":"Grid","details":"Tree data, pagination, filtering, and inline detail rows for operational views.","children":[{"id":"table","name":"mvx-data-table","status":"Beta","category":"Data","owner":"Platform","a11y":"Grid"},{"id":"kanban","name":"mvx-kanban","status":"Alpha","category":"Workflow","owner":"AI","a11y":"Selectable"},{"id":"timeline","name":"mvx-timeline","status":"Beta","category":"Workflow","owner":"AI","a11y":"Timeline"}]},{"id":"chatbot","name":"mvx-chatbot","status":"Alpha","category":"AI","owner":"AI","a11y":"Live region"},{"id":"chart","name":"mvx-chart","status":"Beta","category":"Charts","owner":"Analytics","a11y":"SVG role img"},{"id":"toast","name":"mvx-toast","status":"Beta","category":"Feedback","owner":"Notifications","a11y":"Live region"},{"id":"drawer","name":"mvx-drawer","status":"Stable","category":"Overlays","owner":"Product","a11y":"Dialog"},{"id":"skeleton","name":"mvx-skeleton","status":"Beta","category":"Feedback","owner":"Platform","a11y":"Polite placeholder"},{"id":"spinner","name":"mvx-spinner","status":"Stable","category":"Feedback","owner":"Platform","a11y":"Indeterminate"},{"id":"dropdown","name":"mvx-dropdown-menu","status":"Stable","category":"Navigation","owner":"Product","a11y":"Menu"}]'></mvx-data-table>`,
+          code: `<mvx-data-table searchable filterable selectable selection-mode="multiple" page-size="4" label="JSON powered table" columns='[{"key":"name","label":"Component","width":"230px","pinned":true,"locked":true},{"key":"status","label":"Status","width":"130px"},{"key":"category","label":"Category","width":"150px"},{"key":"owner","label":"Owner","width":"150px"},{"key":"a11y","label":"Accessibility","width":"170px"}]' data='[{"id":"actions","name":"Actions","status":"Stable","category":"Group","owner":"Core","a11y":"Keyboard","expanded":true,"details":"Action components share pressed states, keyboard focus, and command intent.","children":[{"id":"button","name":"mvx-button","status":"Stable","category":"Action","owner":"Core","a11y":"Button"},{"id":"icon-button","name":"mvx-icon-button","status":"Stable","category":"Action","owner":"Core","a11y":"Icon label"},{"id":"button-group","name":"mvx-button-group","status":"Stable","category":"Action","owner":"Core","a11y":"Toolbar"}]},{"id":"forms","name":"Forms","status":"Stable","category":"Group","owner":"Platform","a11y":"Label/controls","details":"Forms emphasize input semantics, validation clarity, and keyboard order.","children":[{"id":"input","name":"mvx-input","status":"Stable","category":"Forms","owner":"Platform","a11y":"Label"},{"id":"select","name":"mvx-select","status":"Stable","category":"Forms","owner":"Platform","a11y":"Combobox"},{"id":"switch","name":"mvx-switch","status":"Beta","category":"Forms","owner":"Platform","a11y":"Switch"}]},{"id":"data","name":"Data workflows","status":"Beta","category":"Group","owner":"Platform","a11y":"Grid","details":"Tree data, pagination, filtering, and inline detail rows for operational views.","children":[{"id":"table","name":"mvx-data-table","status":"Beta","category":"Data","owner":"Platform","a11y":"Grid"},{"id":"kanban","name":"mvx-kanban","status":"Alpha","category":"Workflow","owner":"AI","a11y":"Selectable"},{"id":"timeline","name":"mvx-timeline","status":"Beta","category":"Workflow","owner":"AI","a11y":"Timeline"}]},{"id":"chatbot","name":"mvx-chatbot","status":"Alpha","category":"AI","owner":"AI","a11y":"Live region"},{"id":"chart","name":"mvx-chart","status":"Beta","category":"Charts","owner":"Analytics","a11y":"SVG role img"},{"id":"toast","name":"mvx-toast","status":"Beta","category":"Feedback","owner":"Notifications","a11y":"Live region"},{"id":"drawer","name":"mvx-drawer","status":"Stable","category":"Overlays","owner":"Product","a11y":"Dialog"},{"id":"skeleton","name":"mvx-skeleton","status":"Beta","category":"Feedback","owner":"Platform","a11y":"Polite placeholder"},{"id":"spinner","name":"mvx-spinner","status":"Stable","category":"Feedback","owner":"Platform","a11y":"Indeterminate"},{"id":"dropdown","name":"mvx-dropdown-menu","status":"Stable","category":"Navigation","owner":"Product","a11y":"Menu"}]'></mvx-data-table>`
         },
         'live-playground': {
           family: 'Agent-readable APIs',
@@ -6293,12 +6436,18 @@ render(() => <App />, document.getElementById('root')!);`
         ['invalid', 30],
         ['multiple', 31],
         ['selectable', 31],
+        ['searchable', 31],
         ['filterable', 31],
+        ['highlight-color', 31],
         ['sortable', 31],
         ['sticky-header', 32],
         ['expandable', 32],
         ['tree', 32],
         ['column-toggle', 32],
+        ['selection-mode', 32],
+        ['selected', 32],
+        ['page', 32],
+        ['page-size', 32],
         ['pin-columns', 32],
         ['pin-rows', 32],
         ['inline', 33],
@@ -6722,6 +6871,7 @@ render(() => <App />, document.getElementById('root')!);`
         const name = normalizeControlName(row.name);
         const kind = controlKind(row);
         const value = currentControlValue(target, row);
+        const structure = row.structure;
         if (kind === 'boolean') {
           return `
             <label class="control-field control-toggle" for="${id}">
@@ -6750,10 +6900,14 @@ render(() => <App />, document.getElementById('root')!);`
           `;
         }
         if (kind === 'json') {
+          const structureBlock = structure
+            ? `<details class="control-structure"><summary>Structure</summary><pre>${escapeHtml(typeof structure === 'string' ? structure : JSON.stringify(structure, null, 2))}</pre></details>`
+            : '';
           return `
             <label class="control-field control-wide" for="${id}">
               <span>${escapeHtml(name)}</span>
-              <textarea id="${id}" data-api="${escapeHtml(name)}" rows="4">${escapeHtml(value)}</textarea>
+              <textarea id="${id}" data-api="${escapeHtml(name)}" rows="${name === 'columns' || name === 'data' ? 8 : 4}">${escapeHtml(value)}</textarea>
+              ${structureBlock}
             </label>
           `;
         }
@@ -7049,11 +7203,8 @@ render(() => <App />, document.getElementById('root')!);`
         }
         const table = detail.playground.querySelector('#agent-table');
         if (table) {
-          table.columns = [{ key: 'api', label: 'API' }, { key: 'agentUse', label: 'Agent use' }];
-          table.data = [
-            { api: 'columns', agentUse: 'Generate schema' },
-            { api: 'data', agentUse: 'Render tool output' }
-          ];
+          table.columns = [...demoDataTableColumns];
+          table.data = cloneDemoDataTableRows();
         }
         const kanban = detail.playground.querySelector('#agent-kanban');
         if (kanban) {
@@ -7365,42 +7516,8 @@ render(() => <App />, document.getElementById('root')!);`
         }
         const playTable = detail.playground.querySelector('#play-table');
         if (playTable && !playTable.hasAttribute('columns') && !playTable.hasAttribute('data')) {
-          playTable.columns = [
-            { key: 'name', label: 'Component', width: '220px', pinned: true, locked: true },
-            { key: 'status', label: 'Status', width: '130px' },
-            { key: 'category', label: 'Category', width: '150px' },
-            { key: 'owner', label: 'Owner', width: '150px' },
-            { key: 'a11y', label: 'Accessibility', width: '170px' }
-          ];
-          playTable.data = [
-            {
-              id: 'actions',
-              name: 'Actions',
-              status: 'Stable',
-              category: 'Group',
-              owner: 'Core',
-              a11y: 'Keyboard',
-              expanded: true,
-              details: 'Action components share pointer-reactive motion, pressed states, and keyboard focus.',
-              children: [
-                { id: 'button', name: 'mvx-button', status: 'Stable', category: 'Action', owner: 'Core', a11y: 'Button' },
-                { id: 'icon-button', name: 'mvx-icon-button', status: 'Stable', category: 'Action', owner: 'Core', a11y: 'Icon label' }
-              ]
-            },
-            {
-              id: 'data',
-              name: 'Data workflows',
-              status: 'Beta',
-              category: 'Group',
-              owner: 'Platform',
-              a11y: 'Grid',
-              children: [
-                { id: 'table', name: 'mvx-data-table', status: 'Beta', category: 'Data', owner: 'Platform', a11y: 'Grid' },
-                { id: 'kanban', name: 'mvx-kanban', status: 'Alpha', category: 'Workflow', owner: 'AI', a11y: 'Selectable' }
-              ]
-            },
-            { id: 'chatbot', name: 'mvx-chatbot', status: 'Alpha', category: 'AI', owner: 'AI', a11y: 'Live region' }
-          ];
+          playTable.columns = [...demoDataTableColumns];
+          playTable.data = cloneDemoDataTableRows();
         }
         const playChart = detail.playground.querySelector('#play-chart');
         if (playChart && !playChart.hasAttribute('series') && !playChart.hasAttribute('data') && !playChart.hasAttribute('categories')) {
@@ -7494,6 +7611,28 @@ render(() => <App />, document.getElementById('root')!);`
         const details = node.parentElement;
         if (!details || details.tagName !== 'DETAILS') return false;
         return [...details.children].some(child => child !== node && (child.tagName === 'SUMMARY' || child.tagName === 'DETAILS' || child.tagName === 'BUTTON'));
+      }
+
+      function resolveSidebarTarget(node) {
+        let current = node;
+        while (current && current !== treeNav && current.tagName !== 'BODY') {
+          if (current.nodeType !== Node.ELEMENT_NODE) {
+            current = current.parentElement;
+            continue;
+          }
+          if (
+            current.matches('[data-filter]') ||
+            current.matches('[data-guide]') ||
+            current.matches('[data-component]') ||
+            current.matches('[data-agent-feature]') ||
+            current.matches('[data-template]') ||
+            current.matches('[data-chart-demo]')
+          ) {
+            return current;
+          }
+          current = current.parentElement;
+        }
+        return null;
       }
 
       function updateSidebarNavigationFilter() {
@@ -7721,51 +7860,51 @@ render(() => <App />, document.getElementById('root')!);`
         updateCatalog();
       });
 
-      groupLinks.forEach(filter => {
-        filter.addEventListener('click', () => {
-          setComponentPage(false);
-          clearRoute();
-          activeFilter = filter.dataset.filter;
-          query = '';
-          search.value = '';
-          groupLinks.forEach(item => item.classList.toggle('active', item === filter));
-          clearActiveNavigation();
-          filter.classList.add('active');
-          updateCatalog();
-        });
-      });
+      if (treeNav) {
+        treeNav.addEventListener('click', event => {
+          const target = resolveSidebarTarget(event.target);
+          if (!target) return;
 
-      guideLinks.forEach(link => {
-        link.addEventListener('click', () => {
-          if (isExpandableNavItem(link)) return;
-          selectGuide(link.dataset.guide);
-        });
-      });
+          if (target.matches('[data-filter]')) {
+            setComponentPage(false);
+            clearRoute();
+            activeFilter = target.dataset.filter;
+            query = '';
+            search.value = '';
+            groupLinks.forEach(item => item.classList.toggle('active', item === target));
+            clearActiveNavigation();
+            target.classList.add('active');
+            updateCatalog();
+            return;
+          }
 
-      componentLinks.forEach(link => {
-        link.addEventListener('click', () => {
-          selectComponent(link.dataset.component);
-        });
-      });
+          if (target.matches('[data-guide]')) {
+            if (isExpandableNavItem(target)) return;
+            selectGuide(target.dataset.guide);
+            return;
+          }
 
-      templateLinks.forEach(link => {
-        link.addEventListener('click', () => {
-          selectTemplate(link.dataset.template);
-        });
-      });
+          if (target.matches('[data-component]')) {
+            selectComponent(target.dataset.component);
+            return;
+          }
 
-      agentFeatureLinks.forEach(link => {
-        link.addEventListener('click', () => {
-          if (isExpandableNavItem(link)) return;
-          selectAgentFeature(link.dataset.agentFeature);
-        });
-      });
+          if (target.matches('[data-template]')) {
+            selectTemplate(target.dataset.template);
+            return;
+          }
 
-      chartDemoLinks.forEach(link => {
-        link.addEventListener('click', () => {
-          selectChartDemo();
+          if (target.matches('[data-agent-feature]')) {
+            if (isExpandableNavItem(target)) return;
+            selectAgentFeature(target.dataset.agentFeature);
+            return;
+          }
+
+          if (target.matches('[data-chart-demo]')) {
+            selectChartDemo();
+          }
         });
-      });
+      }
 
       document.querySelector('#hero-search').addEventListener('click', () => {
         setComponentPage(false);
