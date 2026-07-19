@@ -1,10 +1,14 @@
-import { applyDocumentVariant, baseStyles, MvxElement, htmlEscape, restoreDocumentVariant } from '../../core.js';
+import { applyDocumentVariant, baseStyles, MvxElement, htmlEscape, normalizeVariant, restoreDocumentVariant, supportedVariants } from '../../core.js';
 
 export class MvxVariantSwitcher extends MvxElement {
   static observedAttributes = ['variants', 'open'];
 
   get variants() {
-    return (this.getAttribute('variants') || 'mivix,material').split(',').map(variant => variant.trim()).filter(Boolean);
+    const variants = (this.getAttribute('variants') || supportedVariants.join(','))
+      .split(',')
+      .map(variant => variant.trim())
+      .filter(variant => supportedVariants.includes(variant));
+    return variants.length ? variants : supportedVariants;
   }
 
   get variantLabels() {
@@ -63,7 +67,7 @@ export class MvxVariantSwitcher extends MvxElement {
   }
 
   render() {
-    const active = document.documentElement.getAttribute('data-mvx-variant') || 'mivix';
+    const active = normalizeVariant(document.documentElement.getAttribute('data-mvx-variant') || 'mivix');
     const selectVariant = this.t('selectVariant', 'Select variant');
     this.shadowRoot.innerHTML = `
       <style>

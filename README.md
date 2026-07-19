@@ -96,7 +96,7 @@ Mivix UI follows Semantic Versioning.
 
 - Current channel: `alpha`
 - Recommended install: `npm install mivix-ui@alpha`
-- Current release target: `0.1.0-alpha.2`
+- Current release target: `0.1.0-alpha.3`
 - Legacy `0.1.0-alpha.0` is no longer referenced in active docs.
 
 ## License

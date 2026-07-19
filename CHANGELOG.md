@@ -4,6 +4,27 @@ All notable changes to Mivix UI will be documented in this file.
 
 Mivix UI is currently alpha software. APIs, component behavior, and styling details may change before the first beta.
 
+## 0.1.0-alpha.3 - Variant and Data Grid Refresh
+
+### Added
+
+- Global visual variants with `mivix` and `material` families.
+- `mvx-variant-switcher` for app-wide variant selection and persistence.
+- Advanced `mvx-data-table` features including search, column filters, sorting, pagination, selection, expandable/tree rows, pinned columns, pinned rows, density modes, captions, and highlighted matches.
+- Expanded peer-parity component coverage and aliases for broader naming compatibility.
+- TypeScript declarations for variant helpers, variant switcher, and data table APIs.
+
+### Changed
+
+- Updated core style tokens and component base styles for Material-style shape, motion, radius, and interaction behavior.
+- Refreshed docs and playground examples for variant switching, Material mode, peer-parity components, and richer data table workflows.
+- Updated button, card, checkbox, input, radio group, switch, progress, skeleton, spinner, theme switcher, chart group, date picker, icon button, and timeline behavior for the new variant/style system.
+
+### Fixed
+
+- Normalized unsupported variant values back to the default Mivix variant.
+- Improved variant persistence so default variant state is cleaned up instead of stored redundantly.
+
 ## 0.1.0-alpha.2 - Foundation Refresh
 
 ### Added

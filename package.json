@@ -1,11 +1,11 @@
 {
   "name": "mivix-ui",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "Reactive, AI-ready Web Components for JavaScript, TypeScript, Next.js, React, Angular, Vue, .NET, and plain HTML.",
   "homepage": "https://www.mivix-ui.io/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/devduocouple/mivix-ui"
+    "url": "git+https://github.com/devduocouple/mivix-ui.git"
   },
   "bugs": {
     "url": "https://github.com/devduocouple/mivix-ui/issues"

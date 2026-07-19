@@ -395,6 +395,7 @@ export const toneMap = {
 
 export const themeStorageKey = 'mivix-ui:theme';
 export const variantStorageKey = 'mivix-ui:variant';
+export const supportedVariants = ['mivix', 'material'];
 
 export const fontStacks = {
   system: 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
@@ -453,10 +454,17 @@ export function readStoredVariant(storageKey = variantStorageKey) {
   }
 }
 
+export function normalizeVariant(variant) {
+  const normalized = String(variant || '').trim();
+  if (!normalized || normalized === 'default' || normalized === 'mivix') return 'mivix';
+  return supportedVariants.includes(normalized) ? normalized : 'mivix';
+}
+
 export function writeStoredVariant(variant, storageKey = variantStorageKey) {
+  const normalized = normalizeVariant(variant);
   try {
-    if (variant) {
-      globalThis.localStorage?.setItem(storageKey, variant);
+    if (normalized !== 'mivix') {
+      globalThis.localStorage?.setItem(storageKey, normalized);
     } else {
       globalThis.localStorage?.removeItem(storageKey);
     }
@@ -467,19 +475,27 @@ export function writeStoredVariant(variant, storageKey = variantStorageKey) {
 
 export function applyDocumentVariant(variant, options = {}) {
   if (!variant || typeof document === 'undefined') return '';
-  document.documentElement.setAttribute('data-mvx-variant', variant);
-  if (options.persist) writeStoredVariant(variant, options.storageKey);
+  const normalized = normalizeVariant(variant);
+  if (normalized === 'mivix') {
+    document.documentElement.removeAttribute('data-mvx-variant');
+  } else {
+    document.documentElement.setAttribute('data-mvx-variant', normalized);
+  }
+  if (options.persist) writeStoredVariant(normalized, options.storageKey);
   document.dispatchEvent(new CustomEvent('mvx-variant-change', {
-    detail: { variant },
+    detail: { variant: normalized },
     bubbles: true,
     composed: true
   }));
-  return variant;
+  return normalized;
 }
 
 export function restoreDocumentVariant(options = {}) {
   const variant = readStoredVariant(options.storageKey);
-  return variant ? applyDocumentVariant(variant, options) : '';
+  if (!variant) return '';
+  const normalized = normalizeVariant(variant);
+  if (normalized !== variant || normalized === 'mivix') writeStoredVariant('', options.storageKey);
+  return applyDocumentVariant(normalized, options);
 }
 
 export function define(name, component) {
