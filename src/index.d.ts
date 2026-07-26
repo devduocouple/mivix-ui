@@ -204,8 +204,6 @@ declare global {
       'mvx-table': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-text-rotate': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-theme-controller': MivixGlobalAttributes & Record<string, unknown>;
-      'mvx-toggle': MivixGlobalAttributes & Record<string, unknown>;
-      'mvx-toggle-group': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-transfer-list': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-tree-view': MivixGlobalAttributes & Record<string, unknown>;
       'mvx-typography': MivixGlobalAttributes & Record<string, unknown>;

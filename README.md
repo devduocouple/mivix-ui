@@ -44,6 +44,15 @@ define('mvx-input', MvxInput);
 <mvx-button type="solid" tone="primary">Create</mvx-button>
 ```
 
+For a focused primitive preset, use the lite auto-registration entry:
+
+```ts
+import 'mivix-ui/styles';
+import 'mivix-ui/auto-lite';
+```
+
+Use `mivix-ui/auto` only when you want the full catalog, including charts, data workflows, AI surfaces, and peer-parity components.
+
 ## Status
 
 **Alpha**
@@ -53,20 +62,17 @@ define('mvx-input', MvxInput);
 ## What’s included
 
 - **Core package**: tree-shakable component entrypoints in `mivix-ui/components/*`
-- **Auto registration**: `mivix-ui/auto`
+- **Lite preset**: `mivix-ui/auto-lite` for common controls and overlays
+- **Full auto registration**: `mivix-ui/auto`
 - **Theming**: token-based themes, directionality, and locale options
 - **Frameworks**: React, Next.js, Angular, Vue, Blazor, and plain JS/TS support
 - **Dashboard primitives**: controls, charts, panels, navigation, and AI-oriented surfaces
 
 ## Showcase
 
-![Landing Page](./assets/screenshots/landing-page-desktop.png)
+See the live showcase and component previews on the docs site:
 
-![Icon Components](./assets/screenshots/icons-components-desktop.png)
-
-![Charts Group](./assets/screenshots/chart-group-desktop.png)
-
-![Switch](./assets/screenshots/switch-desktop.png)
+- https://devduocouple.github.io/mivix-ui/
 
 ## Documentation
 

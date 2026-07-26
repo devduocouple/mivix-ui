@@ -23,6 +23,14 @@
       "types": "./src/auto.d.ts",
       "import": "./src/auto.js"
     },
+    "./lite": {
+      "types": "./src/lite.d.ts",
+      "import": "./src/lite.js"
+    },
+    "./auto-lite": {
+      "types": "./src/auto-lite.d.ts",
+      "import": "./src/auto-lite.js"
+    },
     "./core": {
       "types": "./src/core.d.ts",
       "import": "./src/core.js"
@@ -39,17 +47,12 @@
   },
   "files": [
     "src",
-    "docs",
     "examples",
-    "assets",
-    "scripts",
     "CHANGELOG.md",
     "CONTRIBUTING.md",
     "LICENSE",
-    "PHASE-1-RELEASE-AUDIT.md",
     "PRO.md",
     "README.md",
-    "ROADMAP.md",
     "SECURITY.md"
   ],
   "scripts": {
@@ -60,7 +63,7 @@
     "test:tooltip": "node scripts/test-tooltip.js",
     "test:tooltip:screenshot": "node scripts/screenshot-tooltip.js",
     "test:skeleton-size": "node scripts/test-skeleton-size.js",
-    "check": "node --check src/index.js && node --check src/auto.js && node --check scripts/dev-server.js && node --check scripts/build-docs.js && node --check scripts/validate-doc-previews.js && node scripts/validate-doc-previews.js && node scripts/check-component-doc-sync.js",
+    "check": "node --check src/index.js && node --check src/auto.js && node --check src/lite.js && node --check src/auto-lite.js && node --check scripts/dev-server.js && node --check scripts/build-docs.js && node --check scripts/validate-doc-previews.js && node scripts/validate-doc-previews.js && node scripts/check-component-doc-sync.js",
     "check:previews": "node scripts/validate-doc-previews.js && node scripts/check-component-doc-sync.js",
     "publish:alpha": "node scripts/publish.js alpha",
     "publish:alpha-latest": "node scripts/publish.js alpha-latest",
@@ -102,6 +105,7 @@
   },
   "sideEffects": [
     "./src/auto.js",
+    "./src/auto-lite.js",
     "./src/styles/tokens.css"
   ]
 }

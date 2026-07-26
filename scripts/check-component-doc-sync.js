@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 function check(name, pass, detail = '') {
@@ -165,6 +165,10 @@ function getChangedComponentNames() {
     .map(file => file.split('/')[2])
     .filter(Boolean)
     .filter(name => /^[a-z0-9-]+$/.test(name))
+    .filter(name => {
+      const directory = `src/components/${name}`;
+      return existsSync(directory) && readdirSync(directory).some(entry => !entry.startsWith('.'));
+    })
     .map(name => `mvx-${name}`)
   )];
 }

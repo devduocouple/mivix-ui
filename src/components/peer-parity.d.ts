@@ -33,14 +33,26 @@ export class MvxAutocomplete extends MvxPeerElement {
 }
 export class MvxCombobox extends MvxAutocomplete {}
 export class MvxButtonGroup extends MvxPeerElement {}
-export class MvxToggle extends MvxPeerElement { toggle(): void; }
-export class MvxToggleGroup extends MvxPeerElement { select(item: MvxPeerItem): void; }
 export class MvxRating extends MvxPeerElement { rate(value: number): void; }
 export class MvxFileInput extends MvxPeerElement {}
 export class MvxInputGroup extends MvxPeerElement {}
 export class MvxOtpInput extends MvxPeerElement {}
 export class MvxNumberField extends MvxPeerElement { stepValue(direction: number): void; }
-export class MvxCalendar extends MvxPeerElement { move(delta: number): void; select(date: string): void; }
+export class MvxCalendar extends MvxPeerElement {
+  markWeekends: boolean;
+  disabledHints: boolean;
+  disableBefore: string;
+  disableAfter: string;
+  disableBeforeReason: string;
+  disableAfterReason: string;
+  ignoredDates: Array<{ date: string; reason?: string }>;
+  ignoredRanges: Array<{ start: string; end: string; reason?: string }>;
+  move(delta: number): void;
+  select(date: string): void;
+  selectMonth(month: number, year?: number): void;
+  selectYear(year: number): void;
+  focusDate(date: Date): void;
+}
 export class MvxCarousel extends MvxPeerElement { move(delta: number): void; }
 export class MvxChip extends MvxPeerElement {}
 export class MvxEmptyState extends MvxPeerElement {}
@@ -54,7 +66,10 @@ export class MvxBottomNavigation extends MvxPeerElement { select(item: MvxPeerIt
 export class MvxDock extends MvxBottomNavigation {}
 export class MvxHoverCard extends MvxPeerElement {}
 export class MvxFab extends MvxPeerElement {}
-export class MvxSpeedDial extends MvxPeerElement {}
+export class MvxSpeedDial extends MvxPeerElement {
+  align: 'left' | 'center' | 'right' | string;
+  iconOnly: boolean;
+}
 export class MvxCollapse extends MvxPeerElement {}
 export class MvxScrollArea extends MvxPeerElement {}
 export class MvxResizable extends MvxPeerElement {}
@@ -70,7 +85,10 @@ export class MvxKbd extends MvxPeerElement {}
 export class MvxLabel extends MvxPeerElement {}
 export class MvxStat extends MvxPeerElement {}
 export class MvxStatus extends MvxPeerElement {}
-export class MvxRadialProgress extends MvxPeerElement {}
+export class MvxRadialProgress extends MvxPeerElement {
+  value: string;
+  precision: string;
+}
 export class MvxCountdown extends MvxPeerElement {}
 export class MvxFooter extends MvxPeerElement {}
 export class MvxHero extends MvxPeerElement {}
@@ -118,7 +136,7 @@ export class MvxFieldset extends MvxPeerElement {}
 export class MvxField extends MvxPeerElement {}
 export class MvxValidator extends MvxPeerElement {}
 export class MvxFloatingLabel extends MvxPeerElement {}
-export class MvxFilter extends MvxToggleGroup {}
+export class MvxFilter extends MvxPeerElement { select(item: MvxPeerItem): void; }
 export class MvxAttachment extends MvxPeerElement {}
 export class MvxMessage extends MvxPeerElement {}
 export class MvxMessageScroller extends MvxPeerElement {}

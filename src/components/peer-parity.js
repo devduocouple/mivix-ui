@@ -104,17 +104,31 @@ const formStyles = `
     font-size: 13px;
     font-weight: 650;
   }
-  input,
-  select,
-  textarea {
-    inline-size: 100%;
-    min-block-size: 40px;
+	  input,
+	  select,
+	  textarea {
+	    inline-size: 100%;
+	    min-block-size: 40px;
     border: 1px solid var(--mvx-border);
     border-radius: var(--mvx-radius-sm);
     background: var(--mvx-bg-inset);
     color: var(--mvx-fg);
-    outline: none;
-    padding: 9px 11px;
+	    outline: none;
+	    padding: 9px 11px;
+	  }
+	  select:not([multiple]) {
+	    appearance: none;
+	    background:
+	      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2388939f' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E") no-repeat right 6px center / 16px 16px,
+	      var(--mvx-bg-inset);
+	    padding-inline-end: 32px;
+	  }
+	  input[type="checkbox"] {
+	    inline-size: 16px;
+	    block-size: 16px;
+    min-block-size: 0;
+    padding: 0;
+    accent-color: var(--mvx-accent);
   }
   .helper {
     color: var(--mvx-subtle);
@@ -506,45 +520,7 @@ export class MvxButtonGroup extends MvxPeerElement {
   }
 }
 
-export class MvxToggle extends MvxPeerElement {
-  toggle() {
-    if (this.hasAttribute('disabled')) return;
-    const pressed = !this.hasAttribute('pressed');
-    this.toggleAttribute('pressed', pressed);
-    this.emit('mvx-change', { pressed });
-  }
-
-  render() {
-    const pressed = this.hasAttribute('pressed') || this.hasAttribute('selected') || this.hasAttribute('checked');
-    this.shadowRoot.innerHTML = `
-      <style>
-        ${sharedStyles}
-        :host { display: inline-flex; }
-        button {
-          min-block-size: 36px;
-          padding: 0 12px;
-          background: ${pressed
-            ? 'linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 18%, transparent), transparent), color-mix(in srgb, var(--mvx-accent) 20%, var(--mvx-bg-inset))'
-            : 'var(--mvx-control-glaze), var(--mvx-bg-inset)'};
-          border-color: ${pressed ? 'var(--mvx-accent)' : 'var(--mvx-border)'};
-          box-shadow: ${pressed
-            ? 'var(--mvx-control-shadow), 0 8px 18px color-mix(in srgb, var(--mvx-accent) 18%, transparent)'
-            : 'var(--mvx-control-shadow)'};
-          transition: background var(--mvx-duration), border-color var(--mvx-duration), box-shadow var(--mvx-duration), transform var(--mvx-duration-fast);
-        }
-        button:hover:not(:disabled) {
-          transform: translateY(var(--mvx-hover-lift));
-        }
-      </style>
-      <button part="toggle" type="button" aria-pressed="${pressed}" ${this.hasAttribute('disabled') ? 'disabled' : ''}>
-        <slot>${htmlEscape(this.titleText('Toggle'))}</slot>
-      </button>
-    `;
-    this.shadowRoot.querySelector('button').addEventListener('click', () => this.toggle());
-  }
-}
-
-export class MvxToggleGroup extends MvxPeerElement {
+class MvxToggleGroupBase extends MvxPeerElement {
   select(item) {
     const value = String(item.value ?? optionLabel(item));
     const current = this.hasAttribute('multiple') ? this.value.split(',').filter(Boolean) : [];
@@ -594,6 +570,8 @@ export class MvxToggleGroup extends MvxPeerElement {
 }
 
 export class MvxRating extends MvxPeerElement {
+  static observedAttributes = [...MvxPeerElement.observedAttributes, 'color', 'shapes', 'readonly'];
+
   rate(value) {
     if (this.hasAttribute('readonly') || this.hasAttribute('disabled')) return;
     this.value = String(value);
@@ -603,26 +581,109 @@ export class MvxRating extends MvxPeerElement {
 
   render() {
     const max = Math.max(1, Number(this.getAttribute('max') || 5));
-    const value = Number(this.value || 0);
+    const rawValue = Number(this.value || 0);
+    const value = Number.isFinite(rawValue) ? Math.max(0, Math.min(max, rawValue)) : 0;
+    const rawShape = String(this.getAttribute('shapes') || this.getAttribute('shape') || 'star').trim().toLowerCase();
+    const glyphs = {
+      star: '★',
+      heart: '♥',
+      circle: '●',
+      square: '■',
+      diamond: '◆',
+      check: '✓'
+    };
+    const glyph = glyphs[rawShape] || glyphs.star;
+    const ratingColor = cssColor(this.getAttribute('color'), 'var(--mvx-warning)');
+    const fillFor = index => `${Math.max(0, Math.min(1, value - index)) * 100}%`;
+    const checkedValue = Math.max(1, Math.min(max, Math.round(value)));
     this.shadowRoot.innerHTML = `
       <style>
         ${sharedStyles}
-        :host { display: inline-grid; gap: 5px; }
-        .stars { display: inline-flex; gap: 2px; }
+        :host {
+          --rating-color: ${ratingColor};
+          display: inline-grid;
+          gap: 5px;
+        }
+        .stars { display: inline-flex; align-items: center; gap: 0; }
         button {
-          inline-size: 32px;
-          block-size: 32px;
+          appearance: none;
+          display: grid;
+          place-items: center;
+          inline-size: 28px;
+          block-size: 28px;
           border: 0;
           background: transparent;
+          box-shadow: none;
           color: var(--mvx-subtle);
+          cursor: pointer;
           font-size: 22px;
+          line-height: 1;
           padding: 0;
+          transition:
+            filter var(--mvx-duration-fast),
+            transform var(--mvx-duration-fast);
         }
-        button[data-active="true"] { color: var(--mvx-warning); }
+        .symbol {
+          position: relative;
+          display: inline-grid;
+          place-items: center;
+          inline-size: 1em;
+          block-size: 1em;
+        }
+        .symbol-empty,
+        .symbol-fill {
+          grid-area: 1 / 1;
+        }
+        .symbol-empty {
+          color: var(--mvx-subtle);
+        }
+        .symbol-fill {
+          color: var(--rating-color);
+          clip-path: inset(0 calc(100% - var(--rating-fill)) 0 0);
+          overflow: hidden;
+        }
+        button:hover:not(:disabled),
+        button:focus-visible {
+          border-color: transparent;
+          background: transparent;
+          box-shadow: none;
+          filter: drop-shadow(0 0 6px color-mix(in srgb, var(--rating-color) 24%, transparent));
+          outline: none;
+          transform: translateY(-1px) scale(1.06);
+        }
+        button:active:not(:disabled) {
+          background: transparent;
+          box-shadow: none;
+          transform: translateY(0) scale(0.98);
+        }
+        button:disabled {
+          cursor: not-allowed;
+          filter: saturate(0.88);
+        }
+        button:disabled .symbol-empty {
+          color: var(--mvx-disabled-fg);
+        }
+        button:disabled .symbol-fill {
+          color: color-mix(in srgb, var(--mvx-disabled-fg) 58%, var(--rating-color));
+        }
+        :host([readonly]) button {
+          cursor: default;
+        }
+        :host-context([data-mvx-variant="material"]) button:hover:not(:disabled),
+        :host-context([data-mvx-variant="material"]) button:active:not(:disabled) {
+          background: transparent;
+          box-shadow: none;
+          transform: translateY(-1px) scale(1.06);
+        }
       </style>
-      <div class="stars" role="radiogroup" aria-label="${htmlEscape(this.titleText('Rating'))}">
+      <div class="stars" role="radiogroup" aria-label="${htmlEscape(this.titleText('Rating'))}" aria-valuetext="${htmlEscape(`${value} of ${max}`)}">
         ${Array.from({ length: max }, (_item, index) => `
-          <button type="button" role="radio" data-value="${index + 1}" data-active="${index < value}" aria-checked="${index + 1 === value}">&#9733;</button>
+          <button type="button" role="radio" data-value="${index + 1}" style="--rating-fill:${fillFor(index)}" aria-label="${index + 1} of ${max}" aria-checked="${index + 1 === checkedValue}" ${this.hasAttribute('disabled') ? 'disabled' : ''}>
+            <span class="symbol" aria-hidden="true">
+              <span class="symbol-empty">${htmlEscape(glyph)}</span>
+              <span class="symbol-fill">${htmlEscape(glyph)}</span>
+            </span>
+          </button>
         `).join('')}
       </div>
     `;
@@ -633,34 +694,520 @@ export class MvxRating extends MvxPeerElement {
 }
 
 export class MvxFileInput extends MvxPeerElement {
+  static observedAttributes = [
+    ...MvxPeerElement.observedAttributes,
+    'accept', 'blocked-types', 'disallowed-types', 'not-allowed-types', 'button-label',
+    'required', 'max-files', 'min-size', 'max-size', 'max-total-size'
+  ];
+
+  revokeFilePreviews() {
+    (this._filePreviewUrls || []).forEach(url => URL.revokeObjectURL(url));
+    this._filePreviewUrls = [];
+  }
+
+  fileTypeTokens(value) {
+    return String(value || '')
+      .split(',')
+      .map(token => token.trim().toLowerCase())
+      .filter(Boolean);
+  }
+
+  fileMatchesType(file, token) {
+    const name = String(file?.name || '').toLowerCase();
+    const type = String(file?.type || '').toLowerCase();
+    if (!token) return false;
+    if (token.endsWith('/*')) return type.startsWith(`${token.slice(0, -1)}`);
+    if (token.includes('/')) return type === token;
+    const extension = token.startsWith('.') ? token : `.${token}`;
+    return name.endsWith(extension);
+  }
+
+  parseFileSize(value) {
+    const raw = String(value ?? '').trim().toLowerCase();
+    if (!raw) return null;
+    const match = /^(\d+(?:\.\d+)?)\s*(b|kb|kib|mb|mib|gb|gib)?$/.exec(raw);
+    if (!match) return null;
+    const amount = Number(match[1]);
+    const unit = match[2] || 'mb';
+    const scale = unit === 'gb' || unit === 'gib' ? 1024 ** 3 : unit === 'mb' || unit === 'mib' ? 1024 ** 2 : unit === 'kb' || unit === 'kib' ? 1024 : 1;
+    return Math.max(0, Math.round(amount * scale));
+  }
+
+  formatFileSize(bytes) {
+    const size = Number(bytes) || 0;
+    if (size >= 1024 ** 3) return `${(size / 1024 ** 3).toFixed(1)} GB`;
+    if (size >= 1024 ** 2) return `${(size / 1024 ** 2).toFixed(1)} MB`;
+    if (size >= 1024) return `${(size / 1024).toFixed(1)} KB`;
+    return `${size} B`;
+  }
+
+  filterFiles(files) {
+    const allowed = this.fileTypeTokens(this.getAttribute('accept'));
+    const blocked = this.fileTypeTokens(
+      this.getAttribute('blocked-types') ||
+      this.getAttribute('disallowed-types') ||
+      this.getAttribute('not-allowed-types')
+    );
+    const minSize = this.parseFileSize(this.getAttribute('min-size'));
+    const maxSize = this.parseFileSize(this.getAttribute('max-size'));
+    const maxTotalSize = this.parseFileSize(this.getAttribute('max-total-size'));
+    const configuredMaxFiles = Number(this.getAttribute('max-files'));
+    const maxFiles = this.hasAttribute('multiple')
+      ? Number.isFinite(configuredMaxFiles) && configuredMaxFiles > 0 ? Math.floor(configuredMaxFiles) : Infinity
+      : 1;
+    const accepted = [];
+    const rejected = [];
+    let totalSize = 0;
+    files.forEach(file => {
+      const allowedMatch = !allowed.length || allowed.some(token => this.fileMatchesType(file, token));
+      const blockedMatch = blocked.some(token => this.fileMatchesType(file, token));
+      let reason = '';
+      if (!allowedMatch) reason = 'File type is not allowed';
+      else if (blockedMatch) reason = 'File type is blocked';
+      else if (minSize !== null && file.size < minSize) reason = `File must be at least ${this.formatFileSize(minSize)}`;
+      else if (maxSize !== null && file.size > maxSize) reason = `File must be ${this.formatFileSize(maxSize)} or smaller`;
+      else if (accepted.length >= maxFiles) reason = maxFiles === 1 ? 'Only one file is allowed' : `Only ${maxFiles} files are allowed`;
+      else if (maxTotalSize !== null && totalSize + file.size > maxTotalSize) reason = `Total size must be ${this.formatFileSize(maxTotalSize)} or smaller`;
+
+      if (reason) {
+        rejected.push({ file, name: file.name, reason });
+      } else {
+        accepted.push(file);
+        totalSize += file.size;
+      }
+    });
+    return { accepted, rejected };
+  }
+
+  setInputFiles(input, files) {
+    if (typeof DataTransfer === 'undefined') {
+      if (!files.length) input.value = '';
+      return;
+    }
+    const transfer = new DataTransfer();
+    files.forEach(file => transfer.items.add(file));
+    input.files = transfer.files;
+  }
+
+  filePreviewMarkup(file) {
+    if (file?.type?.startsWith('image/') && typeof URL !== 'undefined') {
+      const url = URL.createObjectURL(file);
+      this._filePreviewUrls.push(url);
+      return `<img src="${escapeAttr(url)}" alt="" />`;
+    }
+    return `
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M7 3h7l5 5v13H7z" fill="none" stroke="currentColor" stroke-width="1.8" />
+        <path d="M14 3v6h5" fill="none" stroke="currentColor" stroke-width="1.8" />
+      </svg>
+    `;
+  }
+
+  fileMeta(file) {
+    return [file.type || 'Unknown type', this.formatFileSize(file.size)].join(' · ');
+  }
+
+  syncFiles() {
+    const input = this.shadowRoot.querySelector('input[type="file"]');
+    const summary = this.shadowRoot.querySelector('.summary');
+    const list = this.shadowRoot.querySelector('.file-list');
+    const rejectList = this.shadowRoot.querySelector('.reject-list');
+    const clear = this.shadowRoot.querySelector('.clear-files');
+    if (!input || !summary || !list || !rejectList || !clear) return;
+
+    this.revokeFilePreviews();
+    const { accepted: files, rejected } = this.filterFiles([...input.files]);
+    if (rejected.length) this.setInputFiles(input, files);
+    const names = files.map(file => file.name);
+    summary.textContent = files.length
+      ? files.length === 1 ? files[0].name : `${files.length} files selected`
+      : this.getAttribute('placeholder') || 'No file selected';
+    list.hidden = files.length === 0;
+    clear.hidden = files.length === 0;
+    list.innerHTML = files.map((file, index) => `
+      <li class="file-row">
+        <span class="file-media">${this.filePreviewMarkup(file)}</span>
+        <span class="file-copy">
+          <span class="file-name">${htmlEscape(file.name)}</span>
+          <span class="file-meta">${htmlEscape(this.fileMeta(file))}</span>
+        </span>
+        <button type="button" class="remove-file" data-index="${index}" aria-label="Remove ${escapeAttr(file.name)}">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 4h6M5 7h14M10 11v6M14 11v6M7 7l1 13h8l1-13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </li>
+    `).join('');
+    rejectList.hidden = rejected.length === 0;
+    rejectList.innerHTML = rejected.map(item => `
+      <li class="reject-row">
+        <span class="reject-name">${htmlEscape(item.name)}</span>
+        <span class="reject-reason">${htmlEscape(item.reason)}</span>
+      </li>
+    `).join('');
+    list.querySelectorAll('.remove-file').forEach(button => {
+      button.addEventListener('click', event => {
+        event.stopPropagation();
+        this.removeFile(Number(button.dataset.index));
+      });
+    });
+    if (rejected.length) {
+      this.emit('mvx-reject', {
+        rejected,
+        files: rejected.map(item => item.file),
+        names: rejected.map(item => item.name)
+      });
+    }
+    this.emit('mvx-change', { files, names, rejected, rejectedNames: rejected.map(item => item.name) });
+  }
+
+  removeFile(index) {
+    const input = this.shadowRoot.querySelector('input[type="file"]');
+    if (!input || this.hasAttribute('disabled')) return;
+    const files = [...input.files];
+    const nextFiles = files.filter((_file, fileIndex) => fileIndex !== index);
+    this.setInputFiles(input, nextFiles);
+    this.syncFiles();
+  }
+
+  clearFiles() {
+    const input = this.shadowRoot.querySelector('input[type="file"]');
+    if (!input || this.hasAttribute('disabled')) return;
+    this.setInputFiles(input, []);
+    this.syncFiles();
+  }
+
+  handleDrop(event) {
+    event.preventDefault();
+    const control = this.shadowRoot.querySelector('.control');
+    control?.classList.remove('drag-over');
+    if (this.hasAttribute('disabled')) return;
+    const input = this.shadowRoot.querySelector('input[type="file"]');
+    const files = [...(event.dataTransfer?.files || [])];
+    if (!input || !files.length) return;
+    this.setInputFiles(input, files);
+    this.syncFiles();
+  }
+
   render() {
     const label = this.titleText('Upload file');
+    const helper = this.helperText();
+    const multiple = this.hasAttribute('multiple');
+    const disabled = this.hasAttribute('disabled');
+    const buttonLabel = this.getAttribute('button-label') || (multiple ? 'Choose files' : 'Choose file');
+    const emptyLabel = this.getAttribute('placeholder') || 'No file selected';
     this.shadowRoot.innerHTML = `
       <style>
         ${sharedStyles}
         ${formStyles}
-        input::file-selector-button {
-          margin-inline-end: 10px;
+        :host { display: block; }
+        .file-field {
+          display: grid;
+          gap: 8px;
+        }
+        .control {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          align-items: stretch;
+          overflow: hidden;
           border: 1px solid var(--mvx-border);
           border-radius: var(--mvx-radius-sm);
-          background: var(--mvx-bg-panel);
-          color: var(--mvx-fg);
-          padding: 7px 10px;
+          background: var(--mvx-bg-inset);
+          box-shadow: var(--mvx-control-shadow);
         }
-        .files { color: var(--mvx-subtle); font-size: 12px; }
+        .control:focus-within {
+          box-shadow: var(--mvx-focus), var(--mvx-control-shadow);
+        }
+        .control.drag-over {
+          border-color: var(--mvx-accent);
+          box-shadow: var(--mvx-focus), var(--mvx-control-shadow);
+        }
+        .summary {
+          display: flex;
+          align-items: center;
+          min-block-size: 40px;
+          min-inline-size: 0;
+          background: var(--mvx-control-glaze), var(--mvx-bg-inset);
+          color: var(--mvx-subtle);
+          overflow: hidden;
+          padding: 0 12px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        input[type="file"] {
+          position: absolute;
+          inline-size: 1px;
+          block-size: 1px;
+          opacity: 0;
+          pointer-events: none;
+        }
+        .choose {
+          --button-bg: var(--mvx-bg-panel);
+          --button-fg: var(--mvx-fg);
+          --button-border: var(--mvx-border);
+          --button-glow: var(--mvx-accent-2);
+          position: relative;
+          isolation: isolate;
+          overflow: hidden;
+          display: inline-grid;
+          place-items: center;
+          min-block-size: 40px;
+          border: 1px solid var(--button-border);
+          border-block: 0;
+          border-inline-end: 0;
+          border-start-start-radius: 0;
+          border-end-start-radius: 0;
+          border-start-end-radius: var(--mvx-button-radius, var(--mvx-radius-sm));
+          border-end-end-radius: var(--mvx-button-radius, var(--mvx-radius-sm));
+          background:
+            radial-gradient(circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--button-glow) 19%, transparent), transparent 34%),
+            var(--mvx-control-glaze),
+            var(--button-bg);
+          color: var(--button-fg);
+          cursor: pointer;
+          font-weight: 750;
+          padding: 0 14px;
+          transform: perspective(720px) rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg)) translateY(0);
+          transition:
+            transform var(--mvx-duration-fast),
+            border-color var(--mvx-duration),
+            background var(--mvx-duration),
+            box-shadow var(--mvx-duration);
+          white-space: nowrap;
+        }
+        .choose::before,
+        .choose::after {
+          content: "";
+          position: absolute;
+          pointer-events: none;
+          z-index: 0;
+        }
+        .choose::before {
+          inset: 0;
+          background:
+            linear-gradient(120deg, transparent 20%, color-mix(in srgb, white 16%, transparent) 46%, transparent 72%),
+            radial-gradient(circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--button-glow) 36%, transparent), transparent 34%);
+          opacity: 0;
+          transform: translateX(-18%);
+          transition: opacity var(--mvx-duration), transform var(--mvx-duration);
+        }
+        .choose::after {
+          inset-block-start: var(--press-y, 50%);
+          inset-inline-start: var(--press-x, 50%);
+          inline-size: 18px;
+          block-size: 18px;
+          border-radius: 999px;
+          background: color-mix(in srgb, var(--button-glow) 44%, white);
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0);
+        }
+        .choose span {
+          position: relative;
+          z-index: 1;
+        }
+        .choose:hover:not(:disabled) {
+          border-color: var(--mvx-border-strong);
+          background:
+            radial-gradient(circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--button-glow) 19%, transparent), transparent 34%),
+            var(--mvx-control-glaze),
+            var(--button-bg);
+          transform: perspective(720px) rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg)) translateY(var(--mvx-hover-lift));
+        }
+        .choose:hover:not(:disabled)::before {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        .choose:active:not(:disabled) {
+          transform: perspective(720px) rotateX(0deg) rotateY(0deg) translateY(0) scale(0.985);
+          box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.22);
+        }
+        .choose.mvx-pressed:not(:disabled)::after {
+          animation: mvx-ripple 460ms cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .file-list {
+          display: grid;
+          gap: 6px;
+          list-style: none;
+          margin: 0;
+          padding: 0;
+        }
+        .file-list[hidden] {
+          display: none;
+        }
+        .file-row {
+          display: grid;
+          grid-template-columns: auto minmax(0, 1fr) auto;
+          gap: 9px;
+          align-items: center;
+          min-block-size: 38px;
+          border: 0;
+          background: transparent;
+          padding: 4px 0;
+        }
+        .file-copy {
+          display: grid;
+          gap: 2px;
+          min-inline-size: 0;
+        }
+        .file-media {
+          display: grid;
+          place-items: center;
+          inline-size: 28px;
+          block-size: 28px;
+          overflow: hidden;
+          border-radius: var(--mvx-radius-xs);
+          background: var(--mvx-bg-panel);
+          color: var(--mvx-accent-2);
+        }
+        .file-media img {
+          inline-size: 100%;
+          block-size: 100%;
+          object-fit: cover;
+        }
+        .file-media svg {
+          inline-size: 17px;
+          block-size: 17px;
+        }
+        .file-name {
+          min-inline-size: 0;
+          overflow: hidden;
+          color: var(--mvx-muted);
+          font-size: 13px;
+          font-weight: 650;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .file-meta {
+          min-inline-size: 0;
+          overflow: hidden;
+          color: var(--mvx-subtle);
+          font-size: 11px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .remove-file {
+          display: grid;
+          place-items: center;
+          inline-size: 30px;
+          block-size: 30px;
+          border: 1px solid transparent;
+          border-radius: var(--mvx-button-radius, var(--mvx-radius-sm));
+          background: transparent;
+          box-shadow: none;
+          color: var(--mvx-subtle);
+          padding: 0;
+        }
+        .remove-file:hover:not(:disabled) {
+          border-color: color-mix(in srgb, var(--mvx-danger) 38%, var(--mvx-border));
+          background: color-mix(in srgb, var(--mvx-danger) 12%, var(--mvx-bg-inset));
+          color: var(--mvx-danger);
+        }
+        .remove-file svg {
+          inline-size: 16px;
+          block-size: 16px;
+        }
+        .helper-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          min-block-size: 18px;
+        }
+        .helper-row .helper {
+          min-inline-size: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .clear-files {
+          flex: 0 0 auto;
+          min-block-size: 22px;
+          border-color: transparent;
+          background: transparent;
+          box-shadow: none;
+          color: var(--mvx-muted);
+          font-size: 12px;
+          font-weight: 750;
+          padding: 0;
+        }
+        .clear-files[hidden] {
+          display: none;
+        }
+        .clear-files:hover:not(:disabled) {
+          border-color: transparent;
+          background: color-mix(in srgb, var(--mvx-danger) 10%, transparent);
+          color: var(--mvx-danger);
+        }
+        .reject-list {
+          display: grid;
+          gap: 5px;
+          list-style: none;
+          margin: 0;
+          padding: 0;
+        }
+        .reject-list[hidden] {
+          display: none;
+        }
+        .reject-row {
+          display: grid;
+          gap: 2px;
+          border-inline-start: 2px solid var(--mvx-danger);
+          color: var(--mvx-danger);
+          font-size: 12px;
+          padding-inline-start: 8px;
+        }
+        .reject-name {
+          font-weight: 750;
+        }
+        .reject-reason {
+          color: color-mix(in srgb, var(--mvx-danger) 78%, var(--mvx-muted));
+        }
+        :host([disabled]) .control {
+          border-color: var(--mvx-disabled-border);
+          background: var(--mvx-disabled-bg);
+          box-shadow: var(--mvx-disabled-shadow);
+          filter: saturate(0.88);
+        }
+        :host([disabled]) .summary,
+        :host([disabled]) .file-name,
+        :host([disabled]) .remove-file {
+          color: var(--mvx-disabled-fg);
+        }
       </style>
-      <label class="field">
-        <span>${htmlEscape(label)}</span>
-        <input part="input" type="file" ${this.hasAttribute('multiple') ? 'multiple' : ''} ${this.getAttribute('accept') ? `accept="${escapeAttr(this.getAttribute('accept'))}"` : ''} />
-        <span class="files">${htmlEscape(this.helperText())}</span>
-      </label>
+      <div class="field file-field">
+        <span class="label">${htmlEscape(label)}</span>
+        <span class="control" role="group" aria-label="${escapeAttr(label)}">
+          <span class="summary">${htmlEscape(emptyLabel)}</span>
+          <button type="button" class="choose" ${disabled ? 'disabled' : ''}><span>${htmlEscape(buttonLabel)}</span></button>
+          <input part="input" type="file" ${multiple ? 'multiple' : ''} ${disabled ? 'disabled' : ''} ${this.hasAttribute('required') ? 'required' : ''} ${this.getAttribute('accept') ? `accept="${escapeAttr(this.getAttribute('accept'))}"` : ''} />
+        </span>
+        <span class="helper-row">
+          <span class="helper">${htmlEscape(helper)}</span>
+          <button type="button" class="clear-files" hidden>Clear all</button>
+        </span>
+        <ul class="file-list" part="files" hidden></ul>
+        <ul class="reject-list" part="rejections" hidden></ul>
+      </div>
     `;
     const input = this.shadowRoot.querySelector('input');
-    const files = this.shadowRoot.querySelector('.files');
+    const choose = this.shadowRoot.querySelector('.choose');
+    const control = this.shadowRoot.querySelector('.control');
+    const clear = this.shadowRoot.querySelector('.clear-files');
+    this.wirePointerMotion(choose);
+    choose.addEventListener('click', () => input.click());
+    clear.addEventListener('click', event => {
+      event.stopPropagation();
+      this.clearFiles();
+    });
+    control.addEventListener('dragover', event => {
+      if (this.hasAttribute('disabled')) return;
+      event.preventDefault();
+      control.classList.add('drag-over');
+    });
+    control.addEventListener('dragleave', () => control.classList.remove('drag-over'));
+    control.addEventListener('drop', event => this.handleDrop(event));
     input.addEventListener('change', () => {
-      const selected = [...input.files].map(file => file.name);
-      files.textContent = selected.join(', ') || this.helperText();
-      this.emit('mvx-change', { files: [...input.files], names: selected });
+      this.syncFiles();
     });
   }
 }
@@ -675,6 +1222,7 @@ export class MvxInputGroup extends MvxPeerElement {
           display: grid;
           grid-template-columns: auto minmax(0, 1fr) auto;
           align-items: stretch;
+          min-block-size: 40px;
           overflow: hidden;
         }
         .slot {
@@ -685,7 +1233,30 @@ export class MvxInputGroup extends MvxPeerElement {
           padding: 0 10px;
         }
         .suffix { border-inline: 1px 0 solid var(--mvx-border); }
-        ::slotted(input), ::slotted(mvx-input), ::slotted(select) { inline-size: 100%; }
+	        ::slotted(input), ::slotted(select) {
+	          inline-size: 100%;
+	          min-block-size: 40px;
+	          border: 0;
+	          background: transparent;
+          color: var(--mvx-fg);
+	          padding: 10px 12px;
+	          outline: none;
+	        }
+	        ::slotted(select) {
+	          appearance: none;
+	          background:
+	            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2388939f' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E") no-repeat right 6px center / 16px 16px;
+	          padding-inline-end: 32px;
+	        }
+	        ::slotted(mvx-input) { inline-size: 100%; }
+	        :host-context([data-mvx-variant="material"]) .group {
+	          min-block-size: 56px;
+        }
+        :host-context([data-mvx-variant="material"]) ::slotted(input),
+        :host-context([data-mvx-variant="material"]) ::slotted(select) {
+          min-block-size: 56px;
+          padding: 16px;
+        }
       </style>
       <div class="group surface" part="group">
         <span class="slot"><slot name="prefix"></slot></span>
@@ -773,22 +1344,353 @@ export class MvxNumberField extends MvxPeerElement {
   }
 }
 
+function parseCalendarDate(value) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value || '').trim());
+  if (!match) return null;
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  return formatCalendarDate(date) === match[0] ? date : null;
+}
+
+function formatCalendarDate(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function addCalendarDays(date, days) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
+}
+
+function addCalendarMonths(date, months) {
+  return new Date(date.getFullYear(), date.getMonth() + months, 1);
+}
+
+function parseCalendarMonth(value) {
+  const match = /^(\d{4})-(\d{2})/.exec(String(value || '').trim());
+  if (!match) return null;
+  const month = Number(match[2]);
+  if (month < 1 || month > 12) return null;
+  return new Date(Number(match[1]), Number(match[2]) - 1, 1);
+}
+
+function normalizeCalendarIgnoredDate(value) {
+  const raw = String(value || '').trim();
+  return parseCalendarDate(raw) ? raw : '';
+}
+
+function normalizeCalendarIgnoredRange(item) {
+  if (typeof item === 'string') {
+    const [rawStart, rawEnd = rawStart] = item.includes('..') ? item.split('..') : item.split(':');
+    const start = normalizeCalendarIgnoredDate(rawStart);
+    const end = normalizeCalendarIgnoredDate(rawEnd);
+    if (!start || !end) return null;
+    return start <= end ? { start, end, reason: '' } : { start: end, end: start, reason: '' };
+  }
+  if (Array.isArray(item)) {
+    const start = normalizeCalendarIgnoredDate(item[0]);
+    const end = normalizeCalendarIgnoredDate(item[1] ?? item[0]);
+    if (!start || !end) return null;
+    const reason = String(item[2] ?? '').trim();
+    return start <= end ? { start, end, reason } : { start: end, end: start, reason };
+  }
+  if (item && typeof item === 'object') {
+    const start = normalizeCalendarIgnoredDate(item.start ?? item.from ?? item.date);
+    const end = normalizeCalendarIgnoredDate(item.end ?? item.to ?? item.start ?? item.from ?? item.date);
+    if (!start || !end) return null;
+    const reason = String(item.reason ?? item.hint ?? item.title ?? '').trim();
+    return start <= end ? { start, end, reason } : { start: end, end: start, reason };
+  }
+  return null;
+}
+
+function normalizeCalendarIgnoredRanges(value) {
+  if (!value) return [];
+  const source = typeof value === 'string'
+    ? (() => {
+        try {
+          return JSON.parse(value);
+        } catch {
+          return value.split(',').map(item => item.trim()).filter(Boolean);
+        }
+      })()
+    : value;
+  const items = Array.isArray(source) ? source : [source];
+  return items.map(normalizeCalendarIgnoredRange).filter(Boolean);
+}
+
+function normalizeCalendarIgnoredDateEntry(item) {
+  if (typeof item === 'string') {
+    const date = normalizeCalendarIgnoredDate(item);
+    return date ? { date, reason: '' } : null;
+  }
+  if (Array.isArray(item)) {
+    const date = normalizeCalendarIgnoredDate(item[0]);
+    return date ? { date, reason: String(item[1] ?? '').trim() } : null;
+  }
+  if (item && typeof item === 'object') {
+    const date = normalizeCalendarIgnoredDate(item.date ?? item.value ?? item.day);
+    const reason = String(item.reason ?? item.hint ?? item.title ?? '').trim();
+    return date ? { date, reason } : null;
+  }
+  return null;
+}
+
+function normalizeCalendarIgnoredDates(value) {
+  if (!value) return [];
+  const source = typeof value === 'string'
+    ? (() => {
+        try {
+          return JSON.parse(value);
+        } catch {
+          return value.split(',').map(item => item.trim()).filter(Boolean);
+        }
+      })()
+    : value;
+  const items = Array.isArray(source) ? source : [source];
+  return items.map(normalizeCalendarIgnoredDateEntry).filter(Boolean);
+}
+
 export class MvxCalendar extends MvxPeerElement {
+  static observedAttributes = [...MvxPeerElement.observedAttributes, 'month', 'first-day', 'readonly', 'mark-weekends', 'disable-before', 'disable-after', 'disable-before-reason', 'disable-after-reason', 'disabled-hints', 'ignored-dates', 'ignored-ranges', 'disabled-ranges'];
+
+  get ignoredRanges() {
+    return normalizeCalendarIgnoredRanges(this._ignoredRanges ?? this.getAttribute('ignored-ranges') ?? this.getAttribute('disabled-ranges'));
+  }
+
+  set ignoredRanges(value) {
+    this._ignoredRanges = value;
+    if (this.isConnected) this.render();
+  }
+
+  get ignoredDates() {
+    return normalizeCalendarIgnoredDates(this._ignoredDates ?? this.getAttribute('ignored-dates'));
+  }
+
+  set ignoredDates(value) {
+    this._ignoredDates = value;
+    if (this.isConnected) this.render();
+  }
+
+  get markWeekends() {
+    return this.hasAttribute('mark-weekends');
+  }
+
+  set markWeekends(value) {
+    this.toggleAttribute('mark-weekends', Boolean(value));
+  }
+
+  get disabledHints() {
+    return this.hasAttribute('disabled-hints');
+  }
+
+  set disabledHints(value) {
+    this.toggleAttribute('disabled-hints', Boolean(value));
+  }
+
+  get disableBefore() {
+    return this.getAttribute('disable-before') || '';
+  }
+
+  set disableBefore(value) {
+    if (value === null || value === undefined || value === '') this.removeAttribute('disable-before');
+    else this.setAttribute('disable-before', String(value));
+  }
+
+  get disableAfter() {
+    return this.getAttribute('disable-after') || '';
+  }
+
+  set disableAfter(value) {
+    if (value === null || value === undefined || value === '') this.removeAttribute('disable-after');
+    else this.setAttribute('disable-after', String(value));
+  }
+
+  get disableBeforeReason() {
+    return this.getAttribute('disable-before-reason') || '';
+  }
+
+  set disableBeforeReason(value) {
+    if (value === null || value === undefined || value === '') this.removeAttribute('disable-before-reason');
+    else this.setAttribute('disable-before-reason', String(value));
+  }
+
+  get disableAfterReason() {
+    return this.getAttribute('disable-after-reason') || '';
+  }
+
+  set disableAfterReason(value) {
+    if (value === null || value === undefined || value === '') this.removeAttribute('disable-after-reason');
+    else this.setAttribute('disable-after-reason', String(value));
+  }
+
   move(delta) {
-    const current = this.currentDate();
-    current.setMonth(current.getMonth() + delta);
-    this.setAttribute('month', current.toISOString().slice(0, 7));
+    const current = addCalendarMonths(this.currentDate(), delta);
+    this._focusDate = current;
+    if (this._calendarMode === 'years') this._expandedYear = current.getFullYear();
+    this.setAttribute('month', formatCalendarDate(current).slice(0, 7));
+    this.emit('mvx-month-change', { month: this.getAttribute('month') });
   }
 
   currentDate() {
-    const raw = this.getAttribute('month') || this.value || new Date().toISOString().slice(0, 7);
-    const [year, month] = raw.split('-').map(Number);
-    return new Date(year || new Date().getFullYear(), Math.max(0, (month || 1) - 1), 1);
+    const month = parseCalendarMonth(this.getAttribute('month')) || parseCalendarMonth(this.value);
+    const today = new Date();
+    return month || new Date(today.getFullYear(), today.getMonth(), 1);
   }
 
   select(date) {
+    if (this.hasAttribute('disabled') || this.hasAttribute('readonly') || this.isDisabledDate(date)) return;
     this.value = date;
-    this.emit('mvx-change', { value: date });
+    this._focusDate = parseCalendarDate(date);
+    this.emit('mvx-change', { value: date, date, month: date.slice(0, 7) });
+    this.render();
+  }
+
+  firstDay() {
+    const raw = Number(this.getAttribute('first-day'));
+    return Number.isInteger(raw) && raw >= 0 && raw <= 6 ? raw : 0;
+  }
+
+  weekdayLabels() {
+    const firstDay = this.firstDay();
+    const sunday = new Date(2026, 0, 4);
+    return Array.from({ length: 7 }, (_item, index) => {
+      const date = addCalendarDays(sunday, firstDay + index);
+      try {
+        return new Intl.DateTimeFormat(this.locale, { weekday: 'short' }).format(date);
+      } catch {
+        return new Intl.DateTimeFormat(undefined, { weekday: 'short' }).format(date);
+      }
+    });
+  }
+
+  monthLabels() {
+    return Array.from({ length: 12 }, (_item, index) => {
+      const date = new Date(2026, index, 1);
+      try {
+        return new Intl.DateTimeFormat(this.locale, { month: 'short' }).format(date);
+      } catch {
+        return new Intl.DateTimeFormat(undefined, { month: 'short' }).format(date);
+      }
+    });
+  }
+
+  calendarDays(viewDate) {
+    const first = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
+    const offset = (first.getDay() - this.firstDay() + 7) % 7;
+    const gridStart = addCalendarDays(first, -offset);
+    return Array.from({ length: 42 }, (_item, index) => addCalendarDays(gridStart, index));
+  }
+
+  scrollYearIntoView(year) {
+    const scroller = this.shadowRoot.querySelector('.year-accordion');
+    if (!scroller) return;
+    requestAnimationFrame(() => {
+      const row = scroller.querySelector(`[data-year-toggle="${year}"]`) || scroller.querySelector('.year-row.selected');
+      if (!row) return;
+      scroller.scrollTop = row.offsetTop - (scroller.clientHeight / 2) + (row.clientHeight / 2);
+    });
+  }
+
+  isDisabledDate(value) {
+    const min = this.getAttribute('min') || '';
+    const max = this.getAttribute('max') || '';
+    return Boolean(this.disabledReasonForDate(value, min, max));
+  }
+
+  disabledReasonForDate(value, min = this.getAttribute('min') || '', max = this.getAttribute('max') || '') {
+    const disableBefore = normalizeCalendarIgnoredDate(this.getAttribute('disable-before'));
+    const disableAfter = normalizeCalendarIgnoredDate(this.getAttribute('disable-after'));
+    if (disableBefore && value < disableBefore) return this.getAttribute('disable-before-reason') || `Before ${disableBefore}`;
+    if (disableAfter && value > disableAfter) return this.getAttribute('disable-after-reason') || `After ${disableAfter}`;
+    if (min && value < min) return `Before ${min}`;
+    if (max && value > max) return `After ${max}`;
+    const ignoredDate = this.ignoredDates.find(item => item.date === value);
+    if (ignoredDate) return ignoredDate.reason || 'Unavailable date';
+    const ignoredRange = this.ignoredRanges.find(range => value >= range.start && value <= range.end);
+    if (ignoredRange) return ignoredRange.reason || 'Unavailable date range';
+    return '';
+  }
+
+  disabledHintAttributes(value) {
+    if (!this.hasAttribute('disabled-hints')) return '';
+    const reason = this.disabledReasonForDate(value);
+    return reason ? ` title="${htmlEscape(reason)}"` : '';
+  }
+
+  focusDate(date) {
+    let next = date;
+    const min = parseCalendarDate(this.getAttribute('min'));
+    const max = parseCalendarDate(this.getAttribute('max'));
+    if (min && next < min) next = min;
+    if (max && next > max) next = max;
+    this._focusDate = next;
+    this.setAttribute('month', formatCalendarDate(next).slice(0, 7));
+    this.render();
+    this.shadowRoot.querySelector(`[data-date="${formatCalendarDate(next)}"]`)?.focus();
+  }
+
+  keyboardStartDate(value) {
+    return parseCalendarDate(value) || this._focusDate || parseCalendarDate(this.value) || this.currentDate();
+  }
+
+  handleCalendarKeydown(event, value = '') {
+    const date = this.keyboardStartDate(value);
+    if (!date) return;
+    const moves = {
+      ArrowLeft: -1,
+      ArrowRight: 1,
+      ArrowUp: -7,
+      ArrowDown: 7
+    };
+    if (event.key in moves) {
+      event.preventDefault();
+      this.focusDate(addCalendarDays(date, moves[event.key]));
+      return;
+    }
+    if (event.key === 'PageUp' || event.key === 'PageDown') {
+      event.preventDefault();
+      this.focusDate(addCalendarMonths(date, event.key === 'PageUp' ? -1 : 1));
+      return;
+    }
+    if (event.key === 'Home' || event.key === 'End') {
+      event.preventDefault();
+      const day = date.getDay();
+      const offset = (day - this.firstDay() + 7) % 7;
+      this.focusDate(addCalendarDays(date, event.key === 'Home' ? -offset : 6 - offset));
+      return;
+    }
+    if (event.key === 'Enter' || event.key === ' ') {
+      if (!value) return;
+      event.preventDefault();
+      this.select(value);
+    }
+  }
+
+  selectMonth(month, year = this.currentDate().getFullYear()) {
+    const next = new Date(year, month, 1);
+    this._focusDate = next;
+    this._expandedYear = year;
+    this._calendarMode = 'days';
+    this.setAttribute('month', formatCalendarDate(next).slice(0, 7));
+    this.emit('mvx-month-change', { month: this.getAttribute('month') });
+    this.render();
+  }
+
+  selectYear(year) {
+    const current = this.currentDate();
+    this._focusDate = new Date(year, current.getMonth(), 1);
+    this._expandedYear = year;
+    this._calendarMode = 'years';
+    this.render();
+  }
+
+  toggleCalendarMode() {
+    this._calendarMode = this._calendarMode === 'years' ? 'days' : 'years';
+    if (this._calendarMode === 'years') this._expandedYear = this.currentDate().getFullYear();
+    this.render();
+  }
+
+  setCalendarMode(mode) {
+    this._calendarMode = mode === 'years' || mode === 'months' ? 'years' : 'days';
+    if (this._calendarMode === 'years') this._expandedYear = this._expandedYear ?? this.currentDate().getFullYear();
     this.render();
   }
 
@@ -796,47 +1698,397 @@ export class MvxCalendar extends MvxPeerElement {
     const date = this.currentDate();
     const year = date.getFullYear();
     const month = date.getMonth();
-    const firstDay = new Date(year, month, 1).getDay();
-    const days = new Date(year, month + 1, 0).getDate();
-    const monthName = new Intl.DateTimeFormat(this.locale, { month: 'long', year: 'numeric' }).format(date);
-    const cells = [
-      ...Array.from({ length: firstDay }, () => ''),
-      ...Array.from({ length: days }, (_item, index) => String(index + 1))
-    ];
+    const disabled = this.hasAttribute('disabled');
+    const readonly = this.hasAttribute('readonly');
+    const selectedDate = parseCalendarDate(this.value);
+    const focusDate = this._focusDate || selectedDate || new Date(year, month, 1);
+    const today = formatCalendarDate(new Date());
+    const monthName = (() => {
+      try {
+        return new Intl.DateTimeFormat(this.locale, { month: 'long', year: 'numeric' }).format(date);
+      } catch {
+        return new Intl.DateTimeFormat(undefined, { month: 'long', year: 'numeric' }).format(date);
+      }
+    })();
+    const headerMonthLabel = (() => {
+      try {
+        return new Intl.DateTimeFormat(this.locale, { month: 'long' }).format(date);
+      } catch {
+        return new Intl.DateTimeFormat(undefined, { month: 'long' }).format(date);
+      }
+    })();
+    const headerYearLabel = String(year);
+    const days = this.calendarDays(date);
+    const weekdays = this.weekdayLabels();
+    const monthLabels = this.monthLabels();
+    const calendarMode = this._calendarMode === 'years' ? 'years' : 'days';
+    const expandedYear = Number.isInteger(this._expandedYear) ? this._expandedYear : null;
+    const yearRangeCenter = expandedYear ?? year;
+    const yearRangeStart = yearRangeCenter - 50;
+    const headerStep = calendarMode === 'years' ? 144 : 1;
+    const headerLabel = calendarMode === 'years' ? `${yearRangeStart}-${yearRangeStart + 100}` : monthName;
+    const label = this.titleText('Calendar');
+    const helper = this.helperText();
     this.shadowRoot.innerHTML = `
       <style>
         ${sharedStyles}
-        .calendar { display: grid; gap: 10px; padding: 12px; }
-        .head { display: flex; justify-content: space-between; align-items: center; }
-        .grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
-        .day, .dow {
+        .calendar {
+          display: grid;
+          gap: 12px;
+          inline-size: min(100%, ${this.hasAttribute('compact') ? '320px' : '380px'});
+          padding: 12px;
+        }
+        .head {
+          display: grid;
+          grid-template-columns: 36px minmax(0, 1fr) 36px;
+          gap: 8px;
+          align-items: center;
+        }
+        .label {
+          color: var(--mvx-muted);
+          font-size: 13px;
+          font-weight: 700;
+          line-height: 1.35;
+        }
+        .title-controls {
+          display: flex;
+          justify-content: center;
+          gap: 4px;
+          min-inline-size: 0;
+        }
+        .title-trigger {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          min-inline-size: 0;
+          min-block-size: 36px;
+          border-color: transparent;
+          border-radius: var(--mvx-radius-sm);
+          background: transparent;
+          box-shadow: none;
+          color: var(--mvx-fg);
+          cursor: pointer;
+          font: inherit;
+          overflow: hidden;
+          padding: 0 12px;
+          text-align: center;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .title-trigger:hover:not(:disabled),
+        .title-trigger.active {
+          border-color: transparent;
+          background: color-mix(in srgb, var(--mvx-accent) 10%, transparent);
+        }
+        .title-trigger:focus-visible {
+          outline: none;
+          box-shadow: var(--mvx-focus);
+        }
+        .title-month {
+          display: block;
+          overflow: hidden;
+          color: var(--mvx-fg);
+          font-size: 14px;
+          font-weight: 820;
+          line-height: 16px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .title-year {
+          display: block;
+          color: var(--mvx-muted);
+          font-size: 12px;
+          font-variant-numeric: tabular-nums;
+          font-weight: 720;
+          line-height: 16px;
+        }
+        .title-trigger:hover:not(:disabled) .title-year,
+        .title-trigger.active .title-year {
+          color: color-mix(in srgb, var(--mvx-accent) 72%, var(--mvx-fg));
+        }
+        .nav {
+          --chevron-size: 9px;
           display: grid;
           place-items: center;
-          min-block-size: 32px;
-          border-radius: var(--mvx-radius-sm);
-          font-size: 12px;
+          inline-size: 36px;
+          block-size: 36px;
+          border-color: transparent;
+          border-radius: var(--mvx-button-radius, var(--mvx-radius-sm));
+          background: transparent;
+          box-shadow: none;
+          color: var(--mvx-muted);
+          padding: 0;
         }
-        .dow { color: var(--mvx-subtle); font-weight: 800; }
-        .day[aria-pressed="true"] { background: var(--mvx-accent); color: white; }
+        .nav:hover:not(:disabled) {
+          border-color: transparent;
+          background: color-mix(in srgb, var(--mvx-accent) 10%, transparent);
+          color: var(--mvx-fg);
+        }
+        .nav::before {
+          content: "";
+          inline-size: var(--chevron-size);
+          block-size: var(--chevron-size);
+          border-block-start: 2px solid currentColor;
+          border-inline-start: 2px solid currentColor;
+        }
+        .nav[data-direction="previous"]::before {
+          transform: translateX(2px) rotate(-45deg);
+        }
+        .nav[data-direction="next"]::before {
+          transform: translateX(-2px) rotate(135deg);
+        }
+        .grid,
+        .weekdays {
+          display: grid;
+          grid-template-columns: repeat(7, minmax(0, 1fr));
+          gap: 4px;
+        }
+        .year-accordion {
+          display: grid;
+          gap: 2px;
+          max-block-size: 252px;
+          overflow-y: auto;
+          overscroll-behavior: contain;
+          padding-inline-end: 2px;
+          scrollbar-gutter: stable;
+        }
+        .year-panel {
+          display: grid;
+          gap: 2px;
+          border: 1px solid transparent;
+          border-radius: var(--mvx-radius-sm);
+        }
+        .year-panel.expanded {
+          gap: 4px;
+          border-color: color-mix(in srgb, var(--mvx-accent) 36%, var(--mvx-border));
+          background: color-mix(in srgb, var(--mvx-accent) 16%, var(--mvx-bg-panel));
+          padding: 4px;
+          box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 38%, transparent),
+            0 6px 16px color-mix(in srgb, var(--mvx-accent) 10%, transparent);
+        }
+        .year-month-grid {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 3px;
+          padding: 0;
+        }
+        .year-row,
+        .month-option {
+          display: grid;
+          place-items: center;
+          min-block-size: 34px;
+          border: 1px solid transparent;
+          border-radius: var(--mvx-radius-sm);
+          background: transparent;
+          color: var(--mvx-muted);
+          cursor: pointer;
+          font: inherit;
+          font-size: 11px;
+          font-weight: 760;
+          padding: 0;
+          transition: background var(--mvx-duration-fast), border-color var(--mvx-duration-fast), color var(--mvx-duration-fast);
+        }
+        .year-row {
+          justify-items: center;
+          text-align: center;
+          padding: 0 8px;
+        }
+        .year-panel.expanded .year-row {
+          background: transparent;
+          border-color: transparent;
+          color: var(--mvx-fg);
+          min-block-size: 28px;
+        }
+        .year-row span {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .month-option:hover:not(:disabled),
+        .year-row:hover:not(:disabled) {
+          border-color: color-mix(in srgb, var(--mvx-accent) 22%, var(--mvx-border));
+          background: color-mix(in srgb, var(--mvx-accent) 7%, transparent);
+          color: var(--mvx-fg);
+        }
+        .year-row.selected {
+          border-color: color-mix(in srgb, var(--mvx-accent) 18%, transparent);
+          background: color-mix(in srgb, var(--mvx-accent) 8%, transparent);
+          color: var(--mvx-fg);
+        }
+        .month-option.selected {
+          inline-size: 34px;
+          block-size: 34px;
+          justify-self: center;
+          border-color: color-mix(in srgb, var(--mvx-accent) 46%, var(--mvx-border));
+          border-radius: var(--mvx-radius-sm);
+          background: color-mix(in srgb, var(--mvx-accent) 7%, var(--mvx-bg-inset));
+          color: var(--mvx-fg);
+          box-shadow:
+            inset 0 1px 2px color-mix(in srgb, black 18%, transparent),
+            inset 0 -1px 0 color-mix(in srgb, white 28%, transparent);
+        }
+        .dow {
+          display: grid;
+          place-items: center;
+          min-block-size: 26px;
+          color: var(--mvx-subtle);
+          font-size: 11px;
+          font-weight: 850;
+        }
+        .dow.weekend {
+          color: color-mix(in srgb, var(--mvx-warning) 48%, var(--mvx-subtle));
+        }
+        .day {
+          position: relative;
+          display: grid;
+          place-items: center;
+          aspect-ratio: 1;
+          min-block-size: 36px;
+          border: 1px solid transparent;
+          border-radius: var(--mvx-radius-sm);
+          background: transparent;
+          color: var(--mvx-muted);
+          cursor: pointer;
+          font: inherit;
+          font-size: 12px;
+          font-weight: 800;
+          padding: 0;
+          transition: background var(--mvx-duration-fast), border-color var(--mvx-duration-fast), color var(--mvx-duration-fast), transform var(--mvx-duration-fast);
+        }
+        .day:hover:not(:disabled) {
+          border-color: var(--mvx-border-strong);
+          background: color-mix(in srgb, var(--mvx-accent) 10%, var(--mvx-bg-inset));
+          color: var(--mvx-fg);
+          transform: translateY(var(--mvx-hover-lift));
+        }
+        :host-context([data-mvx-variant="material"]) .day:hover:not(:disabled) {
+          background: var(--mvx-state-layer-hover);
+          transform: none;
+        }
+        .day.weekend:not(.selected):not(:disabled) {
+          color: color-mix(in srgb, var(--mvx-warning) 46%, var(--mvx-muted));
+        }
+        .day.outside {
+          color: var(--mvx-subtle);
+          opacity: 0.56;
+        }
+        .day.today:not(.selected)::after {
+          content: "";
+          position: absolute;
+          inset-block-end: 5px;
+          inline-size: 4px;
+          block-size: 4px;
+          border-radius: 999px;
+          background: var(--mvx-accent-2);
+        }
+        .day.selected {
+          border-color: color-mix(in srgb, var(--mvx-accent-2) 55%, var(--mvx-accent));
+          background: linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 24%, var(--mvx-accent)), var(--mvx-accent));
+          color: white;
+          box-shadow: 0 8px 18px color-mix(in srgb, var(--mvx-accent) 25%, transparent);
+        }
+        .day:focus-visible {
+          outline: none;
+          box-shadow: var(--mvx-focus);
+        }
+        .day:disabled {
+          cursor: not-allowed;
+          border-color: transparent;
+          background: transparent;
+          color: var(--mvx-disabled-fg);
+          box-shadow: none;
+          filter: saturate(0.88);
+          transform: none;
+        }
+        .helper {
+          color: var(--mvx-subtle);
+          font-size: 12px;
+          font-weight: 500;
+          line-height: 1.45;
+        }
       </style>
-      <section class="calendar surface" part="calendar" aria-label="${htmlEscape(this.titleText('Calendar'))}">
+      <section class="calendar surface" part="calendar" aria-label="${htmlEscape(label)}" ${readonly ? 'aria-readonly="true"' : ''}>
+        ${label ? `<span class="label" part="label">${htmlEscape(label)}</span>` : ''}
         <div class="head">
-          <button type="button" data-move="-1" aria-label="Previous month">&lt;</button>
-          <strong>${htmlEscape(monthName)}</strong>
-          <button type="button" data-move="1" aria-label="Next month">&gt;</button>
+          <button class="nav" type="button" data-direction="previous" data-move="${-headerStep}" aria-label="${calendarMode === 'years' ? 'Previous years' : 'Previous month'}" ${disabled ? 'disabled' : ''}></button>
+          <span class="title-controls" aria-label="${htmlEscape(headerLabel)}">
+            <button class="title-trigger ${calendarMode === 'years' ? 'active' : ''}" type="button" data-calendar-mode="years" aria-label="Choose month and year" ${disabled ? 'disabled' : ''}>
+              <span class="title-month">${htmlEscape(headerMonthLabel)}</span>
+              <span class="title-year">${htmlEscape(headerYearLabel)}</span>
+            </button>
+          </span>
+          <button class="nav" type="button" data-direction="next" data-move="${headerStep}" aria-label="${calendarMode === 'years' ? 'Next years' : 'Next month'}" ${disabled ? 'disabled' : ''}></button>
         </div>
-        <div class="grid">
-          ${['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => `<span class="dow">${day}</span>`).join('')}
-          ${cells.map(day => {
-            if (!day) return '<span></span>';
-            const value = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            return `<button type="button" class="day" data-date="${value}" aria-pressed="${value === this.value}">${day}</button>`;
-          }).join('')}
-        </div>
+        ${calendarMode === 'years'
+          ? `<div class="year-accordion" aria-label="Choose year and month">
+              ${Array.from({ length: 101 }, (_item, index) => yearRangeStart + index).map(optionYear => {
+                const expanded = optionYear === expandedYear;
+                return `<div class="year-panel ${expanded ? 'expanded' : ''}">
+                  <button class="year-row ${optionYear === year ? 'selected' : ''}" type="button" data-year-toggle="${optionYear}" aria-expanded="${expanded}"><span>${optionYear}</span></button>
+                  ${expanded ? `<div class="year-month-grid" role="grid" aria-label="Choose month in ${optionYear}">
+                    ${monthLabels.map((label, index) => `<button class="month-option ${optionYear === year && index === month ? 'selected' : ''}" type="button" role="gridcell" data-year="${optionYear}" data-month="${index}" aria-pressed="${optionYear === year && index === month}">${htmlEscape(label)}</button>`).join('')}
+                  </div>` : ''}
+                </div>`;
+              }).join('')}
+            </div>`
+          : `<div class="weekdays" aria-hidden="true">
+              ${weekdays.map((day, index) => {
+                const weekdayIndex = (this.firstDay() + index) % 7;
+                const weekend = this.markWeekends && (weekdayIndex === 0 || weekdayIndex === 6);
+                return `<span class="dow ${weekend ? 'weekend' : ''}">${htmlEscape(day)}</span>`;
+              }).join('')}
+            </div>
+            <div class="grid" role="grid" aria-label="${htmlEscape(monthName)}">
+              ${days.map(day => {
+                const value = formatCalendarDate(day);
+                const selected = value === this.value;
+                const outside = day.getMonth() !== month;
+                const disabledDate = disabled || this.isDisabledDate(value);
+                const disabledHint = disabledDate && !disabled ? this.disabledHintAttributes(value) : '';
+                const tabIndex = value === formatCalendarDate(focusDate) ? '0' : '-1';
+                const className = [
+                  'day',
+                  this.markWeekends && (day.getDay() === 0 || day.getDay() === 6) ? 'weekend' : '',
+                  outside ? 'outside' : '',
+                  selected ? 'selected' : '',
+                  value === today ? 'today' : ''
+                ].filter(Boolean).join(' ');
+                return `<button type="button" class="${className}" data-date="${value}" role="gridcell" aria-pressed="${selected}" aria-label="${htmlEscape(value)}" tabindex="${tabIndex}"${disabledHint} ${disabledDate ? 'disabled' : ''}>${day.getDate()}</button>`;
+              }).join('')}
+            </div>`}
+        ${helper ? `<span class="helper">${htmlEscape(helper)}</span>` : ''}
       </section>
     `;
-    this.shadowRoot.querySelectorAll('[data-move]').forEach(button => button.addEventListener('click', () => this.move(Number(button.dataset.move))));
-    this.shadowRoot.querySelectorAll('[data-date]').forEach(button => button.addEventListener('click', () => this.select(button.dataset.date)));
+    this.shadowRoot.querySelectorAll('[data-calendar-mode]').forEach(button => {
+      button.addEventListener('click', () => this.setCalendarMode(button.dataset.calendarMode));
+    });
+    this.shadowRoot.querySelectorAll('[data-move]').forEach(button => {
+      button.addEventListener('click', () => this.move(Number(button.dataset.move)));
+      button.addEventListener('keydown', event => this.handleCalendarKeydown(event));
+    });
+    this.shadowRoot.querySelectorAll('[data-month]').forEach(button => {
+      button.addEventListener('click', () => this.selectMonth(Number(button.dataset.month), Number(button.dataset.year || this.currentDate().getFullYear())));
+    });
+    this.shadowRoot.querySelectorAll('[data-year-toggle]').forEach(button => {
+      button.addEventListener('click', () => {
+        const nextYear = Number(button.dataset.yearToggle);
+        if (this._expandedYear === nextYear) {
+          this._expandedYear = null;
+          this._focusDate = new Date(nextYear, this.currentDate().getMonth(), 1);
+          this._calendarMode = 'years';
+          this.render();
+          return;
+        }
+        this.selectYear(nextYear);
+      });
+    });
+    this.shadowRoot.querySelectorAll('[data-date]').forEach(button => {
+      button.addEventListener('click', () => this.select(button.dataset.date));
+      button.addEventListener('keydown', event => this.handleCalendarKeydown(event, button.dataset.date));
+    });
+    if (calendarMode === 'years') this.scrollYearIntoView(expandedYear ?? year);
   }
 }
 
@@ -1195,39 +2447,185 @@ export class MvxHoverCard extends MvxPeerElement {
 
 export class MvxFab extends MvxPeerElement {
   render() {
+    const extended = this.hasAttribute('extended');
     this.shadowRoot.innerHTML = `
       <style>
         ${sharedStyles}
         :host { display: inline-flex; }
         button {
+          --fab-bg: var(--mvx-accent);
+          --fab-fg: white;
+          --fab-glow: var(--mvx-accent-2);
+          position: relative;
+          isolation: isolate;
+          overflow: hidden;
           display: inline-flex;
           gap: 8px;
           align-items: center;
           justify-content: center;
-          min-inline-size: ${this.hasAttribute('extended') ? 'auto' : '52px'};
+          min-inline-size: ${extended ? 'auto' : '52px'};
           block-size: 52px;
+          border: 1px solid color-mix(in srgb, var(--fab-bg) 72%, white);
+          border-radius: var(--mvx-button-radius, var(--mvx-radius-sm));
+          background:
+            radial-gradient(circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--fab-glow) 22%, transparent), transparent 36%),
+            var(--mvx-control-glaze),
+            var(--fab-bg);
+          color: var(--fab-fg);
+          padding: 0 ${extended ? '18px' : '0'};
+          box-shadow:
+            var(--mvx-button-shadow, var(--mvx-control-shadow)),
+            0 14px 28px color-mix(in srgb, var(--fab-bg) 24%, transparent);
+          cursor: pointer;
+          transform: perspective(720px) rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg)) translateY(0);
+          transition:
+            transform var(--mvx-duration-fast),
+            border-color var(--mvx-duration),
+            background var(--mvx-duration),
+            box-shadow var(--mvx-duration);
+        }
+        button::before,
+        button::after {
+          content: "";
+          position: absolute;
+          pointer-events: none;
+          z-index: 0;
+        }
+        button::before {
+          inset: 0;
+          background:
+            linear-gradient(120deg, transparent 18%, color-mix(in srgb, white 18%, transparent) 45%, transparent 72%),
+            radial-gradient(circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--fab-glow) 38%, transparent), transparent 34%);
+          opacity: 0;
+          transform: translateX(-18%);
+          transition: opacity var(--mvx-duration), transform var(--mvx-duration);
+        }
+        button::after {
+          inset-block-start: var(--press-y, 50%);
+          inset-inline-start: var(--press-x, 50%);
+          inline-size: 18px;
+          block-size: 18px;
           border-radius: 999px;
-          background: var(--mvx-accent);
-          color: white;
-          padding: 0 ${this.hasAttribute('extended') ? '18px' : '0'};
-          box-shadow: var(--mvx-shadow-raised);
+          background: color-mix(in srgb, var(--fab-glow) 44%, white);
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0);
+        }
+        button > slot,
+        button > span {
+          position: relative;
+          z-index: 1;
+        }
+        button:hover:not(:disabled)::before {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        button:hover:not(:disabled) {
+          border-color: var(--mvx-border-strong);
+          background:
+            radial-gradient(circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--fab-glow) 22%, transparent), transparent 36%),
+            var(--mvx-control-glaze),
+            var(--fab-bg);
+          box-shadow:
+            var(--mvx-button-shadow, var(--mvx-control-shadow)),
+            0 16px 32px color-mix(in srgb, var(--fab-bg) 28%, transparent);
+          transform: perspective(720px) rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg)) translateY(var(--mvx-hover-lift));
+        }
+        button:active:not(:disabled) {
+          transform: perspective(720px) rotateX(0deg) rotateY(0deg) translateY(0) scale(0.985);
+          box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.22);
+        }
+        button.mvx-pressed:not(:disabled)::after {
+          animation: mvx-ripple 460ms cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        :host-context([data-mvx-variant="material"]) button {
+          min-inline-size: ${extended ? 'auto' : '56px'};
+          block-size: 56px;
+          border: 0;
+          border-radius: var(--mvx-radius-full);
+          background: var(--fab-bg);
+          box-shadow:
+            0 3px 5px color-mix(in srgb, #000 24%, transparent),
+            0 6px 10px color-mix(in srgb, #000 16%, transparent);
+          transform: none;
+          transition:
+            background var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard),
+            box-shadow var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard);
+        }
+        :host-context([data-mvx-variant="material"]) button::before {
+          inset: 0;
+          background: currentColor;
+          opacity: 0;
+          transform: none;
+          transition: opacity var(--mvx-motion-duration-short) var(--mvx-motion-easing-standard);
+        }
+        :host-context([data-mvx-variant="material"]) button:hover:not(:disabled)::before {
+          opacity: 0.08;
+        }
+        :host-context([data-mvx-variant="material"]) button:active:not(:disabled)::before {
+          opacity: 0.12;
+        }
+        :host-context([data-mvx-variant="material"]) button:hover:not(:disabled) {
+          background: var(--fab-bg);
+          box-shadow:
+            0 5px 8px color-mix(in srgb, #000 26%, transparent),
+            0 8px 12px color-mix(in srgb, #000 18%, transparent);
+          transform: none;
+        }
+        :host-context([data-mvx-variant="material"]) button:active:not(:disabled) {
+          background: var(--fab-bg);
+          box-shadow:
+            0 2px 4px color-mix(in srgb, #000 22%, transparent),
+            0 4px 8px color-mix(in srgb, #000 14%, transparent);
+          transform: none;
+        }
+        :host-context([data-mvx-variant="material"]) button.mvx-pressed:not(:disabled)::after {
+          animation: mvx-material-ripple var(--mvx-motion-duration-medium) var(--mvx-motion-easing-standard);
+        }
+        @keyframes mvx-ripple {
+          0% { opacity: 0.42; transform: translate(-50%, -50%) scale(0); }
+          78% { opacity: 0.14; }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(10); }
+        }
+        @keyframes mvx-material-ripple {
+          0% { opacity: 0.12; transform: translate(-50%, -50%) scale(0); }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(8); }
         }
       </style>
       <button type="button" part="button" aria-label="${htmlEscape(this.titleText('Action'))}">
         <slot name="icon">${htmlEscape(this.getAttribute('icon') || '+')}</slot>
-        ${this.hasAttribute('extended') ? `<span><slot>${htmlEscape(this.titleText('Create'))}</slot></span>` : ''}
+        ${extended ? `<span><slot>${htmlEscape(this.titleText('Create'))}</slot></span>` : ''}
       </button>
     `;
-    this.shadowRoot.querySelector('button').addEventListener('click', () => this.emit('mvx-click', { value: this.value }));
+    const button = this.shadowRoot.querySelector('button');
+    this.wirePointerMotion(button);
+    button.addEventListener('click', () => this.emit('mvx-click', { value: this.value }));
   }
 }
 
 export class MvxSpeedDial extends MvxPeerElement {
   static observedAttributes = [
     ...MvxPeerElement.observedAttributes,
-    'placement', 'direction', 'persistent', 'persistent-labels', 'open-on-focus',
+    'placement', 'direction', 'persistent', 'persistent-labels', 'open-on-focus', 'icon-only',
     'icon', 'open-icon', 'icon-size', 'main-icon-size', 'action-icon-size', 'action-icon-box-size'
   ];
+
+  get iconOnly() {
+    return this.hasAttribute('icon-only');
+  }
+
+  set iconOnly(value) {
+    this.toggleAttribute('icon-only', Boolean(value));
+  }
+
+  get align() {
+    return this.getAttribute('align') || 'right';
+  }
+
+  set align(value) {
+    const next = String(value || '').toLowerCase();
+    if (['left', 'center', 'right'].includes(next)) this.setAttribute('align', next);
+    else this.removeAttribute('align');
+  }
 
   setOpen(open, focusMain = false) {
     const nextOpen = Boolean(open);
@@ -1242,33 +2640,6 @@ export class MvxSpeedDial extends MvxPeerElement {
     const actions = [...this.shadowRoot.querySelectorAll('.action')];
     if (!actions.length) return;
     actions[(index + actions.length) % actions.length]?.focus();
-  }
-
-  alignLabels() {
-    const dial = this.shadowRoot?.querySelector('.dial');
-    if (!dial) return;
-    dial.classList.remove('labels-before', 'labels-after', 'labels-start', 'labels-end');
-    if (!this.hasAttribute('open')) return;
-
-    const rect = dial.getBoundingClientRect();
-    const viewportWidth = document.documentElement?.clientWidth || window.innerWidth || 0;
-    const edgePadding = 16;
-    const labelSpace = 220;
-    const parentRect = this.parentElement?.getBoundingClientRect();
-    const hasUsableParentBoundary = parentRect && parentRect.width >= rect.width + labelSpace + edgePadding * 2;
-    const boundaryLeft = hasUsableParentBoundary ? Math.max(0, parentRect.left) : 0;
-    const boundaryRight = hasUsableParentBoundary ? Math.min(viewportWidth, parentRect.right) : viewportWidth;
-    const spaceBefore = rect.left - boundaryLeft - edgePadding;
-    const spaceAfter = boundaryRight - rect.right - edgePadding;
-    const isSide = dial.classList.contains('left') || dial.classList.contains('right');
-
-    if (isSide) {
-      if (spaceBefore < labelSpace / 2) dial.classList.add('labels-start');
-      if (spaceAfter < labelSpace / 2) dial.classList.add('labels-end');
-      return;
-    }
-
-    dial.classList.add(spaceBefore < labelSpace && spaceAfter > spaceBefore ? 'labels-after' : 'labels-before');
   }
 
   render() {
@@ -1291,6 +2662,15 @@ export class MvxSpeedDial extends MvxPeerElement {
       <style>
         ${sharedStyles}
         :host { display: inline-flex; }
+        :host([align="left"]),
+        :host([align="center"]),
+        :host([align="right"]) {
+          display: flex;
+          inline-size: 100%;
+        }
+        :host([align="left"]) { justify-content: flex-start; }
+        :host([align="center"]) { justify-content: center; }
+        :host([align="right"]) { justify-content: flex-end; }
         .dial {
           --mvx-speed-stagger: 38ms;
           position: relative;
@@ -1323,216 +2703,6 @@ export class MvxSpeedDial extends MvxPeerElement {
         }
         .actions.left { justify-content: flex-start; }
         .actions.right { justify-content: flex-end; }
-        .action {
-          position: relative;
-          display: grid;
-          place-items: center;
-          inline-size: calc(${actionIconBoxSize} + 8px);
-          block-size: calc(${actionIconBoxSize} + 8px);
-          overflow: visible;
-          border: 1px solid color-mix(in srgb, var(--mvx-border) 84%, transparent);
-          border-radius: 999px;
-          background:
-            radial-gradient(circle at 34% 22%, color-mix(in srgb, white 18%, transparent), transparent 34%),
-            linear-gradient(180deg, color-mix(in srgb, var(--mvx-fg) 7%, transparent), transparent 58%),
-            color-mix(in srgb, var(--mvx-bg-panel) 96%, var(--mvx-bg-inset));
-          color: var(--mvx-fg);
-          padding: 3px;
-          box-shadow:
-            0 10px 22px color-mix(in srgb, #000 18%, transparent),
-            inset 0 1px 0 rgba(255, 255, 255, 0.10);
-          transform: translateY(${open ? '0' : verticalOffset}) scale(${open ? '1' : '0.88'});
-          transform-origin: center ${reverse ? 'top' : 'bottom'};
-          opacity: ${open ? '1' : '0'};
-          transition:
-            opacity var(--mvx-duration),
-            transform var(--mvx-duration),
-            border-color var(--mvx-duration),
-            background var(--mvx-duration),
-            box-shadow var(--mvx-duration);
-          transition-delay: calc(var(--index) * ${open ? 'var(--mvx-speed-stagger)' : '0ms'});
-          white-space: nowrap;
-        }
-        .dial.left .action,
-        .dial.right .action {
-          display: inline-grid;
-          grid-template-columns: ${actionIconBoxSize} minmax(0, 1fr);
-          gap: 9px;
-          inline-size: max-content;
-          max-inline-size: min(240px, calc(100vw - 96px));
-          block-size: auto;
-          min-block-size: calc(${actionIconBoxSize} + 8px);
-          justify-items: start;
-          padding: 3px 12px 3px 3px;
-          transform: translateX(${open ? '0' : sideOffset}) scale(${open ? '1' : '0.88'});
-          transform-origin: center ${placement === 'left' ? 'right' : 'left'};
-        }
-        .dial.right .action {
-          justify-items: end;
-          text-align: end;
-        }
-        .action:hover,
-        .action:focus-visible {
-          border-color: color-mix(in srgb, var(--mvx-accent) 54%, var(--mvx-border));
-          background:
-            radial-gradient(circle at 24% 18%, color-mix(in srgb, var(--mvx-accent-2) 20%, transparent), transparent 38%),
-            linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 12%, transparent), transparent 56%),
-            color-mix(in srgb, var(--mvx-accent) 13%, var(--mvx-bg-inset));
-          box-shadow:
-            var(--mvx-control-shadow),
-            0 14px 30px color-mix(in srgb, var(--mvx-accent) 18%, transparent);
-        }
-        .action:focus-visible {
-          outline: none;
-          box-shadow: var(--mvx-focus), 0 14px 30px color-mix(in srgb, var(--mvx-accent) 18%, transparent);
-        }
-        .action-icon {
-          display: grid;
-          place-items: center;
-          inline-size: 100%;
-          block-size: 100%;
-          border-radius: 999px;
-          background:
-            linear-gradient(180deg, color-mix(in srgb, var(--mvx-accent-2) 16%, transparent), transparent),
-            color-mix(in srgb, var(--mvx-accent) 14%, var(--mvx-bg-inset));
-          color: var(--mvx-accent);
-          font-size: ${actionIconSize};
-          font-weight: 850;
-          line-height: 1;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
-        }
-        .action-label {
-          position: absolute;
-          inset-block-start: 50%;
-          inset-inline-end: calc(100% + 10px);
-          inline-size: max-content;
-          max-inline-size: 190px;
-          border: 1px solid color-mix(in srgb, var(--mvx-border) 86%, transparent);
-          border-radius: 999px;
-          background:
-            linear-gradient(180deg, color-mix(in srgb, var(--mvx-fg) 7%, transparent), transparent),
-            color-mix(in srgb, var(--mvx-bg-panel) 96%, var(--mvx-bg-inset));
-          box-shadow: 0 12px 24px color-mix(in srgb, #000 18%, transparent);
-          color: var(--mvx-fg);
-          opacity: ${this.hasAttribute('persistent-labels') ? '1' : '0'};
-          overflow: hidden;
-          padding: 8px 11px;
-          pointer-events: none;
-          text-overflow: ellipsis;
-          font-size: 13.5px;
-          font-weight: 780;
-          line-height: 1.1;
-          letter-spacing: 0;
-          transform: translateY(-50%) scale(${this.hasAttribute('persistent-labels') ? '1' : '0.94'});
-          transition: opacity var(--mvx-duration-fast), transform var(--mvx-duration-fast);
-          white-space: nowrap;
-          z-index: 2;
-        }
-        .dial.bottom .action-label {
-          inset-inline-end: auto;
-          inset-inline-start: calc(100% + 10px);
-        }
-        .dial.left .action-label {
-          position: static;
-          inline-size: auto;
-          min-inline-size: 0;
-          max-inline-size: 100%;
-          border: 0;
-          border-radius: 0;
-          background: transparent;
-          box-shadow: none;
-          opacity: 1;
-          padding: 0;
-          pointer-events: auto;
-          text-align: start;
-          transform: none;
-        }
-        .dial.right .action-label {
-          position: static;
-          inline-size: auto;
-          min-inline-size: 0;
-          max-inline-size: 100%;
-          border: 0;
-          border-radius: 0;
-          background: transparent;
-          box-shadow: none;
-          opacity: 1;
-          padding: 0;
-          pointer-events: auto;
-          text-align: end;
-          transform: none;
-        }
-        .action:hover .action-label,
-        .action:focus-visible .action-label {
-          opacity: 1;
-          transform: translateY(-50%) scale(1);
-        }
-        .dial.left .action:hover .action-label,
-        .dial.left .action:focus-visible .action-label {
-          opacity: 1;
-          transform: none;
-        }
-        .dial.right .action:hover .action-label,
-        .dial.right .action:focus-visible .action-label {
-          opacity: 1;
-          transform: none;
-        }
-        .main {
-          position: relative;
-          display: grid;
-          place-items: center;
-          inline-size: 58px;
-          block-size: 58px;
-          border: 1px solid color-mix(in srgb, var(--mvx-accent) 72%, var(--mvx-border));
-          border-radius: 999px;
-          background:
-            radial-gradient(circle at 32% 22%, color-mix(in srgb, white 36%, transparent), transparent 27%),
-            linear-gradient(145deg, color-mix(in srgb, var(--mvx-accent-2) 26%, transparent), transparent 46%),
-            var(--mvx-accent);
-          color: white;
-          box-shadow:
-            0 18px 34px color-mix(in srgb, var(--mvx-accent) 32%, transparent),
-            0 4px 9px color-mix(in srgb, #000 18%, transparent),
-            inset 0 1px 0 rgba(255, 255, 255, 0.32);
-          font-size: 24px;
-          font-weight: 800;
-          z-index: 2;
-          transition:
-            transform var(--mvx-duration),
-            box-shadow var(--mvx-duration),
-            background var(--mvx-duration),
-            border-color var(--mvx-duration);
-        }
-        .main::after {
-          content: "";
-          position: absolute;
-          inset: -8px;
-          border-radius: inherit;
-          background:
-            radial-gradient(circle, color-mix(in srgb, var(--mvx-accent) 18%, transparent), transparent 68%);
-          opacity: ${open ? '1' : '0'};
-          transform: scale(${open ? '1' : '0.72'});
-          transition: opacity var(--mvx-duration), transform var(--mvx-duration);
-          z-index: -1;
-        }
-        .main:hover {
-          transform: translateY(-2px) scale(1.03);
-          box-shadow:
-            0 22px 40px color-mix(in srgb, var(--mvx-accent) 38%, transparent),
-            0 5px 12px color-mix(in srgb, #000 20%, transparent),
-            inset 0 1px 0 rgba(255, 255, 255, 0.36);
-        }
-        .main:focus-visible {
-          outline: none;
-          box-shadow: var(--mvx-focus), 0 18px 34px color-mix(in srgb, var(--mvx-accent) 34%, transparent);
-        }
-        .main-icon {
-          display: inline-block;
-          font-size: ${mainIconSize};
-          line-height: 1;
-          transform: rotate(${open && !openIcon ? '45deg' : '0deg'}) scale(${open ? '1.04' : '1'});
-          transition: transform var(--mvx-duration);
-        }
         @media (prefers-reduced-motion: reduce) {
           .action,
           .main,
@@ -1558,9 +2728,26 @@ export class MvxSpeedDial extends MvxPeerElement {
           max-inline-size: none;
           justify-content: center;
         }
+        :host([align="left"]) .dial:not(.left):not(.right),
+        :host([align="left"]) .actions:not(.left):not(.right) {
+          align-items: flex-start;
+        }
+        :host([align="center"]) .dial:not(.left):not(.right),
+        :host([align="center"]) .actions:not(.left):not(.right) {
+          align-items: center;
+        }
+        :host([align="right"]) .dial:not(.left):not(.right),
+        :host([align="right"]) .actions:not(.left):not(.right) {
+          align-items: flex-end;
+        }
+        :host([icon-only]) .dial:not(.left):not(.right),
+        :host([icon-only]) .actions:not(.left):not(.right) {
+          align-items: center;
+        }
         .action,
         .dial.left .action,
         .dial.right .action {
+          position: relative;
           display: grid;
           grid-template-columns: none;
           place-items: center;
@@ -1573,23 +2760,29 @@ export class MvxSpeedDial extends MvxPeerElement {
           border-radius: 999px;
           background: var(--mvx-control-glaze), var(--mvx-bg-inset);
           color: var(--mvx-fg);
+          opacity: ${open ? '1' : '0'};
           padding: 0;
           box-shadow:
             0 3px 5px color-mix(in srgb, #000 22%, transparent),
             0 1px 18px color-mix(in srgb, #000 12%, transparent);
           text-align: center;
+          white-space: nowrap;
         }
         .action {
           transform: translateY(${open ? '0' : verticalOffset}) scale(${open ? '1' : '0.2'});
+          transform-origin: center ${reverse ? 'top' : 'bottom'};
           transition:
             opacity 195ms cubic-bezier(0.4, 0, 0.2, 1),
             transform 195ms cubic-bezier(0.4, 0, 0.2, 1),
+            border-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
             background 150ms cubic-bezier(0.4, 0, 0.2, 1),
             box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
+          transition-delay: calc(var(--index) * ${open ? 'var(--mvx-speed-stagger)' : '0ms'});
         }
         .dial.left .action,
         .dial.right .action {
           transform: translateX(${open ? '0' : sideOffset}) scale(${open ? '1' : '0.2'});
+          transform-origin: center ${placement === 'left' ? 'right' : 'left'};
         }
         .action:hover,
         .action:focus-visible {
@@ -1599,6 +2792,14 @@ export class MvxSpeedDial extends MvxPeerElement {
             color-mix(in srgb, var(--mvx-accent) 18%, var(--mvx-bg-panel));
           color: var(--mvx-fg);
           box-shadow:
+            var(--mvx-control-shadow),
+            0 5px 8px color-mix(in srgb, #000 24%, transparent),
+            0 3px 14px color-mix(in srgb, #000 16%, transparent);
+        }
+        .action:focus-visible {
+          outline: none;
+          box-shadow:
+            var(--mvx-focus),
             var(--mvx-control-shadow),
             0 5px 8px color-mix(in srgb, #000 24%, transparent),
             0 3px 14px color-mix(in srgb, #000 16%, transparent);
@@ -1613,127 +2814,241 @@ export class MvxSpeedDial extends MvxPeerElement {
           block-size: 100%;
           background: transparent;
           color: currentColor;
+          display: grid;
+          place-items: center;
+          font-size: ${actionIconSize};
           font-weight: 700;
+          line-height: 1;
           box-shadow: none;
           transition: background 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .action,
+        .dial.left .action,
+        .dial.right .action {
+          display: inline-grid;
+          grid-template-columns: ${actionIconBoxSize} minmax(0, 1fr);
+          gap: 9px;
+          place-items: center start;
+          inline-size: max-content;
+          max-inline-size: min(260px, calc(100vw - 48px));
+          block-size: auto;
+          min-block-size: ${actionIconBoxSize};
+          border-radius: var(--mvx-button-radius, var(--mvx-radius-sm));
+          padding: 0 13px 0 0;
+          text-align: start;
+        }
+        .dial.right .action {
+          justify-items: start;
+          text-align: start;
+        }
+        :host([icon-only]) .action,
+        :host([icon-only]) .dial.left .action,
+        :host([icon-only]) .dial.right .action {
+          grid-template-columns: none;
+          place-items: center;
+          inline-size: ${actionIconBoxSize};
+          max-inline-size: ${actionIconBoxSize};
+          block-size: ${actionIconBoxSize};
+          min-block-size: ${actionIconBoxSize};
+          border-radius: 999px;
+          padding: 0;
+        }
+        .action-icon {
+          inline-size: ${actionIconBoxSize};
+          block-size: ${actionIconBoxSize};
+          border-radius: 999px;
+        }
         .action-label,
         .dial.left .action-label,
-        .dial.right .action-label {
-          position: absolute;
-          inset-block-start: 50%;
-          inset-inline-start: auto;
-          inset-inline-end: calc(100% + 10px);
-          inline-size: max-content;
-          max-inline-size: min(220px, calc(100vw - 32px));
-          border: 1px solid rgba(255, 255, 255, 0.14);
-          border-radius: 4px;
-          background: rgba(17, 19, 21, 0.96);
-          box-shadow: 0 6px 18px color-mix(in srgb, #000 30%, transparent);
-          color: white;
-          opacity: ${this.hasAttribute('persistent-labels') ? '1' : '0'};
+        .dial.right .action-label,
+        .dial.bottom .action-label {
+          position: static;
+          inset: auto;
+          inline-size: auto;
+          min-inline-size: 0;
+          max-inline-size: 190px;
+          border: 0;
+          border-radius: 0;
+          background: transparent;
+          box-shadow: none;
+          color: inherit;
+          opacity: 1;
           overflow: hidden;
-          padding: 4px 8px;
-          pointer-events: none;
-          text-align: start;
+          padding: 0;
+          pointer-events: auto;
+          text-align: inherit;
           text-overflow: ellipsis;
-          font-size: 12px;
-          font-weight: 500;
-          line-height: 1.4;
-          transform: translateY(-50%) scale(${this.hasAttribute('persistent-labels') ? '1' : '0.94'});
-          transition:
-            opacity 150ms cubic-bezier(0.4, 0, 0.2, 1),
-            transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+          font-size: 13px;
+          font-weight: 650;
+          line-height: 1.2;
+          transform: none;
+          transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1);
           white-space: nowrap;
         }
-        .dial.bottom .action-label {
-          inset-inline-start: calc(100% + 10px);
-          inset-inline-end: auto;
-        }
-        .dial.labels-before .action-label {
-          inset-inline-start: auto;
-          inset-inline-end: calc(100% + 10px);
-          text-align: end;
-          transform: translateY(-50%) scale(${this.hasAttribute('persistent-labels') ? '1' : '0.94'});
-        }
-        .dial.labels-after .action-label {
-          inset-inline-start: calc(100% + 10px);
-          inset-inline-end: auto;
-          text-align: start;
-          transform: translateY(-50%) scale(${this.hasAttribute('persistent-labels') ? '1' : '0.94'});
-        }
-        .dial.left .action-label,
-        .dial.right .action-label {
-          inset-block-start: calc(100% + 10px);
-          inset-inline-start: 50%;
-          inset-inline-end: auto;
-          transform: translateX(-50%) scale(${this.hasAttribute('persistent-labels') ? '1' : '0.94'});
-        }
-        .dial.left.labels-start .action-label,
-        .dial.right.labels-start .action-label {
-          inset-inline-start: 0;
-          inset-inline-end: auto;
-          transform: scale(${this.hasAttribute('persistent-labels') ? '1' : '0.94'});
-        }
-        .dial.left.labels-end .action-label,
-        .dial.right.labels-end .action-label {
-          inset-inline-start: auto;
-          inset-inline-end: 0;
-          transform: scale(${this.hasAttribute('persistent-labels') ? '1' : '0.94'});
-        }
         .action:hover .action-label,
-        .action:focus-visible .action-label {
-          opacity: 1;
-          transform: translateY(-50%) scale(1);
-        }
-        .dial.labels-after .action:hover .action-label,
-        .dial.labels-after .action:focus-visible .action-label,
-        .dial.labels-before .action:hover .action-label,
-        .dial.labels-before .action:focus-visible .action-label {
-          transform: translateY(-50%) scale(1);
-        }
+        .action:focus-visible .action-label,
         .dial.left .action:hover .action-label,
         .dial.left .action:focus-visible .action-label,
         .dial.right .action:hover .action-label,
         .dial.right .action:focus-visible .action-label {
-          transform: translateX(-50%) scale(1);
-        }
-        .dial.left.labels-start .action:hover .action-label,
-        .dial.left.labels-start .action:focus-visible .action-label,
-        .dial.right.labels-start .action:hover .action-label,
-        .dial.right.labels-start .action:focus-visible .action-label,
-        .dial.left.labels-end .action:hover .action-label,
-        .dial.left.labels-end .action:focus-visible .action-label,
-        .dial.right.labels-end .action:hover .action-label,
-        .dial.right.labels-end .action:focus-visible .action-label {
-          transform: scale(1);
-        }
-        .main {
-          inline-size: 56px;
-          block-size: 56px;
-          border: 0;
-          background: var(--mvx-accent);
-          box-shadow:
-            0 3px 5px color-mix(in srgb, #000 26%, transparent),
-            0 6px 10px color-mix(in srgb, #000 18%, transparent);
-          font-weight: 600;
           transform: none;
         }
-        .main::after {
+        :host([icon-only]) .action-label {
           display: none;
         }
-        .main:hover {
+        :host(:not([icon-only])) .action:hover .action-icon,
+        :host(:not([icon-only])) .action:focus-visible .action-icon {
+          background: transparent;
+          color: currentColor;
+        }
+        :host([icon-only]) .action:hover .action-icon,
+        :host([icon-only]) .action:focus-visible .action-icon {
+          background: var(--mvx-accent);
+          color: white;
+        }
+        .main {
+          --button-bg: var(--mvx-bg-panel);
+          --button-fg: var(--mvx-fg);
+          --button-border: var(--mvx-border);
+          --button-tone: var(--mvx-fg);
+          --button-on-tone: var(--mvx-bg);
+          --button-solid-bg: var(--mvx-bg-panel);
+          --button-solid-fg: var(--mvx-fg);
+          --button-solid-border: var(--mvx-border);
+          --button-glow: var(--mvx-accent-2);
+          position: relative;
+          isolation: isolate;
+          overflow: hidden;
+          display: grid;
+          place-items: center;
+          inline-size: 56px;
+          block-size: 56px;
+          border: 1px solid var(--button-border);
+          border-radius: 999px;
           background:
-            linear-gradient(180deg, color-mix(in srgb, white 10%, transparent), transparent),
-            color-mix(in srgb, var(--mvx-accent) 92%, black);
+            radial-gradient(circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--button-glow) 19%, transparent), transparent 34%),
+            var(--mvx-control-glaze),
+            var(--button-bg);
+          color: var(--button-fg);
+          box-shadow: var(--mvx-button-shadow, var(--mvx-control-shadow));
+          font-size: 24px;
+          font-weight: 600;
+          transform: perspective(720px) rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg)) translateY(0);
+          z-index: 2;
+          transition:
+            transform var(--mvx-duration-fast),
+            border-color var(--mvx-duration),
+            background var(--mvx-duration),
+            box-shadow var(--mvx-duration);
+        }
+        .main.tone-primary {
+          --button-tone: var(--mvx-accent);
+          --button-on-tone: white;
+          --button-glow: var(--mvx-accent-2);
+          --button-solid-bg: var(--button-tone);
+          --button-solid-fg: var(--button-on-tone);
+          --button-solid-border: color-mix(in srgb, var(--button-tone) 72%, white);
+        }
+        .main.solid {
+          --button-bg: var(--button-solid-bg);
+          --button-fg: var(--button-solid-fg);
+          --button-border: var(--button-solid-border);
+        }
+        .main::before,
+        .main::after {
+          content: "";
+          position: absolute;
+          pointer-events: none;
+          z-index: 0;
+        }
+        .main > span {
+          position: relative;
+          z-index: 1;
+        }
+        .main::before {
+          inset: 0;
+          background:
+            linear-gradient(120deg, transparent 20%, color-mix(in srgb, white 16%, transparent) 46%, transparent 72%),
+            radial-gradient(circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--button-glow) 36%, transparent), transparent 34%);
+          opacity: 0;
+          transform: translateX(-18%);
+          transition: opacity var(--mvx-duration), transform var(--mvx-duration);
+        }
+        .main::after {
+          inset-block-start: var(--press-y, 50%);
+          inset-inline-start: var(--press-x, 50%);
+          inline-size: 18px;
+          block-size: 18px;
+          border-radius: 999px;
+          background: color-mix(in srgb, var(--button-glow) 44%, white);
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0);
+        }
+        button.main:hover:not(:disabled)::before {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        button.main:hover:not(:disabled) {
+          border-color: var(--mvx-border-strong);
+          background:
+            radial-gradient(circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--button-glow) 19%, transparent), transparent 34%),
+            var(--mvx-control-glaze),
+            var(--button-bg);
+          transform: perspective(720px) rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg)) translateY(var(--mvx-hover-lift));
+        }
+        .main:active {
+          transform: perspective(720px) rotateX(0deg) rotateY(0deg) translateY(0) scale(0.985);
+          box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.22);
+        }
+        .main.mvx-pressed::after {
+          animation: mvx-ripple 460ms cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .main:focus-visible {
+          outline: none;
+          box-shadow: var(--mvx-focus), var(--mvx-button-shadow, var(--mvx-control-shadow));
+        }
+        :host-context([data-mvx-variant="material"]) .main {
+          --button-border: transparent;
+          border-color: var(--button-border);
+          background: var(--button-bg);
+          box-shadow: none;
           transform: none;
-          box-shadow:
-            0 5px 8px color-mix(in srgb, #000 28%, transparent),
-            0 8px 12px color-mix(in srgb, #000 20%, transparent);
+        }
+        :host-context([data-mvx-variant="material"]) .main::before {
+          background: currentColor;
+          opacity: 0;
+          transform: none;
+          transition: opacity var(--mvx-duration-fast);
+        }
+        :host-context([data-mvx-variant="material"]) .main:hover::before {
+          opacity: 0.08;
+        }
+        :host-context([data-mvx-variant="material"]) .main:active::before {
+          opacity: 0.12;
+        }
+        :host-context([data-mvx-variant="material"]) .main:hover,
+        :host-context([data-mvx-variant="material"]) .main:active {
+          box-shadow: none;
+          transform: none;
+        }
+        :host-context([data-mvx-variant="material"]) .main.mvx-pressed::after {
+          animation: mvx-material-ripple var(--mvx-motion-duration-medium) var(--mvx-motion-easing-standard);
         }
         .main-icon {
+          display: inline-block;
+          font-size: ${mainIconSize};
+          line-height: 1;
           transform: rotate(${open && !openIcon ? '45deg' : '0deg'});
           transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes mvx-ripple {
+          0% { opacity: 0.42; transform: translate(-50%, -50%) scale(0); }
+          78% { opacity: 0.14; }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(13); }
+        }
+        @keyframes mvx-material-ripple {
+          0% { opacity: 0.12; transform: translate(-50%, -50%) scale(0); }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(9); }
         }
       </style>
       <div class="dial ${placement}" part="dial">
@@ -1744,25 +3059,27 @@ export class MvxSpeedDial extends MvxPeerElement {
             const iconSize = item.iconSize || item['icon-size'] || '';
             const labelId = `${actionsId}-label-${index}`;
             return `
-              <button type="button" class="action" part="action" role="menuitem" data-index="${index}" style="--index:${index}" tabindex="${open ? '0' : '-1'}" aria-label="${escapeAttr(label)}" aria-describedby="${labelId}">
+              <button type="button" class="action" part="action" role="menuitem" data-index="${index}" style="--index:${index}" tabindex="${open ? '0' : '-1'}" aria-label="${escapeAttr(label)}">
                 <span class="action-icon" aria-hidden="true" ${iconSize ? `style="font-size:${escapeAttr(cssLength(iconSize, actionIconSize))}"` : ''}>${htmlEscape(icon)}</span>
                 <span id="${labelId}" class="action-label">${htmlEscape(label)}</span>
               </button>
             `;
           }).join('')}
         </div>
-        <button type="button" class="main" part="button" aria-label="${htmlEscape(this.titleText(open ? 'Close actions' : 'Open actions'))}" aria-haspopup="menu" aria-controls="${actionsId}" aria-expanded="${open}">
+        <button type="button" class="main solid tone-primary" part="button" aria-label="${htmlEscape(this.titleText(open ? 'Close actions' : 'Open actions'))}" aria-haspopup="menu" aria-controls="${actionsId}" aria-expanded="${open}">
           <span class="main-icon" aria-hidden="true">${htmlEscape(mainIcon)}</span>
         </button>
       </div>
     `;
-    this.shadowRoot.querySelector('.main').addEventListener('click', () => {
+    const mainButton = this.shadowRoot.querySelector('.main');
+    this.wirePointerMotion(mainButton);
+    mainButton.addEventListener('click', () => {
       this.setOpen(!this.hasAttribute('open'));
     });
-    this.shadowRoot.querySelector('.main').addEventListener('focus', () => {
+    mainButton.addEventListener('focus', () => {
       if (this.hasAttribute('open-on-focus') && !this.hasAttribute('open')) this.setOpen(true);
     });
-    this.shadowRoot.querySelector('.main').addEventListener('keydown', event => {
+    mainButton.addEventListener('keydown', event => {
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
         event.preventDefault();
         if (!this.hasAttribute('open')) this.setOpen(true);
@@ -1801,7 +3118,6 @@ export class MvxSpeedDial extends MvxPeerElement {
         this.setOpen(false, true);
       }
     }));
-    requestAnimationFrame(() => this.alignLabels());
   }
 }
 
@@ -2033,13 +3349,25 @@ export class MvxStatus extends MvxPeerElement {
 }
 
 export class MvxRadialProgress extends MvxPeerElement {
+  static observedAttributes = [...MvxPeerElement.observedAttributes, 'precision'];
+
+  get precision() {
+    return this.getAttribute('precision') || '0';
+  }
+
+  set precision(value) {
+    this.setAttribute('precision', String(value ?? 0));
+  }
+
   render() {
-    const max = Number(this.getAttribute('max') || 100);
-    const value = Number(this.value || 0);
-    const pct = Math.max(0, Math.min(100, (value / max) * 100));
+    const rawPrecision = Number(this.getAttribute('precision') || 0);
+    const precision = Number.isFinite(rawPrecision) ? Math.max(0, Math.min(2, Math.floor(rawPrecision))) : 0;
+    const rawValue = Number(this.value || 0);
+    const value = Number.isFinite(rawValue) ? Math.round(Math.max(0, Math.min(100, rawValue)) * 100) / 100 : 0;
+    const displayValue = value.toFixed(precision);
     this.shadowRoot.innerHTML = `
-      <style>${sharedStyles}:host{display:inline-grid;}.radial{display:grid;place-items:center;inline-size:96px;block-size:96px;border-radius:999px;background:conic-gradient(var(--mvx-accent) ${pct}%, var(--mvx-bg-inset) 0);}.inner{display:grid;place-items:center;inline-size:72px;block-size:72px;border-radius:999px;background:var(--mvx-bg-panel);font-weight:850;}</style>
-      <span class="radial" role="progressbar" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="${max}"><span class="inner">${Math.round(pct)}%</span></span>
+      <style>${sharedStyles}:host{display:inline-grid;}.radial{display:grid;place-items:center;inline-size:96px;block-size:96px;border-radius:999px;background:conic-gradient(var(--mvx-accent) ${value}%, var(--mvx-bg-inset) 0);}.inner{display:grid;place-items:center;inline-size:72px;block-size:72px;border-radius:999px;background:var(--mvx-bg-panel);font-weight:850;}</style>
+      <span class="radial" role="progressbar" aria-valuenow="${displayValue}" aria-valuemin="0" aria-valuemax="100"><span class="inner">${displayValue}%</span></span>
     `;
   }
 }
@@ -2842,6 +4170,7 @@ export class MvxJsonSchemaForm extends MvxPeerElement {
         h3 { margin: 0; font-size: 16px; }
         small { color: var(--mvx-subtle); font-size: 12px; }
         .check { display: flex; gap: 8px; align-items: center; color: var(--mvx-muted); font-size: 13px; font-weight: 650; }
+        .check input { flex: 0 0 auto; }
         .actions { display: flex; justify-content: end; }
       </style>
       <form class="surface" part="form">
@@ -3223,7 +4552,7 @@ export class MvxFloatingLabel extends MvxPeerElement {
   }
 }
 
-export class MvxFilter extends MvxToggleGroup {}
+export class MvxFilter extends MvxToggleGroupBase {}
 
 export class MvxAttachment extends MvxPeerElement {
   render() {
@@ -3252,7 +4581,49 @@ export class MvxMarker extends MvxPeerElement {
 
 export class MvxCloseButton extends MvxPeerElement {
   render() {
-    this.shadowRoot.innerHTML = `<style>${sharedStyles}:host{display:inline-flex;}button{display:grid;place-items:center;inline-size:32px;block-size:32px;border-radius:999px;padding:0;}</style><button type="button" part="button" aria-label="${htmlEscape(this.titleText('Close'))}">x</button>`;
+    this.shadowRoot.innerHTML = `
+      <style>
+        ${sharedStyles}
+        :host { display: inline-flex; }
+        button {
+          display: grid;
+          place-items: center;
+          inline-size: 32px;
+          block-size: 32px;
+          border: 1px solid transparent;
+          border-radius: var(--mvx-button-radius, var(--mvx-radius-sm));
+          background: transparent;
+          box-shadow: none;
+          color: var(--mvx-muted);
+          cursor: pointer;
+          font-size: 18px;
+          line-height: 1;
+          padding: 0;
+          transition:
+            background var(--mvx-duration-fast),
+            border-color var(--mvx-duration-fast),
+            color var(--mvx-duration-fast),
+            box-shadow var(--mvx-duration-fast),
+            transform var(--mvx-duration-fast);
+        }
+        button:hover:not(:disabled) {
+          border-color: var(--mvx-border-strong);
+          background: color-mix(in srgb, var(--mvx-muted) 12%, var(--mvx-bg-inset));
+          box-shadow: none;
+          color: var(--mvx-muted);
+          transform: translateY(-1px);
+        }
+        button:active:not(:disabled) {
+          filter: brightness(0.96);
+          transform: translateY(0);
+        }
+        button:focus-visible {
+          outline: none;
+          box-shadow: var(--mvx-focus);
+        }
+      </style>
+      <button type="button" part="button" aria-label="${htmlEscape(this.titleText('Close'))}">x</button>
+    `;
     this.shadowRoot.querySelector('button').addEventListener('click', () => this.emit('mvx-close', {}));
   }
 }

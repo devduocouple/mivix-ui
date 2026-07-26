@@ -131,8 +131,6 @@ import {
   MvxTable,
   MvxTextRotate,
   MvxThemeController,
-  MvxToggle,
-  MvxToggleGroup,
   MvxTransferList,
   MvxTreeView,
   MvxTypography,
@@ -273,8 +271,6 @@ export {
   MvxTable,
   MvxTextRotate,
   MvxThemeController,
-  MvxToggle,
-  MvxToggleGroup,
   MvxTransferList,
   MvxTreeView,
   MvxTypography,
@@ -413,8 +409,6 @@ define('mvx-swap', MvxSwap);
 define('mvx-table', MvxTable);
 define('mvx-text-rotate', MvxTextRotate);
 define('mvx-theme-controller', MvxThemeController);
-define('mvx-toggle', MvxToggle);
-define('mvx-toggle-group', MvxToggleGroup);
 define('mvx-transfer-list', MvxTransferList);
 define('mvx-tree-view', MvxTreeView);
 define('mvx-typography', MvxTypography);

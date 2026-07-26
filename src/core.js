@@ -829,6 +829,10 @@ export class MvxElement extends HTMLElementBase {
     const lines = Math.max(1, Number(explicitLines || profile.lines || 3));
     const box = this._mvxSkeletonBox || this._mvxLastMeasuredBox || {};
     const hostBox = this._mvxSkeletonBox || this.captureHostBox() || this._mvxSkeletonHostBox || this._mvxLastMeasuredBox || {};
+    if (profile.template === 'speed-dial') {
+      this.renderSpeedDialSkeleton(label, profile, box, hostBox);
+      return;
+    }
     const resolvedHostWidth = hostBox.width || box.width;
     const resolvedHostHeight = hostBox.height || box.height;
     const hostInlineSize = resolvedHostWidth ? `${resolvedHostWidth}px` : profile.hostInlineSize;
@@ -912,6 +916,117 @@ export class MvxElement extends HTMLElementBase {
     `;
   }
 
+  renderSpeedDialSkeleton(label, profile, box = {}, hostBox = {}) {
+    const directionMap = { up: 'top', down: 'bottom', left: 'left', right: 'right' };
+    const rawDirection = this.getAttribute('direction');
+    const placement = directionMap[rawDirection] || this.getAttribute('placement') || 'top';
+    const isSide = placement === 'left' || placement === 'right';
+    const align = ['left', 'center', 'right'].includes(this.getAttribute('align')) ? this.getAttribute('align') : 'right';
+    const alignItems = this.hasAttribute('icon-only')
+      ? 'center'
+      : align === 'left'
+        ? 'flex-start'
+        : align === 'center'
+          ? 'center'
+          : 'flex-end';
+    const justifyHost = align === 'left' ? 'flex-start' : align === 'center' ? 'center' : 'flex-end';
+    const hostAlignsPage = this.hasAttribute('align');
+    const explicitLines = this.getAttribute('skeleton-lines') || this.getAttribute('lines');
+    const parsedItems = parseData(this.getAttribute('items'), []);
+    const items = Array.isArray(parsedItems) ? parsedItems : [];
+    const actionCount = Math.max(2, Math.min(4, Number(explicitLines) || items.length || 3));
+    const hasActions = this.hasAttribute('open');
+    const iconOnly = this.hasAttribute('icon-only');
+    const actionSize = this.skeletonLength(this.getAttribute('action-icon-box-size')) || '40px';
+    const mainSize = this.skeletonLength(this.getAttribute('main-size')) || '56px';
+    const resolvedHostWidth = hostBox.width || box.width;
+    const resolvedHostHeight = hostBox.height || box.height;
+    const hostInlineSize = resolvedHostWidth ? `${resolvedHostWidth}px` : hostAlignsPage ? '100%' : profile.hostInlineSize;
+    const hostBlockSize = resolvedHostHeight ? `${resolvedHostHeight}px` : profile.hostBlockSize;
+    const fallbackHostInline = resolvedHostWidth ? `${resolvedHostWidth}px` : '';
+    const fallbackHostBlock = resolvedHostHeight ? `${resolvedHostHeight}px` : '';
+    const actionWidth = item => {
+      if (iconOnly) return actionSize;
+      const text = String(item?.label ?? item?.title ?? item?.name ?? item?.value ?? '').trim();
+      const estimate = Math.min(220, Math.max(132, text.length * 7 + 68));
+      return `${estimate}px`;
+    };
+    const actionMarkup = hasActions
+      ? Array.from({ length: actionCount }, (_item, index) => `<span class="speed-action shape" style="--action-width:${actionWidth(items[index])}"></span>`).join('')
+      : '';
+    this.setAttribute('aria-busy', 'true');
+    this._mvxSkeletonBusy = true;
+    this.shadowRoot.innerHTML = `
+      <style>
+        ${baseStyles}
+        :host {
+          display: ${box.display || (hostAlignsPage ? 'flex' : profile.hostDisplay)};
+          justify-content: ${hostAlignsPage ? justifyHost : 'flex-start'};
+          ${fallbackHostInline ? `width: ${fallbackHostInline};` : ''}
+          ${fallbackHostInline ? `inline-size: ${fallbackHostInline};` : ''}
+          ${fallbackHostBlock ? `height: ${fallbackHostBlock};` : ''}
+          ${fallbackHostBlock ? `block-size: ${fallbackHostBlock};` : ''}
+          min-inline-size: 0;
+          min-block-size: 0;
+          ${hostInlineSize ? `inline-size: ${hostInlineSize};` : ''}
+          ${hostBlockSize ? `block-size: ${hostBlockSize};` : ''}
+          ${hostInlineSize && !hostAlignsPage ? `max-inline-size: ${hostInlineSize};` : ''}
+          ${hostBlockSize ? `max-block-size: ${hostBlockSize};` : ''}
+        }
+        .speed-skeleton {
+          display: flex;
+          flex-direction: ${isSide ? 'row' : 'column'};
+          gap: 16px;
+          align-items: ${isSide ? 'center' : alignItems};
+          inline-size: ${box.width ? '100%' : 'auto'};
+          block-size: ${box.height ? '100%' : 'auto'};
+          min-block-size: ${box.height ? `${box.height}px` : 'auto'};
+        }
+        .speed-skeleton.bottom { flex-direction: column-reverse; }
+        .speed-skeleton.left { flex-direction: row-reverse; }
+        .speed-actions {
+          display: ${hasActions ? 'flex' : 'none'};
+          flex-direction: ${isSide ? 'row' : 'column'};
+          gap: 10px;
+          align-items: ${isSide || iconOnly ? 'center' : alignItems};
+        }
+        .speed-actions.bottom { flex-direction: column-reverse; }
+        .speed-actions.left,
+        .speed-actions.right {
+          flex-direction: row;
+        }
+        .shape {
+          display: block;
+          background: linear-gradient(90deg, var(--mvx-bg-inset), color-mix(in srgb, var(--mvx-border) 56%, var(--mvx-bg-panel)), var(--mvx-bg-inset));
+          background-size: 220% 100%;
+          animation: mvx-skeleton-pulse 1.4s ease-in-out infinite;
+        }
+        .speed-action {
+          inline-size: var(--action-width);
+          block-size: ${actionSize};
+          border-radius: ${iconOnly ? '999px' : 'var(--mvx-button-radius, var(--mvx-radius-sm))'};
+        }
+        .speed-main {
+          inline-size: ${mainSize};
+          block-size: ${mainSize};
+          border-radius: 999px;
+        }
+        @keyframes mvx-skeleton-pulse {
+          0% { background-position: 100% 0; }
+          100% { background-position: -100% 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .shape { animation: none; }
+        }
+      </style>
+      <div class="speed-skeleton ${placement}" part="skeleton" aria-hidden="true">
+        <div class="speed-actions ${placement}">${actionMarkup}</div>
+        <span class="speed-main shape"></span>
+      </div>
+      <span class="sr-only">${htmlEscape(label)}</span>
+    `;
+  }
+
   captureHostBox() {
     if (typeof this.getBoundingClientRect !== 'function') return;
     const rect = this.getBoundingClientRect();
@@ -962,7 +1077,8 @@ export class MvxElement extends HTMLElementBase {
       card: { hostDisplay: 'block', hostInlineSize: explicitWidth, hostBlockSize: explicitHeight, inlineSize: '100%', blockSize: '100%', minBlockSize: explicitHeight || 'var(--mvx-skeleton-block-size, 132px)', padding: '14px', gap: '10px', radius: 'var(--mvx-radius-md)', background: 'var(--mvx-bg-panel)', border: '1px solid var(--mvx-border)', lineBlockSize: '12px', lineRadius: '999px', shapeBlockSize: '64px', shapeRadius: 'var(--mvx-radius-sm)', evenInlineSize: '86%', lastInlineSize: '68%', alignContent: 'start', lines: 4, firstShape: true },
       chart: { hostDisplay: 'block', hostInlineSize: explicitWidth, hostBlockSize: explicitHeight, inlineSize: '100%', blockSize: '100%', minBlockSize: explicitHeight || 'var(--mvx-skeleton-block-size, 220px)', padding: '14px', gap: '12px', radius: 'var(--mvx-radius-md)', background: 'var(--mvx-bg-panel)', border: '1px solid var(--mvx-border)', lineBlockSize: '12px', lineRadius: '999px', shapeBlockSize: 'min(160px, 70%)', shapeRadius: 'var(--mvx-radius-sm)', evenInlineSize: '78%', lastInlineSize: '52%', alignContent: 'end', lines: 4, firstShape: true },
       table: { hostDisplay: 'block', hostInlineSize: explicitWidth, hostBlockSize: explicitHeight, inlineSize: '100%', blockSize: explicitHeight ? '100%' : 'auto', minBlockSize: explicitHeight || 'var(--mvx-skeleton-block-size, 168px)', padding: '12px', gap: '8px', radius: 'var(--mvx-radius-md)', background: 'var(--mvx-bg-panel)', border: '1px solid var(--mvx-border)', lineBlockSize: '28px', lineRadius: 'var(--mvx-radius-xs)', shapeBlockSize: '28px', shapeRadius: 'var(--mvx-radius-xs)', evenInlineSize: '100%', lastInlineSize: '100%', alignContent: 'start', lines: 5 },
-      progress: { hostDisplay: 'block', hostInlineSize: explicitWidth, hostBlockSize: explicitHeight, inlineSize: '100%', blockSize: explicitHeight ? '100%' : 'auto', minBlockSize: explicitHeight || '8px', padding: '2px 0', gap: '0', radius: '999px', background: 'transparent', border: '0', lineBlockSize: explicitHeight || '8px', lineRadius: '999px', shapeBlockSize: explicitHeight || '8px', shapeRadius: '999px', evenInlineSize: '100%', lastInlineSize: '100%', alignContent: 'stretch', lines: 1, singleShape: true }
+      progress: { hostDisplay: 'block', hostInlineSize: explicitWidth, hostBlockSize: explicitHeight, inlineSize: '100%', blockSize: explicitHeight ? '100%' : 'auto', minBlockSize: explicitHeight || '8px', padding: '2px 0', gap: '0', radius: '999px', background: 'transparent', border: '0', lineBlockSize: explicitHeight || '8px', lineRadius: '999px', shapeBlockSize: explicitHeight || '8px', shapeRadius: '999px', evenInlineSize: '100%', lastInlineSize: '100%', alignContent: 'stretch', lines: 1, singleShape: true },
+      'speed-dial': { template: 'speed-dial', hostDisplay: 'inline-flex', hostInlineSize: explicitWidth, hostBlockSize: explicitHeight }
     };
     const aliases = {
       circle: 'avatar',
@@ -976,10 +1092,10 @@ export class MvxElement extends HTMLElementBase {
   inferSkeletonVariant() {
     const name = this.localName || '';
     if (['mvx-avatar'].includes(name)) return 'avatar';
+    if (['mvx-speed-dial'].includes(name)) return 'speed-dial';
     if (['mvx-icon', 'mvx-icon-button', 'mvx-close-button', 'mvx-marker', 'mvx-spinner', 'mvx-theme-switcher', 'mvx-variant-switcher'].includes(name)) return 'icon';
-    if (['mvx-badge', 'mvx-button', 'mvx-button-group', 'mvx-chip', 'mvx-join', 'mvx-fab', 'mvx-indicator', 'mvx-kbd', 'mvx-link', 'mvx-status', 'mvx-toggle'].includes(name)) return 'button';
+    if (['mvx-badge', 'mvx-button', 'mvx-button-group', 'mvx-chip', 'mvx-join', 'mvx-fab', 'mvx-indicator', 'mvx-kbd', 'mvx-link', 'mvx-status'].includes(name)) return 'button';
     if (['mvx-swap'].includes(name)) return 'swap';
-    if (['mvx-toggle-group'].includes(name)) return 'toggle-group';
     if (['mvx-mask'].includes(name)) return 'mask';
     if (['mvx-label', 'mvx-placeholder', 'mvx-skeleton', 'mvx-text-rotate', 'mvx-tooltip', 'mvx-typography'].includes(name)) return 'text';
     if (['mvx-autocomplete', 'mvx-checkbox', 'mvx-combobox', 'mvx-date-picker', 'mvx-field', 'mvx-file-input', 'mvx-filter', 'mvx-floating-label', 'mvx-input', 'mvx-input-group', 'mvx-native-select', 'mvx-number-field', 'mvx-otp-input', 'mvx-radio-group', 'mvx-rating', 'mvx-rich-text-editor', 'mvx-select', 'mvx-slider', 'mvx-switch', 'mvx-textarea', 'mvx-validator'].includes(name)) return 'field';

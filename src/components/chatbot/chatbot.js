@@ -177,6 +177,13 @@ export class MvxChatbot extends MvxElement {
           outline: none;
           padding: 9px 10px;
         }
+        select {
+          appearance: none;
+          background:
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2388939f' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E") no-repeat right 6px center / 16px 16px,
+            var(--mvx-bg-inset);
+          padding-inline-end: 32px;
+        }
         select:focus, input:focus, textarea:focus {
           border-color: var(--mvx-accent);
           box-shadow: var(--mvx-focus);

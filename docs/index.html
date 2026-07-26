@@ -115,6 +115,11 @@
               <button data-component="mvx-switch">mvx-switch</button>
               <button data-component="mvx-textarea">mvx-textarea</button>
             </details>
+            <details open>
+              <summary data-filter="json-schema-form">JSON Schema Form <small>2</small></summary>
+              <button data-component="mvx-schema-form">mvx-schema-form</button>
+              <button data-component="mvx-schema-form-examples">Examples</button>
+            </details>
             <details>
               <summary data-filter="feedback">Feedback <small>12</small></summary>
               <button data-component="mvx-alert">mvx-alert</button>
@@ -455,11 +460,34 @@
               </div>
               <div class="docs-code-editor">
                 <div class="docs-code-editor-head">
-                  <strong id="detail-code-title">Component snippet</strong>
-                  <button id="copy-config" class="docs-code-copy" type="button" title="Copy code" aria-label="Copy code">
-                    <span class="docs-copy-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Copy code</span>
-                  </button>
+                  <span class="docs-code-editor-title">
+                    <strong id="detail-code-title">Component snippet</strong>
+                    <span id="detail-code-status" class="docs-code-status" hidden></span>
+                  </span>
+                  <span class="docs-code-actions">
+                    <button id="reset-example" class="docs-code-action" type="button" title="Reset code" aria-label="Reset code">
+                      <svg class="docs-toolbar-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M18.5 9.5A7 7 0 1 0 19 14" />
+                        <path d="M18.5 5.5v4h-4" />
+                      </svg>
+                      <span class="sr-only">Reset code</span>
+                    </button>
+                    <button id="toggle-code-lock" class="docs-code-action" type="button" title="Unlock code" aria-label="Unlock code" aria-pressed="false">
+                      <svg class="docs-toolbar-icon docs-lock-closed" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M7 10V8a5 5 0 0 1 10 0v2" />
+                        <path d="M6 10h12v10H6z" />
+                      </svg>
+                      <svg class="docs-toolbar-icon docs-lock-open" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M8 10V8a5 5 0 0 1 9.4-2.4" />
+                        <path d="M6 10h12v10H6z" />
+                      </svg>
+                      <span class="sr-only">Unlock code</span>
+                    </button>
+                    <button id="copy-config" class="docs-code-action docs-code-copy" type="button" title="Copy code" aria-label="Copy code">
+                      <span class="docs-copy-icon" aria-hidden="true"></span>
+                      <span class="sr-only">Copy code</span>
+                    </button>
+                  </span>
                 </div>
                 <div class="docs-code-editor-shell">
                   <pre id="detail-code-lines" class="docs-code-line-numbers" aria-hidden="true">1</pre>
@@ -619,7 +647,7 @@
             <div class="variants" aria-label="Related versions">
               <span>date</span><span>range</span><span>native</span>
             </div>
-            <mvx-date-picker label="Release window" range value="2026-07-02,2026-07-09"></mvx-date-picker>
+            <mvx-date-picker label="Release window" helper="Use the month or year title, expand a year, then choose a month." range mark-weekends value="2026-07-02,2026-07-09"></mvx-date-picker>
           </mvx-card>
 
           <mvx-card class="component-card" title="mvx-input" eyebrow="Forms" data-category="forms" data-search="input field text textarea invalid form">
@@ -1297,6 +1325,9 @@
         code: document.querySelector('#detail-code'),
         codeLines: document.querySelector('#detail-code-lines'),
         codeTitle: document.querySelector('#detail-code-title'),
+        codeStatus: document.querySelector('#detail-code-status'),
+        resetExample: document.querySelector('#reset-example'),
+        lockExample: document.querySelector('#toggle-code-lock'),
         tag: document.querySelector('#detail-tag'),
         copy: document.querySelector('#copy-config'),
         chartGallery: document.querySelector('#chart-gallery'),
@@ -1338,6 +1369,13 @@
       let catalogTotalMatches = 0;
       let activeApiRows = [];
       let activeSnippetName = 'Component';
+      let activeComponentName = '';
+      const codeEditorState = {
+        locked: true,
+        generated: '',
+        lastValid: '',
+        manualTimer: 0
+      };
       const chartGalleryState = { query: '', page: 1, pageSize: 3 };
       const iconGalleryState = { query: '', page: 1, pageSize: 6 };
       const iconModalState = { name: 'sparkles', category: 'AI', tone: '', color: '', size: '56px', weight: 'light' };
@@ -2814,6 +2852,7 @@
           usage: 'Use for numeric settings such as confidence, budget, progress thresholds, filters, and scoring.',
           features: ['Native range input', 'Single or dual-handle range mode', 'Min/max/step support', 'Visible value with unit', 'mvx-change event'],
           api: [
+            { name: 'label', type: 'string', default: '-', description: 'Visible slider label and accessible name.' },
             { name: 'value', type: 'number | comma range', default: 'min', description: 'Current value or start,end range.' },
             { name: 'min', type: 'number', default: '0', description: 'Minimum allowed value.' },
             { name: 'max', type: 'number', default: '100', description: 'Maximum allowed value.' },
@@ -2828,30 +2867,73 @@
           family: 'Forms',
           description: 'Mivix-themed date picker with native single-date input and a single-field calendar range selector.',
           usage: 'Use for schedules, release windows, filters, due dates, and date/time settings.',
-          features: ['Single date or calendar range mode', 'One-field range trigger with themed calendar popover', 'Min/max constraints', 'Required/disabled states', 'mvx-change event'],
+          features: ['Single date or calendar range mode', 'One-field range trigger with themed calendar popover', 'Min/max constraints', 'Subtle weekend marking', 'Ignored date ranges', 'Required/disabled states', 'mvx-change event'],
           api: [
             { name: 'value', type: 'date string | start,end', default: "''", description: 'Selected date or comma-separated date range.' },
             { name: 'type', type: 'date | datetime-local | month | week | time', default: 'date', description: 'Native input type.', options: ['date', 'datetime-local', 'month', 'week', 'time'] },
             { name: 'range', type: 'boolean attribute', default: 'false', description: 'Renders a single range field with a themed calendar for type=date.' },
             { name: 'open', type: 'boolean attribute', default: 'false', description: 'Controls the range calendar popover.' },
             { name: 'auto-close', type: 'boolean attribute', default: 'false', description: 'Closes the range calendar automatically after both start and end dates are selected.' },
+            { name: 'mark-weekends', type: 'boolean attribute', default: 'false', description: 'Subtly tints Saturday and Sunday labels/dates while selected, range, and disabled states stay dominant.' },
+            { name: 'disable-before', type: 'date string', default: '-', description: 'Disables every date before this date. The cutoff date remains selectable.' },
+            { name: 'disable-before-reason', type: 'string', default: '-', description: 'Hint text for dates disabled by disable-before.' },
+            { name: 'disable-after', type: 'date string', default: '-', description: 'Disables every date after this date. The cutoff date remains selectable.' },
+            { name: 'disable-after-reason', type: 'string', default: '-', description: 'Hint text for dates disabled by disable-after.' },
+            { name: 'disabled-hints', type: 'boolean attribute', default: 'false', description: 'Shows native title hints for disabled/ignored dates. Omit to hide hints completely.' },
             { name: 'min', type: 'date string', default: '-', description: 'Minimum selectable date.' },
             { name: 'max', type: 'date string', default: '-', description: 'Maximum selectable date.' },
+            { name: 'ignored-dates', type: 'JSON array', default: '[]', description: 'Specific dates rendered as disabled. Items can be strings or objects with date and reason.', options: ['[{"date":"2026-07-20","reason":"Company holiday"}]'] },
+            { name: 'ignored-ranges', type: 'JSON array', default: '[]', description: 'Date ranges rendered as disabled. Supports objects with start/end/reason, arrays, or date strings.', options: ['[{"start":"2026-07-12","end":"2026-07-15","reason":"Release freeze"}]'] },
             commonApi.events[0]
           ],
-          demo: '<mvx-date-picker data-playground-target label="Release window" range value="2026-07-02,2026-07-09"></mvx-date-picker>'
+          demo: '<mvx-date-picker data-playground-target label="Release window" helper="Use the month or year title, expand a year, then choose a month." range mark-weekends disabled-hints value="2026-07-02,2026-07-09" disable-before="2026-07-02" disable-before-reason="Release planning has not started" disable-after="2026-07-24" disable-after-reason="Outside release window" ignored-dates=\'[{"date":"2026-07-20","reason":"Company holiday"}]\' ignored-ranges=\'[{"start":"2026-07-12","end":"2026-07-15","reason":"Release freeze"}]\'></mvx-date-picker>'
         },
         'mvx-alert': {
           family: 'Feedback',
-          description: 'Status message for info, success, warning, and danger communication.',
-          usage: 'Use near workflows to explain state changes, validation results, warnings, or recoverable problems.',
-          features: ['Tone-aware stripe', 'Optional title', 'Closable mode', 'role=status'],
+          description: 'Structured status message with tone, icon, actions, variants, dismiss behavior, and accessible role control.',
+          usage: 'Use near workflows to explain state changes, validation results, warnings, recoverable problems, or next-step actions.',
+          features: ['Tone-aware icon and accent', 'Soft/solid/outline/subtle/plain variants', 'Action buttons or action slot', 'Configurable alert role', 'Controlled dismiss behavior'],
           api: [
-            { name: 'tone', type: 'info | success | warning | danger', default: 'info', description: 'Semantic status color.' },
+            { name: 'tone', type: 'neutral | primary | secondary | info | success | warning | danger | accent', default: 'info', description: 'Semantic status color.', options: ['info', 'success', 'warning', 'danger', 'primary', 'secondary', 'neutral', 'accent'] },
             { name: 'title', type: 'string', default: '-', description: 'Bold alert heading.' },
-            { name: 'closable', type: 'boolean attribute', default: 'false', description: 'Shows close control and emits mvx-close.' }
+            { name: 'message', type: 'string', default: '-', description: 'Structured alert body text rendered before slotted content.' },
+            { name: 'icon', type: 'string | none', default: 'tone default', description: 'Icon text/glyph. Use none or hide-icon to remove the icon.' },
+            { name: 'hide-icon', type: 'boolean attribute', default: 'false', description: 'Hides the tone icon column.' },
+            { name: 'variant', type: 'soft | solid | outline | subtle | plain', default: 'soft', description: 'Visual treatment for the alert surface.', options: ['soft', 'solid', 'outline', 'subtle', 'plain'] },
+            { name: 'accent', type: 'stripe | top | border | none', default: 'stripe', description: 'Accent treatment for tone emphasis.', options: ['stripe', 'top', 'border', 'none'] },
+            { name: 'density', type: 'compact | comfortable | spacious', default: 'comfortable', description: 'Spacing density for compact panels or more editorial alerts.', options: ['compact', 'comfortable', 'spacious'] },
+            { name: 'layout', type: 'default | inline | stacked', default: 'default', description: 'Controls content/action arrangement.', options: ['default', 'inline', 'stacked'] },
+            { name: 'alert-role', type: 'status | alert | note | log', default: 'status or alert for danger', description: 'Accessible role applied to the internal alert element.', options: ['status', 'alert', 'note', 'log'] },
+            { name: 'actions', type: 'JSON array', default: '[]', description: 'Optional action buttons with label, icon, iconOnly, type, tone, action, disabled, and dismiss/close.', options: ['[{"label":"Dismiss","icon":"×","type":"ghost","action":"dismiss"},{"label":"Refresh","icon":"↻","type":"solid","tone":"info","action":"refresh"}]'] },
+            { name: 'actions-align', type: 'left | center | right | stretch', default: 'right', description: 'Aligns generated and slotted action controls inside the alert.', options: ['right', 'left', 'center', 'stretch'] },
+            { name: 'actions-icon-only', type: 'boolean attribute', default: 'false', description: 'Shows generated actions as icon-only buttons when each action provides an icon. Labels remain available to assistive tech and tooltips.' },
+            { name: 'slot="actions"', type: 'slot', default: '-', description: 'Custom action controls rendered in the alert action area.' },
+            { name: 'slot="icon"', type: 'slot', default: '-', description: 'Custom icon content.' },
+            { name: 'closable', type: 'boolean attribute', default: 'false', description: 'Shows close control and emits mvx-close.' },
+            { name: 'dismiss', type: 'remove | hide | manual | none', default: 'remove', description: 'Close behavior after mvx-close. Manual/none only emits the event.', options: ['remove', 'hide', 'manual', 'none'] },
+            { name: 'close-size', type: 'xs | sm | md | xl | xxl | CSS length', default: 'md', description: 'Close button size.', options: ['xs', 'sm', 'md', 'xl', 'xxl', '40px'] },
+            { name: 'close-tone', type: 'neutral | primary | secondary | info | success | warning | danger | accent', default: 'neutral', description: 'Close button color tone.', options: ['neutral', 'primary', 'secondary', 'info', 'success', 'warning', 'danger', 'accent'] },
+            { name: 'mvx-action', type: 'CustomEvent', default: '-', description: 'Emitted when a generated alert action is clicked.' },
+            { name: 'mvx-close', type: 'CustomEvent', default: '-', description: 'Emitted when the close button or dismissing action runs.' }
           ],
-          demo: '<mvx-alert data-playground-target tone="success" title="Synced">All components are indexed.</mvx-alert>'
+          demo: `<mvx-alert
+  data-playground-target
+  tone="info"
+  variant="soft"
+  accent="stripe"
+  density="comfortable"
+  layout="default"
+  alert-role="status"
+  actions-align="right"
+  title="New version available"
+  message="Refresh when you are ready to load the latest changes."
+  closable
+  dismiss="hide"
+  actions='[
+    {"label":"Later","icon":"×","type":"ghost","action":"later"},
+    {"label":"Refresh","icon":"↻","type":"solid","tone":"info","action":"refresh"}
+  ]'
+></mvx-alert>`
         },
         'mvx-badge': {
           family: 'Feedback',
@@ -2999,9 +3081,29 @@
           api: [
             { name: 'open', type: 'boolean attribute', default: 'false', description: 'Controls visibility.' },
             { name: 'label', type: 'string', default: 'Dialog', description: 'Accessible dialog label.' },
+            { name: 'close-size', type: 'xs | sm | md | xl | xxl | CSS length', default: 'md', description: 'Close button size. md is the default 48px size; named sizes map to 28px, 36px, 48px, 56px, and 64px.', options: ['xs', 'sm', 'md', 'xl', 'xxl', '44px'] },
+            { name: 'close-tone', type: 'neutral | primary | secondary | tertiary | success | warning | danger | info', default: 'neutral', description: 'Close button color tone.', options: ['neutral', 'primary', 'secondary', 'tertiary', 'success', 'warning', 'danger', 'info'] },
+            { name: 'density', type: 'very-compact | compact | spacious', default: 'compact', description: 'Modal spacing density. Use labels Very compact, Compact, and Spacious in UI controls.', options: ['very-compact', 'compact', 'spacious'] },
+            { name: 'actions', type: 'JSON array', default: '[]', description: 'Optional bottom action buttons with label, type, tone, action, and close. Tones support neutral, primary, secondary, tertiary, success, warning, danger, and info.', options: ['[{"label":"Cancel","close":true},{"label":"Save","type":"solid","tone":"primary"}]'] },
+            { name: 'slot="footer"', type: 'slot', default: '-', description: 'Custom footer content rendered flush at the bottom of the modal.' },
+            { name: 'mvx-action', type: 'CustomEvent', default: '-', description: 'Emitted when a generated footer action is clicked.' },
             { name: 'mvx-close', type: 'CustomEvent', default: '-', description: 'Emitted on close.' }
           ],
-          demo: '<mvx-modal data-playground-target id="play-modal" label="Preview dialog" inline open><p>Use the open option to show or hide this dialog.</p></mvx-modal>'
+          demo: `<div class="stack">
+  <mvx-button id="play-modal-trigger" type="solid" tone="primary">Open modal</mvx-button>
+  <mvx-modal
+    data-playground-target
+    id="play-modal"
+    label="Create project"
+    actions='[
+      {"label":"Cancel","type":"ghost","action":"cancel","close":true},
+      {"label":"Save draft","type":"outline","tone":"secondary","action":"draft"},
+      {"label":"Create project","type":"solid","tone":"primary","action":"create"}
+    ]'
+  >
+    <p>Create a focused workflow without leaving the current page context.</p>
+  </mvx-modal>
+</div>`
         },
         'mvx-drawer': {
           family: 'Overlays',
@@ -3467,8 +3569,21 @@
         'mvx-select': '<mvx-select id="framework-select" label="Framework" value="web-components"></mvx-select>',
         'mvx-textarea': '<mvx-textarea label="Release note" placeholder="Describe the change" maxlength="160" auto-grow></mvx-textarea>',
         'mvx-slider': '<mvx-slider label="Confidence" value="72" min="0" max="100" show-value unit="%"></mvx-slider>',
-        'mvx-date-picker': '<mvx-date-picker label="Release window" range value="2026-07-02,2026-07-09"></mvx-date-picker>',
-        'mvx-alert': '<mvx-alert tone="success" title="Deployment complete" closable>Your production build is live.</mvx-alert>',
+        'mvx-date-picker': '<mvx-date-picker label="Release window" helper="Use the month or year title, expand a year, then choose a month." range mark-weekends value="2026-07-02,2026-07-09"></mvx-date-picker>',
+        'mvx-alert': `<mvx-alert
+  tone="info"
+  variant="soft"
+  accent="stripe"
+  actions-align="right"
+  title="New version available"
+  message="Refresh when you are ready to load the latest changes."
+  closable
+  dismiss="hide"
+  actions='[
+    {"label":"Later","icon":"×","type":"ghost","action":"later"},
+    {"label":"Refresh","icon":"↻","type":"solid","tone":"info","action":"refresh"}
+  ]'
+></mvx-alert>`,
         'mvx-badge': '<mvx-badge tone="success">Production</mvx-badge>',
         'mvx-card': '<mvx-card title="Release health" eyebrow="Dashboard" interactive>All checks passed across 137 components.</mvx-card>',
         'mvx-accordion': `<mvx-accordion
@@ -3785,6 +3900,27 @@ stepper.steps = [
   { label: 'Validate', description: 'Run preview lint' }
 ];`
         },
+        'mvx-modal': {
+          markup: `<mvx-button id="open-project-modal" type="solid" tone="primary">Open modal</mvx-button>
+<mvx-modal
+  id="project-modal"
+  label="Create project"
+  actions='[
+    {"label":"Cancel","type":"ghost","action":"cancel","close":true},
+    {"label":"Save draft","type":"outline","tone":"secondary","action":"draft"},
+    {"label":"Create project","type":"solid","tone":"primary","action":"create"}
+  ]'
+>
+  <p>Create a focused workflow without leaving the current page context.</p>
+</mvx-modal>`,
+          setup: `const modal = document.querySelector('#project-modal');
+document.querySelector('#open-project-modal').addEventListener('click', () => {
+  modal.setAttribute('open', '');
+});
+modal.addEventListener('mvx-action', event => {
+  console.log(event.detail.action);
+});`
+        },
         'mvx-dropdown-menu': {
           markup: '<mvx-dropdown-menu id="actions-menu" label="Actions" placement="end"></mvx-dropdown-menu>',
           setup: `const menu = document.querySelector('#actions-menu');
@@ -3877,6 +4013,18 @@ timeline.items = [
       const parityApiRows = {
         active: { name: 'active', type: 'number', default: '0', description: 'Active item, slide, or step index.' },
         align: { name: 'align', type: 'CSS align-items value', default: 'stretch', description: 'Cross-axis alignment for grid or stack children.' },
+        speedDialAlign: { name: 'align', type: 'left | center | right', default: 'right', description: 'Aligns the speed dial launcher to the left, center, or right edge of its available page width.', options: ['left', 'center', 'right'] },
+        calendarMax: { name: 'max', type: 'YYYY-MM-DD', default: '-', description: 'Latest selectable calendar date.' },
+        calendarMin: { name: 'min', type: 'YYYY-MM-DD', default: '-', description: 'Earliest selectable calendar date.' },
+        calendarValue: { name: 'value', type: 'YYYY-MM-DD', default: "''", description: 'Selected calendar date.' },
+        disableAfter: { name: 'disable-after', type: 'YYYY-MM-DD', default: '-', description: 'Disables every date after this date. The cutoff date remains selectable.' },
+        disableAfterReason: { name: 'disable-after-reason', type: 'string', default: '-', description: 'Hint text for dates disabled by disable-after.' },
+        disableBefore: { name: 'disable-before', type: 'YYYY-MM-DD', default: '-', description: 'Disables every date before this date. The cutoff date remains selectable.' },
+        disableBeforeReason: { name: 'disable-before-reason', type: 'string', default: '-', description: 'Hint text for dates disabled by disable-before.' },
+        disabledHints: { name: 'disabled-hints', type: 'boolean attribute', default: 'false', description: 'Shows native title hints for disabled/ignored dates. Omit to hide hints completely.' },
+        ignoredDates: { name: 'ignored-dates', type: 'JSON array', default: '[]', description: 'Specific dates rendered as disabled. Items can be strings or objects with date and reason.', options: ['[{"date":"2026-07-20","reason":"Company holiday"}]'] },
+        ignoredRanges: { name: 'ignored-ranges', type: 'JSON array', default: '[]', description: 'Date ranges rendered as disabled. Supports objects with start/end/reason, arrays, or date strings.', options: ['[{"start":"2026-07-12","end":"2026-07-15","reason":"Release freeze"}]'] },
+        markWeekends: { name: 'mark-weekends', type: 'boolean attribute', default: 'false', description: 'Subtly tints Saturday and Sunday labels/dates while selected, range, and disabled states stay dominant.' },
         checked: { name: 'checked', type: 'boolean attribute', default: 'false', description: 'Marks a binary or toggle-like state as selected.' },
         columns: { name: 'columns', type: 'number | JSON array', default: '-', description: 'Grid column count or table column definitions.' },
         config: { name: 'config', type: 'JSON object | array', default: '[]', description: 'Declarative JSON tree used to render markup or components.' },
@@ -3889,14 +4037,24 @@ timeline.items = [
         eventAiRequest: { name: 'mvx-ai-request', type: 'CustomEvent', default: '-', description: 'Emitted before an AI generation/chat request is sent.' },
         eventAiResponse: { name: 'mvx-ai-response', type: 'CustomEvent', default: '-', description: 'Emitted after an AI response is returned.' },
         eventRemove: { name: 'mvx-remove', type: 'CustomEvent', default: '-', description: 'Emitted when a removable item is dismissed.' },
+        eventReject: { name: 'mvx-reject', type: 'CustomEvent', default: '-', description: 'Emitted when selected files are rejected, including names and rejection reasons.' },
         eventSelect: commonApi.events[1],
+        firstDay: { name: 'first-day', type: '0-6', default: '0', description: 'First day of the calendar week. Use 0 for Sunday, 1 for Monday, through 6 for Saturday.', options: ['0', '1', '6'] },
         formData: { name: 'form-data', type: 'JSON object', default: '{}', description: 'Current schema form values.' },
         fluid: { name: 'fluid', type: 'boolean attribute', default: 'false', description: 'Lets a container use the full available width.' },
         gap: { name: 'gap', type: 'CSS length', default: 'component default', description: 'Spacing between child items.' },
+        fileAccept: { name: 'accept', type: 'comma-separated file types', default: '-', description: 'Allowed file types for the native picker. Supports extensions like .png, MIME types like image/png, and groups like image/*.' },
+        fileBlockedTypes: { name: 'blocked-types', type: 'comma-separated file types', default: '-', description: 'File types rejected after selection. Supports extensions, MIME types, and groups like image/*.' },
+        fileMaxFiles: { name: 'max-files', type: 'number', default: '-', description: 'Maximum selected file count when multiple is enabled.', min: 1, step: '1' },
+        fileMinSize: { name: 'min-size', type: 'number', default: '-', description: 'Minimum size per file in MB.', min: 0, step: '0.1', unit: 'MB' },
+        fileMaxSize: { name: 'max-size', type: 'number', default: '-', description: 'Maximum size per file in MB.', min: 0, step: '0.1', unit: 'MB' },
+        fileMaxTotalSize: { name: 'max-total-size', type: 'number', default: '-', description: 'Maximum total size across all selected files in MB.', min: 0, step: '0.1', unit: 'MB' },
         headers: { name: 'headers', type: 'JSON object', default: '{}', description: 'Optional backend request headers for trusted same-origin gateways.' },
         height: { name: 'height', type: 'CSS length', default: 'component default', description: 'Visible height or viewport height.' },
+        helper: { name: 'helper', type: 'string', default: '-', description: 'Supporting helper text shown below the field.' },
         width: { name: 'width', type: 'CSS length', default: 'component default', description: 'Visible width or matching container width.' },
         href: { name: 'href', type: 'URL', default: '#', description: 'Navigation target.' },
+        iconOnly: { name: 'icon-only', type: 'boolean attribute', default: 'false', description: 'Hides speed dial action labels and keeps icon-only action buttons with accessible labels.' },
         inline: { name: 'inline', type: 'boolean attribute', default: 'false', description: 'Renders overlay-like components inline for demos and embedded layouts.' },
         items: { name: 'items', type: 'JSON array', default: '[]', description: 'Structured items with label, value, href, icon, description, children, disabled, or metadata.' },
         justify: { name: 'justify', type: 'CSS justify-content value', default: 'start', description: 'Main-axis alignment for stack children.' },
@@ -3907,6 +4065,7 @@ timeline.items = [
         maxWidth: { name: 'max-width', type: 'CSS length', default: '1440px', description: 'Maximum container width before centering content on large screens.' },
         min: { name: 'min', type: 'number', default: '-', description: 'Minimum value.' },
         minColumnWidth: { name: 'min-column-width', type: 'CSS length', default: '220px', description: 'Minimum responsive grid column width; enables auto-fit columns.' },
+        month: { name: 'month', type: 'YYYY-MM', default: 'selected or current month', description: 'Visible month shown by the calendar.' },
         multiple: { name: 'multiple', type: 'boolean attribute', default: 'false', description: 'Allows more than one selected value.' },
         open: { name: 'open', type: 'boolean attribute', default: 'false', description: 'Controls visible/open state.' },
         options: { name: 'options', type: 'JSON array', default: '[]', description: 'Option data with label, value, description, and disabled.' },
@@ -3919,6 +4078,11 @@ timeline.items = [
         removable: { name: 'removable', type: 'boolean attribute', default: 'false', description: 'Shows a remove/dismiss control.' },
         responseMode: { name: 'response-mode', type: 'insert | replace | chat', default: 'insert', description: 'How AI responses update the editor.' },
         responsive: { name: 'responsive', type: 'auto-fit | false | boolean attribute', default: 'enabled', description: 'Controls automatic small-screen collapsing or auto-fit grid behavior.' },
+        readonly: { name: 'readonly', type: 'boolean attribute', default: 'false', description: 'Allows navigation and reading without changing the selected value.' },
+        required: { name: 'required', type: 'boolean attribute', default: 'false', description: 'Marks the field as required for form submission.' },
+        ratingColor: { name: 'color', type: 'CSS color', default: 'var(--mvx-warning)', description: 'Custom rating fill color such as #f59e0b, hsl(), rgb(), or var(--token).' },
+        ratingShapes: { name: 'shapes', type: 'star | heart | circle | square | diamond | check', default: 'star', description: 'Symbol shape used for each rating unit. The shape attribute is also accepted as an alias.', options: ['star', 'heart', 'circle', 'square', 'diamond', 'check'] },
+        ratingValue: { name: 'value', type: 'number', default: '0', description: 'Current rating. Decimal values partially fill the next symbol.', min: 0, step: '0.1' },
         schema: { name: 'schema', type: 'JSON Schema object', default: '{}', description: 'JSON Schema used to generate fields.' },
         shape: { name: 'shape', type: 'squircle | circle | diamond', default: 'squircle', description: 'Visual mask shape.', options: ['squircle', 'circle', 'diamond'] },
         side: { name: 'side', type: 'left | right', default: 'right', description: 'Side placement for sheet-like panels.', options: ['left', 'right'] },
@@ -3930,6 +4094,8 @@ timeline.items = [
         typographyType: { name: 'type', type: 'h1 | h2 | h3 | h4 | body | caption | overline', default: 'body', description: 'Text display style.', options: ['h1', 'h2', 'h3', 'h4', 'body', 'caption', 'overline'] },
         uiSchema: { name: 'ui-schema', type: 'JSON object', default: '{}', description: 'UI schema hints for field order, widgets, labels, and helper text.' },
         value: { name: 'value', type: 'string | number', default: "''", description: 'Current value.' },
+        radialValue: { name: 'value', type: 'number 0-100', default: '0', description: 'Progress percentage. Values below 0 are clamped to 0, values above 100 are clamped to 100, and decimals are limited to two digits.', min: 0, max: 100, step: '0.01' },
+        precision: { name: 'precision', type: '0 | 1 | 2', default: '0', description: 'Decimal precision for the displayed percentage. Use 0 for whole numbers, or 1-2 for decimal output.', options: ['0', '1', '2'] },
         type: { name: 'type', type: 'string', default: 'default', description: 'Component-specific behavior or visual type.' },
         weight: { name: 'weight', type: 'hairline | ultralight | thin | light | normal | medium | semibold | bold | bolder | 50-1000', default: 'light', description: 'Icon font weight or thickness.', options: ['hairline', 'ultralight', 'thin', 'light', 'normal', 'medium', 'semibold', 'bold', 'bolder', '900'] },
         wide: { name: 'wide', type: 'boolean attribute', default: 'false', description: 'Uses the wider 1920px container target for dashboard and 4K layouts.' }
@@ -3994,37 +4160,14 @@ autocomplete.options = [
 </mvx-button-group>`
         },
         {
-          name: 'mvx-toggle',
-          family: 'Actions',
-          category: 'actions',
-          description: 'Pressed/unpressed toggle button for binary action state.',
-          usage: 'Use for formatting tools, compact toolbar state, and mode switches.',
-          tags: ['toggle', 'pressed', 'toolbar'],
-          api: ['checked', 'disabled', 'eventChange'],
-          demo: '<mvx-toggle pressed>Bold</mvx-toggle>'
-        },
-        {
-          name: 'mvx-toggle-group',
-          family: 'Actions',
-          category: 'actions',
-          description: 'Single or multi-select toggle group for compact mode selection.',
-          usage: 'Use for editor modes, density controls, filters, and segmented choices.',
-          tags: ['toggle group', 'segmented', 'filter'],
-          api: ['items', 'value', 'multiple', 'eventChange'],
-          demo: `<mvx-toggle-group
-  value="preview"
-  items='["Edit","Preview","Review"]'
-></mvx-toggle-group>`
-        },
-        {
           name: 'mvx-rating',
           family: 'Forms',
           category: 'forms',
           description: 'Star rating control for sentiment, quality, and preference scoring.',
           usage: 'Use when users need to rate an item on a small ordered scale.',
-          tags: ['rating', 'stars', 'score'],
-          api: ['value', 'max', 'disabled', 'eventChange'],
-          demo: '<mvx-rating label="Quality" value="4" max="5"></mvx-rating>'
+          tags: ['rating', 'stars', 'score', 'fractional', 'heart', 'circle'],
+          api: ['label', 'ratingValue', 'max', 'ratingShapes', 'ratingColor', 'readonly', 'disabled', 'eventChange'],
+          demo: '<mvx-rating data-playground-target label="Quality" value="3.5" max="5" shapes="star" color="var(--mvx-warning)"></mvx-rating>'
         },
         {
           name: 'mvx-file-input',
@@ -4033,8 +4176,8 @@ autocomplete.options = [
           description: 'Styled file picker with multiple-file support and selected file feedback.',
           usage: 'Use for upload, import, attachment, and document selection flows.',
           tags: ['file input', 'upload', 'attachments'],
-          api: ['label', 'multiple', 'disabled', 'eventChange'],
-          demo: '<mvx-file-input label="Upload assets" helper="PNG, JPG, or SVG" multiple></mvx-file-input>'
+          api: ['label', 'helper', 'placeholder', 'fileAccept', 'fileBlockedTypes', 'fileMaxFiles', 'fileMinSize', 'fileMaxSize', 'fileMaxTotalSize', 'multiple', 'required', 'disabled', 'eventChange', 'eventReject'],
+          demo: '<mvx-file-input data-playground-target label="Upload assets" helper="PNG, JPG, or SVG" accept=".png,.jpg,.jpeg,.svg" blocked-types=".exe,.zip" max-files="4" max-size="5MB" multiple></mvx-file-input>'
         },
         {
           name: 'mvx-input-group',
@@ -4064,11 +4207,11 @@ autocomplete.options = [
           name: 'mvx-calendar',
           family: 'Forms',
           category: 'forms',
-          description: 'Calendar month picker with previous/next navigation and date selection.',
+          description: 'Accessible month calendar with navigation, localized weekdays, date selection, weekend marking, min/max bounds, and ignored ranges.',
           usage: 'Use when a visible calendar grid is better than a native date field.',
           tags: ['calendar', 'date', 'picker'],
-          api: ['value', 'active', 'eventChange'],
-          demo: '<mvx-calendar label="Sprint calendar" value="2026-07-02"></mvx-calendar>'
+          api: ['label', 'calendarValue', 'month', 'calendarMin', 'calendarMax', 'markWeekends', 'disableBefore', 'disableBeforeReason', 'disableAfter', 'disableAfterReason', 'disabledHints', 'ignoredDates', 'ignoredRanges', 'firstDay', 'readonly', 'disabled', 'eventChange'],
+          demo: '<mvx-calendar label="Sprint calendar" helper="Use the month or year title, expand a year, then choose a month. Arrow keys move focus; Enter selects a day." month="2026-07" value="2026-07-02" min="2026-07-01" max="2026-07-24" mark-weekends disabled-hints disable-before="2026-07-02" disable-before-reason="Sprint has not started" disable-after="2026-07-24" disable-after-reason="Outside sprint window" ignored-dates=\'[{"date":"2026-07-20","reason":"Team holiday"}]\' ignored-ranges=\'[{"start":"2026-07-12","end":"2026-07-15","reason":"Release freeze"}]\' first-day="1"></mvx-calendar>'
         },
         {
           name: 'mvx-carousel',
@@ -4258,14 +4401,14 @@ autocomplete.options = [
           description: 'FAB-style action launcher with expandable secondary actions.',
           usage: 'Use when a primary action has a few closely related quick actions.',
           tags: ['speed dial', 'fab', 'actions'],
-          api: ['label', 'items', 'open', 'placement', 'direction', 'persistent', 'persistent-labels', 'open-on-focus', 'icon', 'open-icon', 'icon-size', 'main-icon-size', 'action-icon-size', 'action-icon-box-size', 'eventSelect', 'eventChange'],
+          api: ['label', 'items', 'open', 'speedDialAlign', 'placement', 'direction', 'persistent', 'open-on-focus', 'iconOnly', 'icon', 'open-icon', 'icon-size', 'main-icon-size', 'action-icon-size', 'action-icon-box-size', 'eventSelect', 'eventChange'],
           demo: `<mvx-speed-dial
   open
   label="Project actions"
+  align="right"
   direction="up"
   icon="+"
   open-icon="×"
-  persistent-labels
   action-icon-size="21px"
   action-icon-box-size="40px"
   items='[
@@ -4422,8 +4565,8 @@ autocomplete.options = [
           description: 'Circular progress indicator for compact completion display.',
           usage: 'Use where linear progress is too wide or dashboard cards need compact progress.',
           tags: ['radial progress', 'circle', 'progress'],
-          api: ['value', 'max'],
-          demo: '<mvx-radial-progress value="76" max="100"></mvx-radial-progress>'
+          api: ['radialValue', 'precision'],
+          demo: '<mvx-radial-progress value="76.45" precision="2"></mvx-radial-progress>'
         },
         {
           name: 'mvx-countdown',
@@ -4866,42 +5009,57 @@ autocomplete.options = [
           demo: '<mvx-image height="140px">Image preview</mvx-image>'
         },
         {
-          name: 'mvx-json-schema-form',
-          family: 'Forms',
-          category: 'forms',
-          description: 'JSON Schema-driven form generator inspired by react-jsonschema-form.',
-          usage: 'Use when a backend, agent, or workflow needs to generate forms from structured schema.',
-          tags: ['json schema form', 'schema', 'forms'],
-          api: ['schema', 'uiSchema', 'formData', 'eventChange'],
-          demo: `<mvx-json-schema-form
-  submit-label="Save"
-  schema='{"title":"Profile","required":["name"],"properties":{"name":{"type":"string","title":"Name"},"email":{"type":"string","format":"email","title":"Email"},"active":{"type":"boolean","title":"Active"}}}'
-  form-data='{"name":"Mivix","email":"team@mivix.dev","active":true}'
-></mvx-json-schema-form>`,
-          code: '<mvx-json-schema-form id="profile-form" submit-label="Save"></mvx-json-schema-form>',
-          setup: `const form = document.querySelector('#profile-form');
-form.schema = {
-  title: 'Profile',
-  required: ['name'],
-  properties: {
-    name: { type: 'string', title: 'Name' },
-    email: { type: 'string', format: 'email', title: 'Email' },
-    active: { type: 'boolean', title: 'Active' }
-  }
-};
-form.formData = {
-  name: 'Mivix',
-  email: 'team@mivix.dev',
-  active: true
-};
-form.addEventListener('mvx-submit', event => {
-  console.log(event.detail.formData);
-});`
+          name: 'mvx-schema-form-examples',
+          family: 'JSON Schema Form',
+          category: 'json-schema-form',
+          description: 'A full-potential JSON Schema form sample composed with Mivix UI surfaces.',
+          usage: 'Use this example to model rich product, operations, approval, integration, and agent intake workflows with one schema-driven form.',
+          tags: ['examples', 'schema form', 'json schema'],
+          features: [
+            'String, email, URL, password, select, textarea, number, date, time, date-time, boolean, array, and object fields',
+            'Mivix alert, status, badge, stat, progress, grid, and card surfaces around a schema-generated workflow',
+            'Required fields, enum choices, placeholders, helper text, field ordering, submit label, and initial data',
+            'One comprehensive sample for launch intake, approvals, integration config, customer messaging, and operational routing'
+          ],
+          rows: [
+            ['Identity fields', 'Product name, owner email, docs URL, private token, launch tier, and primary region.'],
+            ['Planning fields', 'Summary textarea, readiness score, launch date, approval time, and dry-run date-time.'],
+            ['Decision fields', 'Legal review and customer notification booleans rendered as compact checkboxes.'],
+            ['Structured fields', 'Milestones array and routing rules object edited as JSON payload fields.']
+          ],
+          demo: `<div class="stack">
+  <mvx-alert tone="info" title="Full-potential schema form">One mvx-schema-form can power a complete launch intake with typed fields, ordered layout, helper text, JSON payloads, and Mivix status surfaces around it.</mvx-alert>
+  <mvx-grid min-column-width="160px" gap="12px">
+    <mvx-stat title="Fields" value="15" delta="+full schema"></mvx-stat>
+    <mvx-stat title="Required" value="8" delta="+validation"></mvx-stat>
+    <mvx-progress value="82" label="Launch readiness" animated striped></mvx-progress>
+  </mvx-grid>
+  <mvx-card title="AI product launch intake" eyebrow="Complete schema sample">
+    <div class="stack">
+      <div class="row">
+        <mvx-badge tone="success">Schema-driven</mvx-badge>
+        <mvx-status tone="success">Ready for review</mvx-status>
+      </div>
+      <mvx-schema-form
+        submit-label="Submit launch request"
+        schema='{"title":"AI product launch request","description":"A complete sample that combines product details, approval workflow, integration settings, and structured JSON payloads.","required":["productName","ownerEmail","launchTier","summary","readiness","targetDate","approvalWindow","requiresLegal"],"properties":{"productName":{"type":"string","title":"Product name","description":"Public or internal name for the launch."},"ownerEmail":{"type":"string","format":"email","title":"Owner email"},"docsUrl":{"type":"string","format":"url","title":"Docs URL"},"apiKey":{"type":"string","format":"password","title":"Private token"},"launchTier":{"type":"string","title":"Launch tier","enum":["Internal preview","Private beta","Public beta","General availability"]},"region":{"type":"string","title":"Primary region","enum":["US","EU","India","Global"]},"summary":{"type":"string","title":"Launch summary","description":"Explain audience, value, scope, and risks."},"readiness":{"type":"number","title":"Readiness score","description":"Use a 0 to 100 launch confidence score."},"targetDate":{"type":"string","format":"date","title":"Target date"},"approvalWindow":{"type":"string","format":"time","title":"Approval time"},"incidentReviewAt":{"type":"string","format":"date-time","title":"Dry-run review"},"requiresLegal":{"type":"boolean","title":"Legal review completed"},"notifyCustomers":{"type":"boolean","title":"Notify customers on launch"},"milestones":{"type":"array","title":"Milestones","description":"Edited as a JSON array."},"routingRules":{"type":"object","title":"Routing rules","description":"Edited as a JSON object for queues, webhooks, and fallback owners."}}}'
+        ui-schema='{"ui:order":["productName","ownerEmail","docsUrl","apiKey","launchTier","region","summary","readiness","targetDate","approvalWindow","incidentReviewAt","requiresLegal","notifyCustomers","milestones","routingRules"],"productName":{"placeholder":"Mivix Copilot"},"ownerEmail":{"placeholder":"owner@example.com"},"docsUrl":{"placeholder":"https://docs.example.com/launch"},"summary":{"widget":"textarea","placeholder":"Who is this for, what changes, and what risks remain?"}}'
+        form-data='{"productName":"Mivix Copilot","ownerEmail":"launch@mivix.dev","docsUrl":"https://docs.example.com/mivix-copilot","apiKey":"demo-secret","launchTier":"Public beta","region":"Global","summary":"Launch the schema-driven assistant workflow for workspace onboarding, approvals, and customer notifications.","readiness":82.5,"targetDate":"2026-07-24","approvalWindow":"10:30","incidentReviewAt":"2026-07-21T14:00","requiresLegal":true,"notifyCustomers":true,"milestones":["Docs approved","Support macros ready","Webhook smoke test passed"],"routingRules":{"queue":"launch-review","webhook":"https://api.example.com/hooks/launch","fallbackOwner":"platform-oncall"}}'
+      ></mvx-schema-form>
+    </div>
+  </mvx-card>
+</div>`,
+          code: `<mvx-schema-form
+  submit-label="Submit launch request"
+  schema='{"title":"AI product launch request","required":["productName","ownerEmail","launchTier","summary","readiness"],"properties":{"productName":{"type":"string","title":"Product name"},"ownerEmail":{"type":"string","format":"email","title":"Owner email"},"docsUrl":{"type":"string","format":"url","title":"Docs URL"},"apiKey":{"type":"string","format":"password","title":"Private token"},"launchTier":{"type":"string","enum":["Internal preview","Private beta","Public beta","General availability"]},"summary":{"type":"string","title":"Launch summary"},"readiness":{"type":"number","title":"Readiness score"},"targetDate":{"type":"string","format":"date","title":"Target date"},"requiresLegal":{"type":"boolean","title":"Legal review completed"},"milestones":{"type":"array","title":"Milestones"},"routingRules":{"type":"object","title":"Routing rules"}}}'
+  ui-schema='{"ui:order":["productName","ownerEmail","docsUrl","apiKey","launchTier","summary","readiness","targetDate","requiresLegal","milestones","routingRules"],"summary":{"widget":"textarea","placeholder":"Audience, value, scope, and risks"}}'
+  form-data='{"productName":"Mivix Copilot","ownerEmail":"launch@mivix.dev","launchTier":"Public beta","summary":"Launch the schema-driven assistant workflow.","readiness":82.5,"targetDate":"2026-07-24","requiresLegal":true,"milestones":["Docs approved","Webhook smoke test passed"],"routingRules":{"queue":"launch-review","fallbackOwner":"platform-oncall"}}'
+></mvx-schema-form>`
         },
         {
           name: 'mvx-schema-form',
-          family: 'Forms',
-          category: 'forms',
+          family: 'JSON Schema Form',
+          category: 'json-schema-form',
           description: 'Short alias for the JSON Schema form generator.',
           usage: 'Use when schema-form naming is preferred while keeping the same feature set.',
           tags: ['schema form', 'json schema', 'forms'],
@@ -6269,6 +6427,53 @@ render(() => <App />, document.getElementById('root')!);`
         }
       }
 
+      function setCodeEditorStatus(message = '', error = false) {
+        if (!detail.codeStatus || !detail.code) return;
+        detail.codeStatus.hidden = !message;
+        detail.codeStatus.textContent = message;
+        detail.code.dataset.error = error ? 'true' : 'false';
+      }
+
+      function updateCodeLineNumbers(value) {
+        if (!detail.codeLines) return;
+        const lineCount = Math.max(1, String(value || '').split('\n').length);
+        detail.codeLines.textContent = Array.from({ length: lineCount }, (_item, index) => String(index + 1)).join('\n');
+      }
+
+      function setCodeEditorLock(locked) {
+        codeEditorState.locked = Boolean(locked);
+        if (!detail.code || !detail.lockExample) return;
+        detail.code.setAttribute('aria-readonly', codeEditorState.locked ? 'true' : 'false');
+        if (codeEditorState.locked) {
+          detail.code.removeAttribute('contenteditable');
+          detail.lockExample.setAttribute('aria-label', 'Unlock code');
+          detail.lockExample.setAttribute('title', 'Unlock code');
+          detail.lockExample.querySelector('.sr-only').textContent = 'Unlock code';
+          detail.lockExample.setAttribute('aria-pressed', 'false');
+        } else {
+          detail.code.setAttribute('contenteditable', 'plaintext-only');
+          detail.lockExample.setAttribute('aria-label', 'Lock code');
+          detail.lockExample.setAttribute('title', 'Lock code');
+          detail.lockExample.querySelector('.sr-only').textContent = 'Lock code';
+          detail.lockExample.setAttribute('aria-pressed', 'true');
+        }
+      }
+
+      function renderCodeEditor(value, componentName = '') {
+        const formatted = String(value || '');
+        const language = exampleLanguageFromCode(formatted);
+        detail.code.dataset.rawCode = formatted;
+        detail.code.innerHTML = syntaxHighlightText(formatted, language);
+        updateCodeLineNumbers(formatted);
+        const shell = detail.code.closest('.docs-code-editor-shell');
+        if (shell) {
+          shell.scrollTop = 0;
+          shell.scrollLeft = 0;
+        }
+        setCodeEditorStatus('');
+        setCodeEditorLock(codeEditorState.locked);
+      }
+
       function syntaxHighlightText(text, language) {
         const normalized = String(text || '').replace(/\r\n/g, '\n');
         const lines = normalized.split('\n');
@@ -6358,17 +6563,9 @@ render(() => <App />, document.getElementById('root')!);`
         const language = exampleLanguageFromCode(formatted);
         const snippetName = componentName ? componentDisplayName(componentName) : activeSnippetName || 'Component';
         if (detail.codeTitle) detail.codeTitle.textContent = `${snippetName} snippet`;
-        detail.code.dataset.rawCode = formatted;
-        detail.code.innerHTML = syntaxHighlightText(formatted, language);
-        if (detail.codeLines) {
-          const lineCount = Math.max(1, formatted.split('\n').length);
-          detail.codeLines.textContent = Array.from({ length: lineCount }, (_item, index) => String(index + 1)).join('\n');
-        }
-        const shell = detail.code.closest('.docs-code-editor-shell');
-        if (shell) {
-          shell.scrollTop = 0;
-          shell.scrollLeft = 0;
-        }
+        codeEditorState.generated = formatted;
+        codeEditorState.lastValid = formatted;
+        renderCodeEditor(formatted, componentName);
       }
 
       function normalizeControlName(name) {
@@ -6716,8 +6913,15 @@ render(() => <App />, document.getElementById('root')!);`
         type: ['text', 'email', 'password', 'search', 'url', 'tel', 'number']
       };
 
-      function enumOptions(row) {
+      const componentPlaygroundOptionSets = {
+        'mvx-close-button': {
+          radius: ['0', '2px', '4px', '6px', '8px', 'square']
+        }
+      };
+
+      function enumOptions(row, componentName = '') {
         const name = normalizeControlName(row.name);
+        if (componentPlaygroundOptionSets[componentName]?.[name]) return componentPlaygroundOptionSets[componentName][name];
         if (row.options) return row.options;
         if (playgroundOptionSets[name]) return playgroundOptionSets[name];
         const type = String(row.type || '');
@@ -6758,7 +6962,7 @@ render(() => <App />, document.getElementById('root')!);`
       function isTypedOnlyControl(row) {
         const name = normalizeControlName(row.name);
         const type = String(row.type || '').toLowerCase();
-        if (['href', 'src', 'endpoint', 'headers', 'i18n', 'schema', 'ui-schema', 'form-data', 'config', 'css parts'].includes(name)) return true;
+        if (['href', 'src', 'endpoint', 'headers', 'i18n', 'schema', 'ui-schema', 'form-data', 'config', 'message', 'css parts'].includes(name)) return true;
         return /json|array|object|url|uri|css|function|handler|callback|regexp|regular expression|date string/.test(type);
       }
 
@@ -6813,6 +7017,9 @@ render(() => <App />, document.getElementById('root')!);`
       function applyControlValue(target, row, value) {
         const name = normalizeControlName(row.name);
         const kind = controlKind(row);
+        if (target?.hasAttribute('data-playground-target') && target.hidden) {
+          target.hidden = false;
+        }
         if (kind === 'boolean') {
           target.toggleAttribute(name, Boolean(value));
           return;
@@ -6831,10 +7038,22 @@ render(() => <App />, document.getElementById('root')!);`
           }
           return;
         }
+        if (value === '' && target?.localName === 'mvx-alert' && name === 'message') {
+          target.setAttribute(name, '');
+          return;
+        }
         if (value === '' || value === 'inherit') {
           target.removeAttribute(name);
           if (name in target && typeof target[name] !== 'boolean') target[name] = '';
           return;
+        }
+        if (kind === 'number' && (row.min !== undefined || row.max !== undefined)) {
+          const numeric = Number(value);
+          const min = row.min === undefined ? -Infinity : Number(row.min);
+          const max = row.max === undefined ? Infinity : Number(row.max);
+          if (Number.isFinite(numeric)) {
+            value = String(Math.max(min, Math.min(max, numeric)));
+          }
         }
         target.setAttribute(name, value);
         if (name in target && typeof target[name] !== 'boolean') target[name] = value;
@@ -6867,8 +7086,99 @@ render(() => <App />, document.getElementById('root')!);`
         setExampleCode(serializePlaygroundTarget(target, apiRows), activeSnippetName);
       }
 
-      function renderControl(row, target, id) {
+      function sanitizeEditedPreviewRoot(root) {
+        const blockedTags = new Set(['script', 'style', 'iframe', 'object', 'embed', 'link', 'meta', 'base']);
+        const elements = [root, ...root.querySelectorAll('*')];
+        for (const element of elements) {
+          if (blockedTags.has(element.localName)) throw new Error(`${element.localName} is not allowed in live examples.`);
+          [...element.attributes].forEach(attribute => {
+            const name = attribute.name.toLowerCase();
+            const value = attribute.value.trim().toLowerCase();
+            if (name.startsWith('on')) throw new Error('Event handler attributes are not allowed in live examples.');
+            if ((name === 'href' || name === 'src') && value.startsWith('javascript:')) {
+              throw new Error('javascript: URLs are not allowed in live examples.');
+            }
+          });
+        }
+      }
+
+      function previewMarkupFromEditedCode(value) {
+        const template = document.createElement('template');
+        template.innerHTML = String(value || '');
+        const root = [...template.content.querySelectorAll('*')].find(element => element.localName?.startsWith('mvx-'));
+        if (!root) throw new Error('Add a valid <mvx-*> component to preview.');
+        sanitizeEditedPreviewRoot(root);
+        root.setAttribute('data-playground-target', '');
+        return root.outerHTML;
+      }
+
+      function applyEditedExampleCode(value) {
+        const source = String(value || '').trim();
+        if (!source) {
+          setCodeEditorStatus('Example is empty', true);
+          return;
+        }
+        try {
+          const previewMarkup = previewMarkupFromEditedCode(source);
+          detail.playground.innerHTML = previewMarkup;
+          hydratePlayground();
+          codeEditorState.lastValid = source;
+          detail.code.dataset.rawCode = source;
+          updateCodeLineNumbers(source);
+          renderPlaygroundControls(activeComponentName, activeApiRows, { syncCode: false });
+          setCodeEditorStatus('');
+        } catch (error) {
+          updateCodeLineNumbers(source);
+          setCodeEditorStatus(error.message || 'Invalid example', true);
+        }
+      }
+
+      function scheduleEditedExampleUpdate() {
+        if (codeEditorState.locked) return;
+        window.clearTimeout(codeEditorState.manualTimer);
+        codeEditorState.manualTimer = window.setTimeout(() => {
+          applyEditedExampleCode(detail.code.textContent);
+        }, 220);
+      }
+
+      function resetExampleEditor() {
+        renderCodeEditor(codeEditorState.generated, activeSnippetName);
+        if (!codeEditorState.locked) {
+          detail.code.textContent = codeEditorState.generated;
+          updateCodeLineNumbers(codeEditorState.generated);
+          setCodeEditorLock(false);
+        }
+        try {
+          detail.playground.innerHTML = previewMarkupFromEditedCode(codeEditorState.generated);
+          hydratePlayground();
+          renderPlaygroundControls(activeComponentName, activeApiRows);
+        } catch {
+          const doc = docs[activeComponentName] || fallbackDocs[activeComponentName];
+          if (doc?.demo) {
+            detail.playground.innerHTML = doc.demo;
+            hydratePlayground();
+            renderPlaygroundControls(activeComponentName, activeApiRows);
+          }
+        }
+      }
+
+      function toggleExampleEditorLock() {
+        if (codeEditorState.locked) {
+          const source = detail.code.dataset.rawCode || detail.code.textContent;
+          detail.code.textContent = source;
+          updateCodeLineNumbers(source);
+          setCodeEditorLock(false);
+          detail.code.focus();
+          return;
+        }
+        const source = detail.code.textContent;
+        setCodeEditorLock(true);
+        renderCodeEditor(source, activeComponentName);
+      }
+
+      function renderControl(row, target, id, componentName = '') {
         const name = normalizeControlName(row.name);
+        const label = row.unit ? `${name} (${row.unit})` : name;
         const kind = controlKind(row);
         const value = currentControlValue(target, row);
         const structure = row.structure;
@@ -6876,19 +7186,19 @@ render(() => <App />, document.getElementById('root')!);`
           return `
             <label class="control-field control-toggle" for="${id}">
               <input id="${id}" type="checkbox" data-api="${escapeHtml(name)}" ${value ? 'checked' : ''} />
-              <span>${escapeHtml(name)}</span>
+              <span>${escapeHtml(label)}</span>
             </label>
           `;
         }
         if (kind === 'select') {
-          const options = enumOptions(row);
+          const options = enumOptions(row, componentName);
           const selectedValue = String(value ?? '');
           const hasSelectedOption = options.some(option => selectOptionValue(option) === selectedValue);
           const optionValues = selectedValue && !hasSelectedOption ? [{ value: selectedValue, label: `${selectedValue} (custom)` }, ...options] : options;
           const blankLabel = name === 'locale' ? 'document locale' : name === 'lang' ? 'document lang' : 'inherit';
           return `
             <label class="control-field" for="${id}">
-              <span>${escapeHtml(name)}</span>
+              <span>${escapeHtml(label)}</span>
               <select id="${id}" data-api="${escapeHtml(name)}">
                 ${row.default === 'inherit' || name === 'lang' || name === 'locale' ? `<option value="">${blankLabel}</option>` : ''}
                 ${optionValues.map(option => {
@@ -6905,7 +7215,7 @@ render(() => <App />, document.getElementById('root')!);`
             : '';
           return `
             <label class="control-field control-wide" for="${id}">
-              <span>${escapeHtml(name)}</span>
+              <span>${escapeHtml(label)}</span>
               <textarea id="${id}" data-api="${escapeHtml(name)}" rows="${name === 'columns' || name === 'data' ? 8 : 4}">${escapeHtml(value)}</textarea>
               ${structureBlock}
             </label>
@@ -6915,8 +7225,8 @@ render(() => <App />, document.getElementById('root')!);`
         const listId = suggestions.length ? `${id}-options` : '';
         return `
           <label class="control-field" for="${id}">
-            <span>${escapeHtml(name)}</span>
-            <input id="${id}" type="${kind === 'number' ? 'number' : 'text'}" data-api="${escapeHtml(name)}" value="${escapeHtml(value)}" placeholder="${escapeHtml(row.default || '')}" ${listId ? `list="${escapeHtml(listId)}"` : ''} />
+            <span>${escapeHtml(label)}</span>
+            <input id="${id}" type="${kind === 'number' ? 'number' : 'text'}" data-api="${escapeHtml(name)}" value="${escapeHtml(value)}" placeholder="${escapeHtml(row.default || '')}" ${kind === 'number' && row.min !== undefined ? `min="${escapeHtml(row.min)}"` : ''} ${kind === 'number' && row.max !== undefined ? `max="${escapeHtml(row.max)}"` : ''} ${kind === 'number' && row.step !== undefined ? `step="${escapeHtml(row.step)}"` : ''} ${listId ? `list="${escapeHtml(listId)}"` : ''} />
             ${listId ? `
               <datalist id="${escapeHtml(listId)}">
                 ${suggestions.map(option => `<option value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</option>`).join('')}
@@ -6926,12 +7236,13 @@ render(() => <App />, document.getElementById('root')!);`
         `;
       }
 
-      function renderPlaygroundControls(name, apiRows) {
+      function renderPlaygroundControls(name, apiRows, options = {}) {
+        const { syncCode = true } = options;
         const target = getPlaygroundTarget(name);
         if (!target) {
           activeApiRows = apiRows;
           detail.controls.innerHTML = '';
-          updatePlaygroundCode(null);
+          if (syncCode) updatePlaygroundCode(null);
           return;
         }
         let visibleApiRows = filterApiRowsForTarget(name, target, apiRows);
@@ -6946,23 +7257,28 @@ render(() => <App />, document.getElementById('root')!);`
             <span>${escapeHtml(controlLabel)}</span>
           </div>
           <div class="controls-grid">
-            ${rows.map((row, index) => renderControl(row, target, `api-${name}-${index}`)).join('')}
+            ${rows.map((row, index) => renderControl(row, target, `api-${name}-${index}`, name)).join('')}
           </div>
         `;
         detail.controls.querySelectorAll('[data-api]').forEach(control => {
           const row = rows.find(item => normalizeControlName(item.name) === control.dataset.api);
           const eventName = control.tagName === 'TEXTAREA' || control.tagName === 'INPUT' && control.type !== 'checkbox' ? 'input' : 'change';
           control.addEventListener(eventName, event => {
+            const currentTarget = getPlaygroundTarget(name);
+            if (!currentTarget || !row) return;
             const nextValue = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
-            applyControlValue(target, row, nextValue);
+            applyControlValue(currentTarget, row, nextValue);
+            if (controlKind(row) === 'number' && (row.min !== undefined || row.max !== undefined)) {
+              event.target.value = currentTarget.getAttribute(normalizeControlName(row.name)) || '';
+            }
             if (name === 'mvx-chart' && normalizeControlName(row.name) === 'type') {
               renderPlaygroundControls(name, apiRows);
               return;
             }
-            updatePlaygroundCode(target, visibleApiRows);
+            updatePlaygroundCode(currentTarget, visibleApiRows);
           });
         });
-        updatePlaygroundCode(target, visibleApiRows);
+        if (syncCode) updatePlaygroundCode(target, visibleApiRows);
       }
 
       function renderRows(rows = []) {
@@ -7395,6 +7711,8 @@ render(() => <App />, document.getElementById('root')!);`
         const doc = docs[name] || fallbackDocs[name] || docs['mvx-button'];
         const displayName = componentDisplayName(name);
         activeSnippetName = displayName;
+        activeComponentName = name;
+        codeEditorState.locked = true;
         setChartGalleryVisible(false);
         setIconGalleryVisible(name === 'mvx-icons');
         detail.family.textContent = doc.family;
@@ -7403,7 +7721,38 @@ render(() => <App />, document.getElementById('root')!);`
         detail.usage.textContent = doc.usage;
         detail.tag.textContent = name === 'mvx-icons' ? `${iconGalleryItems.length} icons` : `<${name}>`;
         detail.features.innerHTML = doc.features.map(feature => `<li>${escapeHtml(feature)}</li>`).join('');
-        const apiRows = orderApiRows(doc.api, globalApi);
+        if (name === 'mvx-schema-form-examples') {
+          detail.tag.textContent = 'examples';
+          detail.controls.innerHTML = `
+            <div class="controls-heading">
+              <h3>Schema coverage</h3>
+              <span>field patterns</span>
+            </div>
+            <div class="support-pills">
+              <span>text</span>
+              <span>email</span>
+              <span>boolean</span>
+              <span>number</span>
+              <span>date</span>
+              <span>select</span>
+              <span>textarea</span>
+              <span>array</span>
+              <span>object</span>
+            </div>
+          `;
+          detail.playground.innerHTML = doc.demo;
+          detail.api.innerHTML = renderRows(doc.rows);
+          setExampleCode(doc.code, name);
+          return;
+        }
+        const excludedGlobalApi = {
+          'mvx-speed-dial': new Set(['component-style']),
+          'mvx-rating': new Set(['radius'])
+        };
+        const componentGlobalApi = excludedGlobalApi[name]
+          ? globalApi.filter(row => !excludedGlobalApi[name].has(normalizeControlName(row.name)))
+          : globalApi;
+        const apiRows = orderApiRows(doc.api, componentGlobalApi);
         const visibleRows = name === 'mvx-icons'
           ? [
             { name: 'name', type: 'icon name', default: 'check', description: 'Choose any built-in icon from the gallery and pass it to mvx-icon.' },
@@ -7513,6 +7862,24 @@ render(() => <App />, document.getElementById('root')!);`
             { label: 'Components', href: '#catalog' },
             { label: 'Selected' }
           ];
+        }
+        const playModal = detail.playground.querySelector('#play-modal');
+        const playModalTrigger = detail.playground.querySelector('#play-modal-trigger');
+        if (playModal && playModalTrigger) {
+          const syncModalControls = () => renderPlaygroundControls('mvx-modal', docs['mvx-modal'].api);
+          playModalTrigger.addEventListener('click', () => {
+            playModal.setAttribute('open', '');
+            syncModalControls();
+          });
+          playModal.addEventListener('mvx-close', syncModalControls);
+        }
+        const playAlert = detail.playground.querySelector('mvx-alert[data-playground-target]');
+        if (playAlert) {
+          playAlert.addEventListener('mvx-close', () => {
+            window.requestAnimationFrame(() => {
+              renderPlaygroundControls('mvx-alert', docs['mvx-alert'].api);
+            });
+          });
         }
         const playTable = detail.playground.querySelector('#play-table');
         if (playTable && !playTable.hasAttribute('columns') && !playTable.hasAttribute('data')) {
@@ -7946,6 +8313,15 @@ render(() => <App />, document.getElementById('root')!);`
       document.querySelector('#open-drawer-card').addEventListener('click', () => document.querySelector('#drawer').setAttribute('open', ''));
       document.querySelector('#copy-install')?.addEventListener('click', () => copyTextToClipboard('npm install mivix-ui@alpha', 'Install command copied.'));
       detail.copy.addEventListener('click', copyCurrentConfig);
+      detail.resetExample.addEventListener('click', resetExampleEditor);
+      detail.lockExample.addEventListener('click', toggleExampleEditorLock);
+      detail.code.addEventListener('input', scheduleEditedExampleUpdate);
+      detail.code.addEventListener('paste', event => {
+        if (codeEditorState.locked) return;
+        event.preventDefault();
+        const text = event.clipboardData?.getData('text/plain') || '';
+        document.execCommand('insertText', false, text);
+      });
       detail.chartSearch.addEventListener('input', event => {
         chartGalleryState.query = event.target.value;
         chartGalleryState.page = 1;
