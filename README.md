@@ -107,6 +107,7 @@ For production apps, prefer exact component imports or `auto-lite`. `auto` is in
 
 ## Documentation
 
+- Website: https://www.mivix-ui.io/
 - Docs site: https://devduocouple.github.io/mivix-ui/
 - Repository: https://github.com/devduocouple/mivix-ui
 - Issues: https://github.com/devduocouple/mivix-ui/issues
