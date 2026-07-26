@@ -4,6 +4,26 @@ All notable changes to Mivix UI will be documented in this file.
 
 Mivix UI is currently alpha software. APIs, component behavior, and styling details may change before the first beta.
 
+## 0.1.0-alpha.4 - Component API and Package Footprint Refresh
+
+### Added
+
+- `mivix-ui/lite` and `mivix-ui/auto-lite` entrypoints for smaller primitive-focused imports.
+- Real-time playground smoke test covering component pages, API controls, live mutations, and standalone auto registration.
+- Expanded alert, modal, date picker, calendar, file input, rating, radial progress, speed dial, and slider APIs.
+- JSON Schema Form docs grouping and examples page.
+
+### Changed
+
+- Refreshed README with official website link, npm footprint, import guidance, package-size guidance, and current component highlights.
+- Reduced published package payload by excluding repository-only examples from npm.
+- Added npm provenance metadata and Node engine/package-manager metadata.
+- Hardened docs playground API controls so read-only component properties do not throw during live updates.
+
+### Removed
+
+- Removed public `mvx-toggle` and `mvx-toggle-group` exports in favor of switch, checkbox, swap, button group, and filter patterns.
+
 ## 0.1.0-alpha.3 - Variant and Data Grid Refresh
 
 ### Added

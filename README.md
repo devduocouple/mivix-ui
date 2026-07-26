@@ -122,7 +122,7 @@ Mivix UI follows Semantic Versioning.
 
 - Current channel: `alpha`
 - Recommended install: `npm install mivix-ui@alpha`
-- Current package version: `0.1.0-alpha.3`
+- Current package version: `0.1.0-alpha.4`
 
 ## License
 
