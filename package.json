@@ -11,6 +11,10 @@
     "url": "https://github.com/devduocouple/mivix-ui/issues"
   },
   "type": "module",
+  "packageManager": "npm@12.0.1",
+  "engines": {
+    "node": ">=18"
+  },
   "main": "./src/index.js",
   "module": "./src/index.js",
   "types": "./src/index.d.ts",
@@ -47,7 +51,6 @@
   },
   "files": [
     "src",
-    "examples",
     "CHANGELOG.md",
     "CONTRIBUTING.md",
     "LICENSE",
@@ -63,7 +66,8 @@
     "test:tooltip": "node scripts/test-tooltip.js",
     "test:tooltip:screenshot": "node scripts/screenshot-tooltip.js",
     "test:skeleton-size": "node scripts/test-skeleton-size.js",
-    "check": "node --check src/index.js && node --check src/auto.js && node --check src/lite.js && node --check src/auto-lite.js && node --check scripts/dev-server.js && node --check scripts/build-docs.js && node --check scripts/validate-doc-previews.js && node scripts/validate-doc-previews.js && node scripts/check-component-doc-sync.js",
+    "test:playground": "node scripts/test-playground-realtime.js",
+    "check": "node --check src/index.js && node --check src/auto.js && node --check src/lite.js && node --check src/auto-lite.js && node --check scripts/dev-server.js && node --check scripts/build-docs.js && node --check scripts/validate-doc-previews.js && node --check scripts/test-playground-realtime.js && node scripts/validate-doc-previews.js && node scripts/check-component-doc-sync.js",
     "check:previews": "node scripts/validate-doc-previews.js && node scripts/check-component-doc-sync.js",
     "publish:alpha": "node scripts/publish.js alpha",
     "publish:alpha-latest": "node scripts/publish.js alpha-latest",
@@ -101,7 +105,8 @@
     "url": "https://github.com/devduocouple/mivix-ui"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "sideEffects": [
     "./src/auto.js",

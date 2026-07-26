@@ -5,35 +5,40 @@
 ![npm version](https://img.shields.io/npm/v/mivix-ui.svg)
 ![npm downloads](https://img.shields.io/npm/dm/mivix-ui.svg)
 
-Mivix UI is a responsive, web-component-first toolkit for AI-ready dashboards and workflow interfaces.
+Mivix UI is a dependency-free Web Components library for dashboards, workflow tools, AI surfaces, and framework-neutral product interfaces.
 
-## Table of contents
+It works with plain HTML, JavaScript, TypeScript, React, Next.js, Angular, Vue, Blazor, and any framework that can render custom elements.
 
-- [Quick start](#quick-start)
-- [Status](#status)
-- [What’s included](#whats-included)
-- [Showcase](#showcase)
-- [Documentation](#documentation)
-- [Bugs and feature requests](#bugs-and-feature-requests)
-- [Contributing](#contributing)
-- [Versioning](#versioning)
-- [License](#license)
-
-## Quick start
-
-Install the current alpha channel:
+## Install
 
 ```bash
 npm install mivix-ui@alpha
 ```
 
-Use exact imports for small bundles:
+Import the design tokens once:
 
 ```ts
 import 'mivix-ui/styles';
+```
+
+## Pick The Right Import
+
+Use the smallest import style that fits your app.
+
+| Use case | Import | Notes |
+| --- | --- | --- |
+| Smallest production bundles | `mivix-ui/components/*` | Import only the components you use. |
+| Common app primitives | `mivix-ui/auto-lite` | Auto-registers buttons, forms, overlays, feedback, navigation, and layout basics. |
+| Full catalog demos/prototypes | `mivix-ui/auto` | Auto-registers the full component set, including charts, data, AI, and peer-parity components. |
+| SSR/schema utilities | `mivix-ui/ssr` | Helpers for server-rendered/configured UI. |
+
+### Exact Component Imports
+
+```ts
+import 'mivix-ui/styles';
+import { define } from 'mivix-ui/core';
 import { MvxButton } from 'mivix-ui/components/button';
 import { MvxInput } from 'mivix-ui/components/input';
-import { define } from 'mivix-ui/core';
 
 define('mvx-button', MvxButton);
 define('mvx-input', MvxInput);
@@ -44,57 +49,71 @@ define('mvx-input', MvxInput);
 <mvx-button type="solid" tone="primary">Create</mvx-button>
 ```
 
-For a focused primitive preset, use the lite auto-registration entry:
+### Lite Auto Registration
 
 ```ts
 import 'mivix-ui/styles';
 import 'mivix-ui/auto-lite';
 ```
 
-Use `mivix-ui/auto` only when you want the full catalog, including charts, data workflows, AI surfaces, and peer-parity components.
+Use `auto-lite` when you want a quick setup without pulling the full catalog into the first import.
 
-## Status
+### Full Auto Registration
 
-**Alpha**
+```ts
+import 'mivix-ui/styles';
+import 'mivix-ui/auto';
+```
 
-`mivix-ui` is still evolving before beta. API signatures may change, and we intentionally keep this package lightweight while we stabilize core primitives, charts, and AI surfaces.
+Use `auto` for docs, internal tools, demos, and prototypes where convenience matters more than the smallest startup bundle.
 
-## What’s included
+## Package Footprint
 
-- **Core package**: tree-shakable component entrypoints in `mivix-ui/components/*`
-- **Lite preset**: `mivix-ui/auto-lite` for common controls and overlays
-- **Full auto registration**: `mivix-ui/auto`
-- **Theming**: token-based themes, directionality, and locale options
-- **Frameworks**: React, Next.js, Angular, Vue, Blazor, and plain JS/TS support
-- **Dashboard primitives**: controls, charts, panels, navigation, and AI-oriented surfaces
+Current local npm pack check:
 
-## Showcase
+- Packed tarball: about `174.2 kB`
+- Unpacked package: about `834 kB`
+- Published file count: `516`
+- Runtime dependencies: `0`
 
-See the live showcase and component previews on the docs site:
+The package ships source ESM, TypeScript declarations, changelog, license, and security metadata. The npm package intentionally excludes the docs site, screenshots, release scripts, examples, and other repository-only assets.
 
-- https://devduocouple.github.io/mivix-ui/
+Rough local ESM source graph sizes before consumer minification:
+
+| Entry | Raw source | Gzip |
+| --- | ---: | ---: |
+| `mivix-ui/auto-lite` | about `261 kB` | about `45 kB` |
+| `mivix-ui/auto` | about `741 kB` | about `142 kB` |
+| Exact component import | varies by component | about `14-19 kB` for common controls checked locally |
+
+For production apps, prefer exact component imports or `auto-lite`. `auto` is intentionally broader because it registers the full library.
+
+## Current Highlights
+
+- Two visual families: Mivix and Material-style variants.
+- Token-based themes, direction, locale, radius, density, skeleton states, and component style controls.
+- Rich alert API with message, variants, density, accent, icons, close behavior, generated actions, action alignment, and `mvx-action`.
+- Modal API with configurable close button, density, separated header/body/footer, generated footer actions, and action events.
+- Date picker and calendar with month/year selection, weekend marking, ignored dates/ranges, disable-before/disable-after, disabled hints, and keyboard focus handling.
+- JSON Schema Form docs and examples for schema-driven forms.
+- Improved playground with editable examples, lock/unlock, reset, copy, validation, and live API controls.
+- File input with combined field/button layout, previews, removable file list, clear all, helper text, type filtering, count limits, and size validation.
+- Rating shapes and colors with decimal fill support.
+- Radial progress with `0-100` values and optional decimal precision.
+- Speed dial item labels, icon-only mode, alignment options, Mivix hover parity, and shape-aware skeletons.
+- Slider, select, close button, FAB, and related peer-parity components polished for more consistent Mivix styling.
+
+`mvx-toggle` and `mvx-toggle-group` have been removed from the public package. Use `mvx-switch`, `mvx-checkbox`, `mvx-swap`, `mvx-button-group`, or `mvx-filter` depending on the interaction.
 
 ## Documentation
 
 - Docs site: https://devduocouple.github.io/mivix-ui/
+- Repository: https://github.com/devduocouple/mivix-ui
+- Issues: https://github.com/devduocouple/mivix-ui/issues
 
-## Bugs and feature requests
+## Status
 
-If you find a bug or want a new feature, please open an issue:
-
-- https://github.com/devduocouple/mivix-ui/issues
-
-## Contributing
-
-Contribution guidance:
-
-- [CONTRIBUTING.md](./CONTRIBUTING.md)
-- [Roadmap](./ROADMAP.md)
-- [Phase 1 release audit](./PHASE-1-RELEASE-AUDIT.md)
-
-For publish/release process and token flow, see:
-
-- [RELEASE.md](./RELEASE.md)
+Mivix UI is alpha software. APIs, component behavior, and styling details may change before beta while the component contract is refined.
 
 ## Versioning
 
@@ -102,9 +121,8 @@ Mivix UI follows Semantic Versioning.
 
 - Current channel: `alpha`
 - Recommended install: `npm install mivix-ui@alpha`
-- Current release target: `0.1.0-alpha.3`
-- Legacy `0.1.0-alpha.0` is no longer referenced in active docs.
+- Current package version: `0.1.0-alpha.3`
 
 ## License
 
-MIT — see [LICENSE](./LICENSE).
+MIT - see [LICENSE](./LICENSE).

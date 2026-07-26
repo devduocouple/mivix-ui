@@ -7017,6 +7017,14 @@ render(() => <App />, document.getElementById('root')!);`
       function applyControlValue(target, row, value) {
         const name = normalizeControlName(row.name);
         const kind = controlKind(row);
+        const syncProperty = nextValue => {
+          if (!(name in target) || typeof target[name] === 'boolean') return;
+          try {
+            target[name] = nextValue;
+          } catch {
+            // Some DOM APIs expose read-only getters; attributes still drive the playground.
+          }
+        };
         if (target?.hasAttribute('data-playground-target') && target.hidden) {
           target.hidden = false;
         }
@@ -7031,7 +7039,7 @@ render(() => <App />, document.getElementById('root')!);`
           }
           try {
             const parsed = JSON.parse(value);
-            if (name in target) target[name] = parsed;
+            syncProperty(parsed);
             target.setAttribute(name, JSON.stringify(parsed));
           } catch {
             target.setAttribute(name, value);
@@ -7044,7 +7052,7 @@ render(() => <App />, document.getElementById('root')!);`
         }
         if (value === '' || value === 'inherit') {
           target.removeAttribute(name);
-          if (name in target && typeof target[name] !== 'boolean') target[name] = '';
+          syncProperty('');
           return;
         }
         if (kind === 'number' && (row.min !== undefined || row.max !== undefined)) {
@@ -7056,7 +7064,7 @@ render(() => <App />, document.getElementById('root')!);`
           }
         }
         target.setAttribute(name, value);
-        if (name in target && typeof target[name] !== 'boolean') target[name] = value;
+        syncProperty(value);
       }
 
       function serializePlaygroundTarget(target, apiRows = activeApiRows) {
